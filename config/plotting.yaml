@@ -1,0 +1,6 @@
+defaults:
+  - override hydra/job_logging: custom
+  - _self_
+
+data: null
+query: null
