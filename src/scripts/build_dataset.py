@@ -10,7 +10,9 @@ import hydra
 import numpy as np
 import plotly.express as px
 from omegaconf import DictConfig
-from sklearn.impute import KNNImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401
+from sklearn.impute import IterativeImputer
 from umap import UMAP
 
 from european_values.data_loading import load_evs_trend_data
@@ -28,16 +30,27 @@ def main(config: DictConfig) -> None:
     """
     evs_trend_df = load_evs_trend_data()
 
-    # Create a 2-dimensional embedding of the EVS trend data. Here we drop the questions
-    # which have missing values.
-    logger.info("Imputing missing values...")
-    embedding_matrix = KNNImputer(n_neighbors=25, weights="distance").fit_transform(
-        evs_trend_df.iloc[:, 3:]
+    # TEMP: Focus on a single wave
+    evs_trend_df = evs_trend_df.query(
+        "year > 1985 and year < 1995 and country_code in ['DK', 'SE', 'NO', 'IS', 'US']"
     )
-    logger.info("Creating UMAP embedding...")
+    logger.info(f"Shape of the sliced data: {evs_trend_df.shape}")
+
+    # Create a 2-dimensional embedding of the EVS trend data
+    logger.info("Imputing missing values...")
+    embedding_matrix = IterativeImputer(
+        estimator=RandomForestClassifier(n_estimators=100, n_jobs=-1),
+        skip_complete=True,
+        n_nearest_features=10,
+        initial_strategy="most_frequent",
+        max_iter=20,
+        random_state=4242,
+    ).fit_transform(evs_trend_df.iloc[:, 3:])
+    logger.info(f"Shape of the imputed data: {embedding_matrix.shape}")
+
+    logger.info("Reducing to two dimensions with UMAP...")
     embedding_matrix = UMAP(n_components=2).fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
-    logger.info(f"Shape of the embedding matrix: {embedding_matrix.shape}")
 
     # Make a scatter plot of the 2D embedding, where the country codes are colored
     logger.info("Creating scatter plot...")
