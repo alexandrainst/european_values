@@ -2,4 +2,4 @@ defaults:
   - override hydra/job_logging: custom
   - _self_
 
-repo_id: alexandrainst/european_values_survey
+repo_id: EuropeanValuesProject/european_values_survey
