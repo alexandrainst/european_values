@@ -6,6 +6,7 @@ import typing as t
 import numpy as np
 import pandas as pd
 import plotly.express as px
+from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.impute import IterativeImputer
@@ -52,8 +53,13 @@ def create_scatter(
     ).fit_transform(survey_df.iloc[:, 3:])
     logger.info(f"Shape of the imputed data: {embedding_matrix.shape}")
 
-    logger.info("Reducing to two dimensions with UMAP...")
-    embedding_matrix = UMAP(n_components=2).fit_transform(embedding_matrix)
+    logger.info(
+        f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
+    )
+    reducer_class = UMAP if dimensionality_reduction == "umap" else PCA
+    embedding_matrix = reducer_class(n_components=2, random_state=4242).fit_transform(
+        embedding_matrix
+    )
     assert isinstance(embedding_matrix, np.ndarray)
 
     # Make a scatter plot of the 2D embedding, where the country codes are colored
@@ -62,8 +68,12 @@ def create_scatter(
         x=embedding_matrix[:, 0],
         y=embedding_matrix[:, 1],
         color=survey_df.country_code.tolist(),
-        title="UMAP projection of the EVS trend data",
-        labels=dict(x="UMAP 1", y="UMAP 2", color="Country Code"),
+        title=f"{dimensionality_reduction.upper()} projection of the EVS trend data",
+        labels=dict(
+            x=f"{dimensionality_reduction.upper()} 1",
+            y=f"{dimensionality_reduction.upper()} 2",
+            color="Country Code",
+        ),
         color_discrete_sequence=px.colors.qualitative.Plotly,
         width=800,
         height=600,
