@@ -24,9 +24,7 @@ def load_evs_trend_data() -> pd.DataFrame:
 
     # Rename columns
     logger.info("Renaming columns...")
-    metadata_mapping = dict(
-        S007_01="respondent_id", S009="country_code", S020="survey_year"
-    )
+    metadata_mapping = dict(S007_01="respondent_id", S009="country_code", S020="year")
     df = df.rename(columns=metadata_mapping | EVS_TREND_ANSWER_COLUMNS)
 
     # Drop columns that are not needed
@@ -59,7 +57,7 @@ def load_evs_trend_data() -> pd.DataFrame:
         country_code=lambda series: [
             re.sub(pattern=r"\-.*", repl="", string=x) for x in series.country_code
         ],
-        survey_year=lambda s: [x if x > 0 else None for x in s.survey_year],
+        year=lambda s: [x if x > 0 else None for x in s.year],
     )
 
     # Non-answers are coded by negative values; we convert them to None
