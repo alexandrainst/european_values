@@ -30,14 +30,17 @@ def main(config: DictConfig) -> None:
 
     # Create a 2-dimensional embedding of the EVS trend data. Here we drop the questions
     # which have missing values.
+    logger.info("Imputing missing values...")
     embedding_matrix = KNNImputer(n_neighbors=25, weights="distance").fit_transform(
         evs_trend_df.iloc[:, 3:]
     )
+    logger.info("Creating UMAP embedding...")
     embedding_matrix = UMAP(n_components=2).fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
     logger.info(f"Shape of the embedding matrix: {embedding_matrix.shape}")
 
     # Make a scatter plot of the 2D embedding, where the country codes are colored
+    logger.info("Creating scatter plot...")
     fig = px.scatter(
         x=embedding_matrix[:, 0],
         y=embedding_matrix[:, 1],
