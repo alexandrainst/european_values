@@ -32,6 +32,12 @@ def main(config: DictConfig) -> None:
             f"Invalid data selected: {config.data}. Please set `data` to be either "
             "'evs_trend' or 'evs_wvs'."
         )
+    elif config.dimensionality_reduction not in ["umap", "pca"]:
+        raise ValueError(
+            "Invalid dimensionality reduction selected: "
+            f"{config.dimensionality_reduction}. Please set `dimensionality_reduction` "
+            "to be either 'umap' or 'pca'."
+        )
 
     df = load_evs_trend_data() if config.data == "evs_trend" else load_evs_wvs_data()
     create_scatter(
