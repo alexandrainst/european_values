@@ -1,6 +1,7 @@
 """Plotting functions."""
 
 import logging
+import typing as t
 
 import numpy as np
 import pandas as pd
@@ -13,7 +14,12 @@ from umap import UMAP
 logger = logging.getLogger(__name__)
 
 
-def create_scatter(survey_df: pd.DataFrame, slice_query: str | None = None) -> None:
+def create_scatter(
+    survey_df: pd.DataFrame,
+    slice_query: str | None,
+    max_imputation_iterations: int,
+    dimensionality_reduction: t.Literal["umap", "pca"] = "umap",
+) -> None:
     """Create a scatter plot of the survey data.
 
     Args:
@@ -22,6 +28,10 @@ def create_scatter(survey_df: pd.DataFrame, slice_query: str | None = None) -> N
         slice_query:
             The query to slice the data, compatible with DataFrame.query(). If None,
             the data will not be sliced.
+        max_imputation_iterations:
+            The maximum number of iterations for the imputer.
+        dimensionality_reduction:
+            The dimensionality reduction class to use. Can be either "umap" or "pca".
     """
     logger.info(f"Shape of the data: {survey_df.shape}")
 
@@ -37,7 +47,7 @@ def create_scatter(survey_df: pd.DataFrame, slice_query: str | None = None) -> N
         skip_complete=True,
         n_nearest_features=10,
         initial_strategy="most_frequent",
-        max_iter=20,
+        max_iter=max_imputation_iterations,
         random_state=4242,
     ).fit_transform(survey_df.iloc[:, 3:])
     logger.info(f"Shape of the imputed data: {embedding_matrix.shape}")

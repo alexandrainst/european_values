@@ -4,3 +4,5 @@ defaults:
 
 data: null
 query: null
+max_imputation_iterations: 20
+dimensionality_reduction: umap
