@@ -57,9 +57,7 @@ def create_scatter(
         f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
     )
     reducer_class = UMAP if dimensionality_reduction == "umap" else PCA
-    embedding_matrix = reducer_class(n_components=2, n_jobs=-1).fit_transform(
-        embedding_matrix
-    )
+    embedding_matrix = reducer_class(n_components=2).fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
 
     # Make a scatter plot of the 2D embedding, where the country codes are colored
