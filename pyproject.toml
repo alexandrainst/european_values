@@ -4,9 +4,15 @@ version = "0.0.0"
 description = "Measuring European values of LLMs."
 readme = "README.md"
 authors = [
+    {name = "Annika Simonsen", email = "annika@hi.is"},
+    {name = "Maximilian Müller-Eberstein", email = "mamy@itu.dk"},
+    {name = "Rob van der Goot", email = "robv@itu.dk"},
     {name = "Dan Saattrup Nielsen", email = "dan.nielsen@alexandra.dk"},
 ]
 maintainers = [
+    {name = "Annika Simonsen", email = "annika@hi.is"},
+    {name = "Maximilian Müller-Eberstein", email = "mamy@itu.dk"},
+    {name = "Rob van der Goot", email = "robv@itu.dk"},
     {name = "Dan Saattrup Nielsen", email = "dan.nielsen@alexandra.dk"},
 ]
 requires-python = ">=3.11,<4.0"
