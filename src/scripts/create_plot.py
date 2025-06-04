@@ -43,7 +43,6 @@ def main(config: DictConfig) -> None:
     create_scatter(
         survey_df=df,
         slice_query=config.query,
-        max_imputation_iterations=config.max_imputation_iterations,
         dimensionality_reduction=config.dimensionality_reduction,
     )
 
