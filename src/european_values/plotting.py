@@ -9,13 +9,23 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 import numpy as np
 import pandas as pd
-import plotly.express as px
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse, Patch
 from sklearn.decomposition import PCA
-from sklearn.impute import SimpleImputer
+from sklearn.impute import KNNImputer
 from sklearn.preprocessing import MinMaxScaler
+from tqdm.auto import tqdm
 from umap import UMAP
+
+from .constants import (
+    AFRICAN_COUNTRY_CODES,
+    ASIAN_COUNTRY_CODES,
+    EUROPEAN_COUNTRY_CODES,
+    MIDDLE_EASTERN_COUNTRY_CODES,
+    NORTH_AMERICAN_COUNTRY_CODES,
+    OCEANIA_COUNTRY_CODES,
+    SOUTH_AMERICAN_COUNTRY_CODES,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,31 +35,47 @@ warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn
 
 def create_scatter(
     survey_df: pd.DataFrame,
-    slice_query: str | None,
-    dimensionality_reduction: t.Literal["umap", "pca"] = "umap",
+    dimensionality_reduction: t.Literal["umap", "pca"],
+    dataset_name: str,
 ) -> None:
     """Create a scatter plot of the survey data.
 
     Args:
         survey_df:
             The survey data.
-        slice_query:
-            The query to slice the data, compatible with DataFrame.query(). If None,
-            the data will not be sliced.
         dimensionality_reduction:
             The dimensionality reduction class to use. Can be either "umap" or "pca".
+        dataset_name:
+            The name of the dataset to use for the plot title.
     """
     logger.info(f"Shape of the data: {survey_df.shape}")
 
-    if slice_query:
-        logger.info(f"Slicing data with query: {slice_query}")
-        survey_df = survey_df.query(slice_query)
-        logger.info(f"Shape of the sliced data: {survey_df.shape}")
+    def group_country(country_code: str) -> str:
+        """Group countries into European Union and Non-European Union."""
+        if country_code in EUROPEAN_COUNTRY_CODES:
+            return "Europe"
+        elif country_code in NORTH_AMERICAN_COUNTRY_CODES:
+            return "North America"
+        elif country_code in SOUTH_AMERICAN_COUNTRY_CODES:
+            return "South America"
+        elif country_code in MIDDLE_EASTERN_COUNTRY_CODES:
+            return "Middle East"
+        elif country_code in AFRICAN_COUNTRY_CODES:
+            return "Africa"
+        elif country_code in ASIAN_COUNTRY_CODES:
+            return "Asia"
+        elif country_code in OCEANIA_COUNTRY_CODES:
+            return "Oceania"
+        else:
+            return country_code
 
-    # Remove questions for which a country exists that have not answered the question
+    survey_df["country_group"] = survey_df.country_code.apply(group_country)
+
+    # Remove questions for which a country group exists that have not answered the
+    # question
     questions_with_missing_answers: dict[str, list[str]] = defaultdict(list)
-    for country_code in survey_df.country_code.unique():
-        country_df = survey_df.query("country_code == @country_code")
+    for country_group in survey_df.country_group.unique():
+        country_df = survey_df.query("country_group == @country_group")
         na_df = country_df.isna().all(axis=0)
         assert isinstance(na_df, pd.Series)
         na_df = na_df[na_df]
@@ -57,43 +83,39 @@ def create_scatter(
         questions = na_df.index.tolist()
         for question in questions:
             assert isinstance(question, str)
-            questions_with_missing_answers[question].append(country_code)
+            questions_with_missing_answers[question].append(country_group)
 
-    # Remove the questions where at least one country has not answered
+    # Remove the questions where at least one country group has not answered
     survey_df = survey_df.drop(columns=list(questions_with_missing_answers.keys()))
     if questions_with_missing_answers:
         questions_removed_str = "\n\t- ".join(questions_with_missing_answers.keys())
         logger.info(
             f"Removed {len(questions_with_missing_answers)} questions where at least "
-            f"one country has not answered:\n\t- {questions_removed_str}"
+            f"one country group has not answered:\n\t- {questions_removed_str}"
         )
         logger.info(
             f"Shape of the data after removing questions with missing answers: "
             f"{survey_df.shape}"
         )
 
-    # Remove the questions where everyone has answered the same answer
-    questions_with_same_answers: dict[str, list[str]] = defaultdict(list)
-    for question in survey_df.columns[3:]:
-        unique_answers = survey_df[question].unique()
-        if len(unique_answers) == 1:
-            questions_with_same_answers[question] = unique_answers.tolist()
-    survey_df = survey_df.drop(columns=list(questions_with_same_answers.keys()))
-    if questions_with_same_answers:
-        questions_removed_str = "\n\t- ".join(
-            f"{question} ({', '.join(answers)})"
-            for question, answers in questions_with_same_answers.items()
-        )
-        logger.info(
-            f"Removed {len(questions_with_same_answers)} questions where all countries "
-            f"have answered the same answer:\n\t- {questions_removed_str}"
-        )
+    # Sample for quicker testing
+    survey_df = survey_df.sample(n=100_000, random_state=42).reset_index(drop=True)
 
     # Impute missing values
-    logger.info("Imputing missing values...")
-    embedding_matrix = SimpleImputer(strategy="median").fit_transform(
-        survey_df.iloc[:, 3:]
-    )
+    question_columns = [col for col in survey_df.columns if col.startswith("question_")]
+    embedding_matrix = np.empty(shape=(survey_df.shape[0], len(question_columns)))
+    imputer = KNNImputer(n_neighbors=10, weights="distance", keep_empty_features=True)
+    for country_group in tqdm(
+        iterable=survey_df.country_group.unique(),
+        desc="Imputing missing values",
+        unit="country group",
+    ):
+        country_df = survey_df.query("country_group == @country_group")
+        country_df = country_df[question_columns].copy()
+        assert isinstance(country_df, pd.DataFrame)
+        country_embedding = imputer.fit_transform(X=country_df)
+        assert isinstance(country_embedding, np.ndarray)
+        embedding_matrix[country_df.index, :] = country_embedding
     logger.info(f"Shape of the imputed data: {embedding_matrix.shape}")
 
     # Normalize the data
@@ -102,7 +124,7 @@ def create_scatter(
         X=embedding_matrix
     )
 
-    # Create a 2-dimensional embedding of the EVS trend data
+    # Create a 2-dimensional embedding of the data
     logger.info(
         f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
     )
@@ -110,62 +132,57 @@ def create_scatter(
     embedding_matrix = reducer_class(n_components=2).fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
 
+    # Create a matrix with mean values for each country group
+    country_embedding_matrix = np.empty(
+        shape=(survey_df.country_group.nunique(), embedding_matrix.shape[1])
+    )
+    for country_idx, country_group in enumerate(survey_df.country_group.unique()):
+        country_indices = survey_df.query(
+            "country_group == @country_group"
+        ).index.tolist()
+        country_embedding_matrix[country_idx, :] = np.mean(
+            embedding_matrix[country_indices, :], axis=0
+        )
+
     logger.info("Creating scatter plot with matplotlib...")
     ax = plt.figure(figsize=(10, 8)).add_subplot(111)
-    for country_idx, country_code in enumerate(survey_df.country_code.unique()):
-        colour = plt.cm.tab20(country_idx / len(survey_df.country_code.unique()))
+    for country_idx, country_group in enumerate(survey_df.country_group.unique()):
+        colour = plt.cm.tab20(country_idx / survey_df.country_group.nunique())
         country_indices = survey_df.query(
-            "country_code == @country_code"
+            "country_group == @country_group"
         ).index.tolist()
         confidence_ellipse(
             x=embedding_matrix[country_indices, 0],
             y=embedding_matrix[country_indices, 1],
             ax=ax,
-            n_std=1.0,
+            n_std=0.5,
             facecolor="none",
             edgecolor=colour,
         )
+        ax.text(
+            x=country_embedding_matrix[country_idx, 0],
+            y=country_embedding_matrix[country_idx, 1],
+            s=country_group,
+            fontsize=12,
+            ha="center",
+            va="center",
+            color=colour,
+        )
     ax.scatter(
-        x=embedding_matrix[:, 0],
-        y=embedding_matrix[:, 1],
-        c=survey_df.country_code.astype("category").cat.codes,
-        cmap="tab20",
-        s=5,
+        x=country_embedding_matrix[:, 0], y=country_embedding_matrix[:, 1], alpha=0.0
     )
     ax.set_title(
-        f"{dimensionality_reduction.upper()} projection of the EVS trend data",
+        f"{dimensionality_reduction.upper()} projection of the {dataset_name}",
         fontsize=20,
     )
     plt.show()
-
-    # Make a scatter plot of the 2D embedding, where the country codes are colored
-    logger.info("Creating scatter plot with plotly...")
-    fig = px.scatter(
-        x=embedding_matrix[:, 0],
-        y=embedding_matrix[:, 1],
-        color=survey_df.country_code.tolist(),
-        title=f"{dimensionality_reduction.upper()} projection of the EVS trend data",
-        labels=dict(
-            x=f"{dimensionality_reduction.upper()} 1",
-            y=f"{dimensionality_reduction.upper()} 2",
-            color="Country Code",
-        ),
-        color_discrete_sequence=px.colors.qualitative.Plotly,
-        width=800,
-        height=600,
-    )
-    fig.update_traces(marker=dict(size=5))
-    fig.update_layout(
-        title_font=dict(size=20), legend_title_font=dict(size=16), font=dict(size=14)
-    )
-    fig.show()
 
 
 def confidence_ellipse(
     x: np.ndarray,
     y: np.ndarray,
     ax: Axes,
-    n_std: float = 3.0,
+    n_std: float = 1.0,
     facecolor: str = "none",
     **ellipse_kwargs,
 ) -> Patch:

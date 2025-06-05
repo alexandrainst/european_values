@@ -42,8 +42,8 @@ def main(config: DictConfig) -> None:
     df = load_evs_trend_data() if config.data == "evs_trend" else load_evs_wvs_data()
     create_scatter(
         survey_df=df,
-        slice_query=config.query,
         dimensionality_reduction=config.dimensionality_reduction,
+        dataset_name="EVS trend data" if config.data == "evs_trend" else "EVS/WVS data",
     )
 
 
