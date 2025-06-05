@@ -36,6 +36,8 @@ warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn
 def create_scatter(
     survey_df: pd.DataFrame,
     dimensionality_reduction: t.Literal["umap", "pca"],
+    sample_size: int,
+    n_neighbors: int,
     dataset_name: str,
 ) -> None:
     """Create a scatter plot of the survey data.
@@ -45,6 +47,11 @@ def create_scatter(
             The survey data.
         dimensionality_reduction:
             The dimensionality reduction class to use. Can be either "umap" or "pca".
+        sample_size:
+            The number of samples to use for the plot. This is only used for testing
+            purposes and should be set to a large value in production.
+        n_neighbors:
+            The number of neighbors to use for the kNN imputation of missing values.
         dataset_name:
             The name of the dataset to use for the plot title.
     """
@@ -99,12 +106,14 @@ def create_scatter(
         )
 
     # Sample for quicker testing
-    survey_df = survey_df.sample(n=100_000, random_state=42).reset_index(drop=True)
+    survey_df = survey_df.sample(n=sample_size, random_state=42).reset_index(drop=True)
 
     # Impute missing values
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = np.empty(shape=(survey_df.shape[0], len(question_columns)))
-    imputer = KNNImputer(n_neighbors=10, weights="distance", keep_empty_features=True)
+    imputer = KNNImputer(
+        n_neighbors=n_neighbors, weights="distance", keep_empty_features=True
+    )
     for country_group in tqdm(
         iterable=survey_df.country_group.unique(),
         desc="Imputing missing values",

@@ -3,3 +3,5 @@ defaults:
   - _self_
 
 repo_id: EuropeanValuesProject/european_values_survey
+sample_size: 1000  # Set to 0 to use the full dataset
+n_neighbors: 10

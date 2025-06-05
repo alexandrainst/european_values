@@ -43,6 +43,8 @@ def main(config: DictConfig) -> None:
     create_scatter(
         survey_df=df,
         dimensionality_reduction=config.dimensionality_reduction,
+        sample_size=config.sample_size,
+        n_neighbors=config.n_neighbors,
         dataset_name="EVS trend data" if config.data == "evs_trend" else "EVS/WVS data",
     )
 
