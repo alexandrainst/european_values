@@ -59,7 +59,7 @@ def create_scatter(
     logger.info("Creating scatter plot with matplotlib...")
     ax = plt.figure(figsize=(10, 8)).add_subplot(111)
     for country_idx, country_group in enumerate(survey_df.country_group.unique()):
-        colour = plt.cm.tab20(country_idx / survey_df.country_group.nunique())
+        colour = plt.cm.tab20(country_idx / survey_df.country_group.nunique())  # type: ignore[attr-defined]
         country_indices = survey_df.query(
             "country_group == @country_group"
         ).index.tolist()
