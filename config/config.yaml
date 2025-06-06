@@ -3,3 +3,4 @@ defaults:
   - _self_
 
 repo_id: EuropeanValuesProject/european_values_survey
+imputation_neighbours: 10

@@ -3,7 +3,6 @@
 import logging
 import typing as t
 import warnings
-from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
@@ -12,20 +11,7 @@ import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse, Patch
 from sklearn.decomposition import PCA
-from sklearn.impute import KNNImputer
-from sklearn.preprocessing import MinMaxScaler
-from tqdm.auto import tqdm
 from umap import UMAP
-
-from .constants import (
-    AFRICAN_COUNTRY_CODES,
-    ASIAN_COUNTRY_CODES,
-    EUROPEAN_COUNTRY_CODES,
-    MIDDLE_EASTERN_COUNTRY_CODES,
-    NORTH_AMERICAN_COUNTRY_CODES,
-    OCEANIA_COUNTRY_CODES,
-    SOUTH_AMERICAN_COUNTRY_CODES,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -55,90 +41,13 @@ def create_scatter(
         dataset_name:
             The name of the dataset to use for the plot title.
     """
-    logger.info(f"Shape of the data: {survey_df.shape}")
-
-    def group_country(country_code: str) -> str:
-        """Group countries into European Union and Non-European Union."""
-        if country_code in EUROPEAN_COUNTRY_CODES:
-            return "Europe"
-        elif country_code in NORTH_AMERICAN_COUNTRY_CODES:
-            return "North America"
-        elif country_code in SOUTH_AMERICAN_COUNTRY_CODES:
-            return "South America"
-        elif country_code in MIDDLE_EASTERN_COUNTRY_CODES:
-            return "Middle East"
-        elif country_code in AFRICAN_COUNTRY_CODES:
-            return "Africa"
-        elif country_code in ASIAN_COUNTRY_CODES:
-            return "Asia"
-        elif country_code in OCEANIA_COUNTRY_CODES:
-            return "Oceania"
-        else:
-            return country_code
-
-    survey_df["country_group"] = survey_df.country_code.apply(group_country)
-
-    # Remove questions for which a country group exists that have not answered the
-    # question
-    questions_with_missing_answers: dict[str, list[str]] = defaultdict(list)
-    for country_group in survey_df.country_group.unique():
-        country_df = survey_df.query("country_group == @country_group")
-        na_df = country_df.isna().all(axis=0)
-        assert isinstance(na_df, pd.Series)
-        na_df = na_df[na_df]
-        assert isinstance(na_df, pd.Series)
-        questions = na_df.index.tolist()
-        for question in questions:
-            assert isinstance(question, str)
-            questions_with_missing_answers[question].append(country_group)
-
-    # Remove the questions where at least one country group has not answered
-    survey_df = survey_df.drop(columns=list(questions_with_missing_answers.keys()))
-    if questions_with_missing_answers:
-        questions_removed_str = "\n\t- ".join(questions_with_missing_answers.keys())
-        logger.info(
-            f"Removed {len(questions_with_missing_answers)} questions where at least "
-            f"one country group has not answered:\n\t- {questions_removed_str}"
-        )
-        logger.info(
-            f"Shape of the data after removing questions with missing answers: "
-            f"{survey_df.shape}"
-        )
-
-    # Sample for quicker testing
-    survey_df = survey_df.sample(n=sample_size, random_state=42).reset_index(drop=True)
-
-    # Impute missing values
-    question_columns = [col for col in survey_df.columns if col.startswith("question_")]
-    embedding_matrix = np.empty(shape=(survey_df.shape[0], len(question_columns)))
-    imputer = KNNImputer(
-        n_neighbors=n_neighbors, weights="distance", keep_empty_features=True
-    )
-    for country_group in tqdm(
-        iterable=survey_df.country_group.unique(),
-        desc="Imputing missing values",
-        unit="country group",
-    ):
-        country_df = survey_df.query("country_group == @country_group")
-        country_df = country_df[question_columns].copy()
-        assert isinstance(country_df, pd.DataFrame)
-        country_embedding = imputer.fit_transform(X=country_df)
-        assert isinstance(country_embedding, np.ndarray)
-        embedding_matrix[country_df.index, :] = country_embedding
-    logger.info(f"Shape of the imputed data: {embedding_matrix.shape}")
-
-    # Normalize the data
-    logger.info("Normalizing the data...")
-    embedding_matrix = MinMaxScaler(feature_range=(0, 1)).fit_transform(
-        X=embedding_matrix
-    )
-
-    # Create a 2-dimensional embedding of the data
     logger.info(
         f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
     )
     reducer_class = UMAP if dimensionality_reduction == "umap" else PCA
-    embedding_matrix = reducer_class(n_components=2).fit_transform(embedding_matrix)
+    embedding_matrix = reducer_class(n_components=2).fit_transform(
+        survey_df.iloc[:, 3:]
+    )
     assert isinstance(embedding_matrix, np.ndarray)
 
     # Create a matrix with mean values for each country group
