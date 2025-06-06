@@ -2,5 +2,6 @@ defaults:
   - override hydra/job_logging: custom
   - _self_
 
+repo_id: EuropeanValuesProject/european_values_survey
 data: null
 dimensionality_reduction: umap

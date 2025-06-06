@@ -7,9 +7,10 @@ Usage:
 import logging
 
 import hydra
+import pandas as pd
+from datasets import Dataset, load_dataset
 from omegaconf import DictConfig
 
-from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.plotting import create_scatter
 
 logger = logging.getLogger("create_plot")
@@ -23,29 +24,48 @@ def main(config: DictConfig) -> None:
         config:
             The Hydra config for your project.
     """
-    if config.data is None:
-        raise ValueError(
-            "No data selected. Please set `data` to be either 'evs_trend' or 'evs_wvs'."
-        )
-    elif config.data not in ["evs_trend", "evs_wvs"]:
-        raise ValueError(
-            f"Invalid data selected: {config.data}. Please set `data` to be either "
-            "'evs_trend' or 'evs_wvs'."
-        )
-    elif config.dimensionality_reduction not in ["umap", "pca"]:
+    if config.dimensionality_reduction not in ["umap", "pca"]:
         raise ValueError(
             "Invalid dimensionality reduction selected: "
             f"{config.dimensionality_reduction}. Please set `dimensionality_reduction` "
             "to be either 'umap' or 'pca'."
         )
 
-    df = load_evs_trend_data() if config.data == "evs_trend" else load_evs_wvs_data()
+    match config.data:
+        case "evs_trend":
+            logger.info("Using EVS trend data.")
+            dataset = load_dataset(
+                path=config.repo_id, name="evs_trend_data_1981_2017_processed"
+            )
+            assert isinstance(dataset, Dataset)
+            df = dataset.to_pandas()
+            dataset_name = "EVS trend data"
+        case "evs_wvs":
+            logger.info("Using EVS/WVS data.")
+            dataset = load_dataset(
+                path=config.repo_id, name="evs_wvs_data_2017_2022_processed"
+            )
+            assert isinstance(dataset, Dataset)
+            df = dataset.to_pandas()
+            dataset_name = "EVS/WVS data"
+        case None:
+            raise ValueError(
+                "No data selected. Please set `data` to be either 'evs_trend' or "
+                "'evs_wvs'."
+            )
+        case _:
+            raise ValueError(
+                f"Invalid data selected: {config.data}. Please set `data` to be either "
+                "'evs_trend' or 'evs_wvs'."
+            )
+    assert isinstance(df, pd.DataFrame)
+
     create_scatter(
         survey_df=df,
         dimensionality_reduction=config.dimensionality_reduction,
         sample_size=config.sample_size,
         n_neighbors=config.n_neighbors,
-        dataset_name="EVS trend data" if config.data == "evs_trend" else "EVS/WVS data",
+        dataset_name=dataset_name,
     )
 
 
