@@ -63,6 +63,7 @@ def main(config: DictConfig) -> None:
     create_scatter(
         survey_df=df,
         dimensionality_reduction=config.dimensionality_reduction,
+        ellipse_std=config.ellipse_std,
         dataset_name=dataset_name,
     )
 

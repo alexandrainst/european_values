@@ -22,6 +22,7 @@ warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn
 def create_scatter(
     survey_df: pd.DataFrame,
     dimensionality_reduction: t.Literal["umap", "pca"],
+    ellipse_std: float,
     dataset_name: str,
 ) -> None:
     """Create a scatter plot of the survey data.
@@ -31,6 +32,8 @@ def create_scatter(
             The survey data.
         dimensionality_reduction:
             The dimensionality reduction class to use. Can be either "umap" or "pca".
+        ellipse_std:
+            The number of standard deviations to use for the confidence ellipses.
         dataset_name:
             The name of the dataset to use for the plot title.
     """
@@ -67,7 +70,7 @@ def create_scatter(
             x=embedding_matrix[country_indices, 0],
             y=embedding_matrix[country_indices, 1],
             ax=ax,
-            n_std=0.5,
+            n_std=ellipse_std,
             facecolor="none",
             edgecolor=colour,
         )
