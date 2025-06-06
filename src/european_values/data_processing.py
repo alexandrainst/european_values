@@ -45,7 +45,12 @@ def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
             questions_with_missing_answers[question].append(country_group)
     if questions_with_missing_answers:
         survey_df = df.drop(columns=list(questions_with_missing_answers.keys()))
-        questions_removed_str = "\n\t- ".join(questions_with_missing_answers.keys())
+        questions_removed_str = "\n\t- ".join(
+            [
+                f"{question} (missing for {', '.join(countries)})"
+                for question, countries in questions_with_missing_answers.items()
+            ]
+        )
         logger.info(
             f"Removed {len(questions_with_missing_answers)} questions where at least "
             f"one country group has not answered:\n\t- {questions_removed_str}"
