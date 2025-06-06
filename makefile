@@ -45,6 +45,9 @@ install-uv:
 		fi; \
 		curl -LsSf https://astral.sh/uv/install.sh | sh; \
 		echo "Installed uv."; \
+    else \
+		echo "Updating uv..."; \
+		uv self update || true; \
 	fi
 
 install-pre-commit:
