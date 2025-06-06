@@ -1,6 +1,7 @@
 """Data processing functions."""
 
 import logging
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -28,6 +29,31 @@ def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
     # Group countries
     logger.info("Grouping countries into regions...")
     df["country_group"] = df.country_code.apply(group_country)
+
+    # Remove questions for which a country group exists that have not answered the
+    # question
+    questions_with_missing_answers: dict[str, list[str]] = defaultdict(list)
+    for country_group in df.country_group.unique():
+        country_group_df = df.query("country_group == @country_group")
+        na_df = country_group_df.isna().all(axis=0)
+        assert isinstance(na_df, pd.Series)
+        na_df = na_df[na_df]
+        assert isinstance(na_df, pd.Series)
+        questions = na_df.index.tolist()
+        for question in questions:
+            assert isinstance(question, str)
+            questions_with_missing_answers[question].append(country_group)
+    if questions_with_missing_answers:
+        survey_df = df.drop(columns=list(questions_with_missing_answers.keys()))
+        questions_removed_str = "\n\t- ".join(questions_with_missing_answers.keys())
+        logger.info(
+            f"Removed {len(questions_with_missing_answers)} questions where at least "
+            f"one country has not answered:\n\t- {questions_removed_str}"
+        )
+        logger.info(
+            f"Shape of the data after removing questions with missing answers: "
+            f"{survey_df.shape}"
+        )
 
     # Impute missing values
     logger.info("Imputing missing values using kNN...")

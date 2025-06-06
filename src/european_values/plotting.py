@@ -22,8 +22,6 @@ warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn
 def create_scatter(
     survey_df: pd.DataFrame,
     dimensionality_reduction: t.Literal["umap", "pca"],
-    sample_size: int,
-    n_neighbors: int,
     dataset_name: str,
 ) -> None:
     """Create a scatter plot of the survey data.
@@ -33,21 +31,17 @@ def create_scatter(
             The survey data.
         dimensionality_reduction:
             The dimensionality reduction class to use. Can be either "umap" or "pca".
-        sample_size:
-            The number of samples to use for the plot. This is only used for testing
-            purposes and should be set to a large value in production.
-        n_neighbors:
-            The number of neighbors to use for the kNN imputation of missing values.
         dataset_name:
             The name of the dataset to use for the plot title.
     """
+    question_columns = [col for col in survey_df.columns if col.startswith("question_")]
+    embedding_matrix = survey_df[question_columns].values
+
     logger.info(
         f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
     )
     reducer_class = UMAP if dimensionality_reduction == "umap" else PCA
-    embedding_matrix = reducer_class(n_components=2).fit_transform(
-        survey_df.iloc[:, 3:]
-    )
+    embedding_matrix = reducer_class(n_components=2).fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
 
     # Create a matrix with mean values for each country group

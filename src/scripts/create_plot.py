@@ -63,8 +63,6 @@ def main(config: DictConfig) -> None:
     create_scatter(
         survey_df=df,
         dimensionality_reduction=config.dimensionality_reduction,
-        sample_size=config.sample_size,
-        n_neighbors=config.n_neighbors,
         dataset_name=dataset_name,
     )
 
