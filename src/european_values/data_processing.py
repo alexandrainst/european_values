@@ -65,7 +65,7 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         logger.info(f"Shape of the data after filtering: {df.shape}")
 
     # Remove questions for which a country exists that have not answered the question
-    questions_with_missing_answers: dict[str, list[str]] = defaultdict(list)
+    questions_with_missing_answers: dict[str, set[str]] = defaultdict(set)
     for country_group in df.country_group.unique():
         country_group_df = df.query("country_group == @country_group")
         na_df = country_group_df.isna().all(axis=0)
@@ -75,7 +75,8 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         questions = na_df.index.tolist()
         for question in questions:
             assert isinstance(question, str)
-            questions_with_missing_answers[question].append(country_group)
+            question = question.split("_choice")[0]
+            questions_with_missing_answers[question].add(country_group)
     if questions_with_missing_answers:
         df = df.drop(columns=list(questions_with_missing_answers.keys()))
         questions_removed_str = "\n\t- ".join(
