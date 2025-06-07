@@ -7,6 +7,7 @@ from .constants import (
     CENTRAL_AMERICA,
     CENTRAL_ASIA,
     CENTRAL_EUROPE,
+    EAST_ASIA,
     EASTERN_EUROPE,
     MIDDLE_EAST,
     NORTH_AFRICA,
@@ -61,8 +62,8 @@ def group_country(country_code: str) -> str:
         return "South Asia"
     elif country_code in SOUTHEAST_ASIA:
         return "Southeast Asia"
-    # elif country_code in EAST_ASIA:
-    #     return "East Asia"
+    elif country_code in EAST_ASIA:
+        return "East Asia"
     elif country_code in CENTRAL_ASIA:
         return "Central Asia"
     elif country_code in OCEANIA:
