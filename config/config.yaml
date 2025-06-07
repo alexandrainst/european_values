@@ -13,4 +13,4 @@ country_groups: null
 use_country_groups: true
 
 ellipses: true
-ellipse_std: 0.5
+ellipse_std: 1.0
