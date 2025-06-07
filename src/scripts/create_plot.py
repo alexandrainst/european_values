@@ -35,7 +35,9 @@ def main(config: DictConfig) -> None:
         case "evs_trend":
             logger.info("Using EVS trend data.")
             dataset = load_dataset(
-                path=config.repo_id, name="evs_trend_data_1981_2017_processed"
+                path=config.repo_id,
+                name="evs_trend_data_1981_2017_processed",
+                split="train",
             )
             assert isinstance(dataset, Dataset)
             df = dataset.to_pandas()
@@ -43,7 +45,9 @@ def main(config: DictConfig) -> None:
         case "evs_wvs":
             logger.info("Using EVS/WVS data.")
             dataset = load_dataset(
-                path=config.repo_id, name="evs_wvs_data_2017_2022_processed"
+                path=config.repo_id,
+                name="evs_wvs_data_2017_2022_processed",
+                split="train",
             )
             assert isinstance(dataset, Dataset)
             df = dataset.to_pandas()
