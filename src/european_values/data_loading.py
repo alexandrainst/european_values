@@ -38,6 +38,10 @@ def load_evs_trend_data() -> pd.DataFrame:
     )
     df = df[columns_to_keep]
 
+    # Non-answers are coded by negative values; we convert them to None
+    logger.info("Converting non-answers to None...")
+    df = df.map(lambda x: None if isinstance(x, int) and x < 0 else x)
+
     # Convert all categorical columns to one-hot columns
     for column in tqdm(
         iterable=CATEGORICAL_COLUMNS, desc="One-hot encoding categorical columns"
@@ -66,10 +70,6 @@ def load_evs_trend_data() -> pd.DataFrame:
         ],
         year=lambda s: [x if x > 0 else None for x in s.year],
     )
-
-    # Non-answers are coded by negative values; we convert them to None
-    logger.info("Converting non-answers to None...")
-    df = df.map(lambda x: None if isinstance(x, int) and x < 0 else x)
 
     # Set datatypes
     logger.info("Setting datatypes...")
@@ -108,6 +108,10 @@ def load_evs_wvs_data() -> pd.DataFrame:
     )
     df = df[columns_to_keep]
 
+    # Non-answers are coded by negative values; we convert them to None
+    logger.info("Converting non-answers to None...")
+    df = df.map(lambda x: None if isinstance(x, int) and x < 0 else x)
+
     # Convert all categorical columns to one-hot columns
     for column in tqdm(
         iterable=CATEGORICAL_COLUMNS, desc="One-hot encoding categorical columns"
@@ -136,10 +140,6 @@ def load_evs_wvs_data() -> pd.DataFrame:
         ],
         year=lambda s: [x if x > 0 else None for x in s.year],
     )
-
-    # Non-answers are coded by negative values; we convert them to None
-    logger.info("Converting non-answers to None...")
-    df = df.map(lambda x: None if isinstance(x, int) and x < 0 else x)
 
     # Set datatypes
     logger.info("Setting datatypes...")
