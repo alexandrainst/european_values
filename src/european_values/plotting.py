@@ -22,6 +22,7 @@ warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn
 def create_scatter(
     survey_df: pd.DataFrame,
     dimensionality_reduction: t.Literal["umap", "pca"],
+    ellipses: bool,
     ellipse_std: float,
     dataset_name: str,
 ) -> None:
@@ -32,11 +33,16 @@ def create_scatter(
             The survey data.
         dimensionality_reduction:
             The dimensionality reduction class to use. Can be either "umap" or "pca".
+        ellipses:
+            Whether to draw confidence ellipses around the country groups.
         ellipse_std:
             The number of standard deviations to use for the confidence ellipses.
         dataset_name:
             The name of the dataset to use for the plot title.
     """
+    # TEMP
+    survey_df.country_group = survey_df.country_code
+
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 
@@ -66,14 +72,15 @@ def create_scatter(
         country_indices = survey_df.query(
             "country_group == @country_group"
         ).index.tolist()
-        confidence_ellipse(
-            x=embedding_matrix[country_indices, 0],
-            y=embedding_matrix[country_indices, 1],
-            ax=ax,
-            n_std=ellipse_std,
-            facecolor="none",
-            edgecolor=colour,
-        )
+        if ellipses:
+            confidence_ellipse(
+                x=embedding_matrix[country_indices, 0],
+                y=embedding_matrix[country_indices, 1],
+                ax=ax,
+                n_std=ellipse_std,
+                facecolor="none",
+                edgecolor=colour,
+            )
         ax.text(
             x=country_embedding_matrix[country_idx, 0],
             y=country_embedding_matrix[country_idx, 1],

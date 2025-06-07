@@ -5,4 +5,6 @@ defaults:
 data: null
 repo_id: EuropeanValuesProject/european_values_survey
 dimensionality_reduction: umap
+
+ellipses: true
 ellipse_std: 1.0
