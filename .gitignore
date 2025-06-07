@@ -90,12 +90,6 @@ target/
 outputs/
 multirun/
 
-# Data
-data/processed/*
-!data/processed/.gitkeep
-data/final/*
-!data/final/.gitkeep
-
 # Models
 models/*
 !models/.gitkeep
