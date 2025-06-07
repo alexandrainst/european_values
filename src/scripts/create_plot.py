@@ -24,13 +24,6 @@ def main(config: DictConfig) -> None:
         config:
             The Hydra config for your project.
     """
-    if config.dimensionality_reduction not in ["umap", "pca"]:
-        raise ValueError(
-            "Invalid dimensionality reduction selected: "
-            f"{config.dimensionality_reduction}. Please set `dimensionality_reduction` "
-            "to be either 'umap' or 'pca'."
-        )
-
     match config.data:
         case "evs_trend":
             logger.info("Using EVS trend data.")
@@ -64,13 +57,7 @@ def main(config: DictConfig) -> None:
             )
     assert isinstance(df, pd.DataFrame)
 
-    create_scatter(
-        survey_df=df,
-        dimensionality_reduction=config.dimensionality_reduction,
-        ellipses=config.ellipses,
-        ellipse_std=config.ellipse_std,
-        dataset_name=dataset_name,
-    )
+    create_scatter(survey_df=df, dataset_name=dataset_name, config=config)
 
 
 if __name__ == "__main__":

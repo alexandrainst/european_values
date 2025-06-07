@@ -1,7 +1,6 @@
 """Plotting functions."""
 
 import logging
-import typing as t
 import warnings
 
 import matplotlib.pyplot as plt
@@ -10,7 +9,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse, Patch
-from sklearn.decomposition import PCA
+from omegaconf import DictConfig
 from umap import UMAP
 
 logger = logging.getLogger(__name__)
@@ -20,34 +19,25 @@ warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn
 
 
 def create_scatter(
-    survey_df: pd.DataFrame,
-    dimensionality_reduction: t.Literal["umap", "pca"],
-    ellipses: bool,
-    ellipse_std: float,
-    dataset_name: str,
+    survey_df: pd.DataFrame, dataset_name: str, config: DictConfig
 ) -> None:
     """Create a scatter plot of the survey data.
 
     Args:
         survey_df:
             The survey data.
-        dimensionality_reduction:
-            The dimensionality reduction class to use. Can be either "umap" or "pca".
-        ellipses:
-            Whether to draw confidence ellipses around the country groups.
-        ellipse_std:
-            The number of standard deviations to use for the confidence ellipses.
         dataset_name:
             The name of the dataset to use for the plot title.
+        config:
+            The Hydra config.
     """
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 
-    logger.info(
-        f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
-    )
-    reducer_class = UMAP if dimensionality_reduction == "umap" else PCA
-    embedding_matrix = reducer_class(n_components=2).fit_transform(embedding_matrix)
+    logger.info("Reducing to two dimensions with UMAP...")
+    embedding_matrix = UMAP(
+        n_components=2, n_neighbors=config.umap_neighbours, n_jobs=-1
+    ).fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
 
     # Create a matrix with mean values for each country group
@@ -69,12 +59,12 @@ def create_scatter(
         country_indices = survey_df.query(
             "country_group == @country_group"
         ).index.tolist()
-        if ellipses:
+        if config.ellipses:
             confidence_ellipse(
                 x=embedding_matrix[country_indices, 0],
                 y=embedding_matrix[country_indices, 1],
                 ax=ax,
-                n_std=ellipse_std,
+                n_std=config.ellipse_std,
                 facecolor="none",
                 edgecolor=colour,
             )
@@ -90,10 +80,7 @@ def create_scatter(
     ax.scatter(
         x=country_embedding_matrix[:, 0], y=country_embedding_matrix[:, 1], alpha=0.0
     )
-    ax.set_title(
-        f"{dimensionality_reduction.upper()} projection of the {dataset_name}",
-        fontsize=20,
-    )
+    ax.set_title(f"UMAP projection of the {dataset_name}", fontsize=20)
     plt.show()
 
 
