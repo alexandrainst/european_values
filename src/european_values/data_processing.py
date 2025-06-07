@@ -75,7 +75,6 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         questions = na_df.index.tolist()
         for question in questions:
             assert isinstance(question, str)
-            question = question.split("_choice")[0]
             questions_with_missing_answers[question].add(country_group)
     if questions_with_missing_answers:
         df = df.drop(columns=list(questions_with_missing_answers.keys()))
