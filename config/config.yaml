@@ -2,5 +2,14 @@ defaults:
   - override hydra/job_logging: custom
   - _self_
 
+data: null
 repo_id: EuropeanValuesProject/european_values_survey
+
 imputation_neighbours: 10
+umap_neighbours: 20
+
+countries: all
+use_country_groups: true
+
+ellipses: true
+ellipse_std: 0.5
