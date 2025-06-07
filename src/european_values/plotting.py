@@ -10,6 +10,7 @@ import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.patches import Ellipse, Patch
 from omegaconf import DictConfig
+from pandas.errors import PerformanceWarning
 from umap import UMAP
 
 from .utils import group_country
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 warnings.filterwarnings(action="ignore", category=FutureWarning, module="sklearn")
+warnings.filterwarnings(action="ignore", category=PerformanceWarning, module="pandas")
 
 
 def create_scatter(
