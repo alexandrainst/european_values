@@ -25,47 +25,36 @@ def main(config: DictConfig) -> None:
         config:
             The Hydra config for your project.
     """
-    dataset_id_suffix = "_processed" if config.countries == "all" else ""
-    match config.data:
-        case "evs_trend":
-            logger.info("Using EVS trend data.")
-            dataset = load_dataset(
-                path=config.repo_id,
-                name="evs_trend_data_1981_2017" + dataset_id_suffix,
-                split="train",
-            )
-            assert isinstance(dataset, Dataset)
-            df = dataset.to_pandas()
-            dataset_name = "EVS trend data"
-        case "evs_wvs":
-            logger.info("Using EVS/WVS data.")
-            dataset = load_dataset(
-                path=config.repo_id,
-                name="evs_wvs_data_2017_2022" + dataset_id_suffix,
-                split="train",
-            )
-            assert isinstance(dataset, Dataset)
-            df = dataset.to_pandas()
-            dataset_name = "EVS/WVS data"
-        case None:
-            raise ValueError(
-                "No data selected. Please set `data` to be either 'evs_trend' or "
-                "'evs_wvs'."
-            )
-        case _:
-            raise ValueError(
-                f"Invalid data selected: {config.data}. Please set `data` to be either "
-                "'evs_trend' or 'evs_wvs'."
-            )
-    assert isinstance(df, pd.DataFrame)
+    logger.info("Loading the EVS trend data from 1981 to 2017...")
+    evs_trend = load_dataset(
+        path=config.repo_id, name="evs_trend_data_1981_2017", split="train"
+    )
+    assert isinstance(evs_trend, Dataset)
+    evs_trend_df = evs_trend.to_pandas()
+    assert isinstance(evs_trend_df, pd.DataFrame)
+
+    logger.info("Loading the EVS/WVS data from 2017 to 2022...")
+    evs_wvs = load_dataset(
+        path=config.repo_id, name="evs_wvs_data_2017_2022", split="train"
+    )
+    assert isinstance(evs_wvs, Dataset)
+    evs_wvs_df = evs_wvs.to_pandas()
+    assert isinstance(evs_wvs_df, pd.DataFrame)
+
+    logger.info("Combining the EVS trend and EVS/WVS data...")
+    df = pd.concat([evs_trend_df, evs_wvs_df], ignore_index=True)
 
     if config.countries != "all":
         logger.info(f"Filtering data for countries: {config.countries}")
         df = df.query("country_code in @config.countries").reset_index(drop=True)
-        df = process_data(df=df, imputation_neighbours=config.imputation_neighbours)
         logger.info(f"Shape of the data after filtering: {df.shape}")
 
-    create_scatter(survey_df=df, dataset_name=dataset_name, config=config)
+    logger.info("Processing the data...")
+    df = process_data(df=df)
+    logger.info(f"Shape of the data after processing: {df.shape}")
+
+    logger.info("Creating the scatter plot...")
+    create_scatter(survey_df=df, config=config)
 
 
 if __name__ == "__main__":

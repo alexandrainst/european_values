@@ -5,21 +5,19 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from sklearn.impute import KNNImputer
+from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import MinMaxScaler
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__name__)
 
 
-def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
+def process_data(df: pd.DataFrame) -> pd.DataFrame:
     """Process the survey data.
 
     Args:
         df:
             The survey data.
-        imputation_neighbours:
-            The number of neighbours to use for the kNN imputation of missing values.
 
     Returns:
         The processed DataFrame.
@@ -54,12 +52,10 @@ def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
         )
 
     # Impute missing values
-    logger.info("Imputing missing values using kNN...")
+    logger.info("Imputing missing values...")
     question_columns = [col for col in df.columns if col.startswith("question_")]
     embedding_matrix = np.empty(shape=(df.shape[0], len(question_columns)))
-    imputer = KNNImputer(
-        n_neighbors=imputation_neighbours, weights="distance", keep_empty_features=True
-    )
+    imputer = SimpleImputer(strategy="mean", keep_empty_features=True)
     for country_code in tqdm(
         iterable=df.country_code.unique(),
         desc="Imputing missing values",
