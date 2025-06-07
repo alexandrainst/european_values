@@ -36,6 +36,10 @@ def group_country(country_code: str) -> str:
     Returns:
         The group the country belongs to, or the country code if it does not belong to
         any group.
+
+    Raises:
+        ValueError:
+            If the country code does not belong to any group.
     """
     if country_code in NORTH_AMERICA_ANGLOPHONE:
         return "North America Anglophone"
@@ -74,8 +78,7 @@ def group_country(country_code: str) -> str:
     elif country_code in MIDDLE_EASTERN_COUNTRY_CODES:
         return "Middle East"
     else:
-        logger.warning(
-            f"Country code {country_code} does not belong to any group. "
-            "Returning the country code as the group."
+        raise ValueError(
+            f"Country code {country_code!r} does not belong to any group. Please check "
+            "the country code and try again."
         )
-        return country_code
