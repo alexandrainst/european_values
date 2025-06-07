@@ -34,8 +34,12 @@ def create_scatter(
             The Hydra config.
     """
     # Group countries
-    logger.info("Grouping countries into regions...")
-    survey_df["country_group"] = survey_df.country_code.apply(group_country)
+    if config.use_country_groups:
+        logger.info("Grouping countries into regions...")
+        survey_df["country_group"] = survey_df.country_code.apply(group_country)
+    else:
+        logger.info("Using individual countries without grouping.")
+        survey_df["country_group"] = survey_df.country_code
 
     # Create the embedding matrix
     logger.info("Creating embedding matrix...")

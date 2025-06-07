@@ -1,285 +1,257 @@
 """Constants used in the project."""
 
-NORTH_AMERICA = [
-    "CA",  # Canada
-    "US",  # United States
-]
-
-
-CENTRAL_AMERICA = [
-    "BZ",  # Belize
-    "CR",  # Costa Rica
-    "SV",  # El Salvador
-    "GT",  # Guatemala
-    "HN",  # Honduras
-    "MX",  # Mexico
-    "NI",  # Nicaragua
-    "PA",  # Panama
-]
-
-
-CARIBBEAN = [
-    "AG",  # Antigua and Barbuda
-    "BS",  # Bahamas
-    "BB",  # Barbados
-    "CU",  # Cuba
-    "DM",  # Dominica
-    "DO",  # Dominican Republic
-    "GD",  # Grenada
-    "HT",  # Haiti
-    "JM",  # Jamaica
-    "KN",  # Saint Kitts and Nevis
-    "LC",  # Saint Lucia
-    "PR",  # Puerto Rico
-    "VC",  # Saint Vincent and the Grenadines
-    "TT",  # Trinidad and Tobago
-    "GF",  # French Guiana
-    "GY",  # Guyana
-    "SR",  # Suriname
-]
-
-
-SOUTH_AMERICA = [
-    "AR",  # Argentina
-    "BO",  # Bolivia
-    "CL",  # Chile
-    "CO",  # Colombia
-    "EC",  # Ecuador
-    "PE",  # Peru
-    "PY",  # Paraguay
-    "UY",  # Uruguay
-    "VE",  # Venezuela
-    "BR",  # Brazil
-]
-
-
-NORTH_AFRICA = [
-    "DZ",  # Algeria
-    "EG",  # Egypt
-    "LY",  # Libya
-    "MR",  # Mauritania
-    "MA",  # Morocco
-    "SD",  # Sudan
-    "TN",  # Tunisia
-]
-
-
-SUB_SAHARAN_AFRICA = [
-    "AO",  # Angola
-    "BJ",  # Benin
-    "BF",  # Burkina Faso
-    "BI",  # Burundi
-    "BW",  # Botswana
-    "CM",  # Cameroon
-    "CF",  # Central African Republic
-    "TD",  # Chad
-    "CG",  # Congo (Republic of the)
-    "CD",  # Congo (Democratic Republic of the)
-    "CI",  # Côte d'Ivoire
-    "CV",  # Cape Verde
-    "DJ",  # Djibouti
-    "ER",  # Eritrea
-    "SZ",  # Eswatini
-    "ET",  # Ethiopia
-    "GQ",  # Equatorial Guinea
-    "GA",  # Gabon
-    "GM",  # Gambia
-    "GH",  # Ghana
-    "GN",  # Guinea
-    "GW",  # Guinea-Bissau
-    "KE",  # Kenya
-    "LS",  # Lesotho
-    "LR",  # Liberia
-    "MG",  # Madagascar
-    "MW",  # Malawi
-    "ML",  # Mali
-    "MZ",  # Mozambique
-    "NA",  # Namibia
-    "NE",  # Niger
-    "NG",  # Nigeria
-    "RW",  # Rwanda
-    "ST",  # Sao Tome and Principe
-    "SC",  # Seychelles
-    "SL",  # Sierra Leone
-    "SO",  # Somalia
-    "SS",  # South Sudan
-    "TZ",  # Tanzania
-    "TG",  # Togo
-    "UG",  # Uganda
-    "ZA",  # South Africa
-    "ZM",  # Zambia
-    "ZW",  # Zimbabwe
-]
-
-
-WESTERN_EUROPE = [
-    "AT",  # Austria
-    "BE",  # Belgium
-    "CH",  # Switzerland
-    "DE",  # Germany
-    "FR",  # France
-    "GB",  # United Kingdom
-    "IE",  # Ireland
-    "LI",  # Liechtenstein
-    "LU",  # Luxembourg
-    "MC",  # Monaco
-    "NL",  # Netherlands
-    "NIR",  # Northern Ireland
-]
-
-
-NORTHERN_EUROPE = [
-    "DK",  # Denmark
-    "FI",  # Finland
-    "IS",  # Iceland
-    "NO",  # Norway
-    "SE",  # Sweden
-    "EE",  # Estonia
-    "LT",  # Lithuania
-    "LV",  # Latvia
-    "GL",  # Greenland
-    "FO",  # Faroe Islands
-]
-
-
-SOUTHERN_EUROPE = [
-    "AD",  # Andorra
-    "CY",  # Cyprus
-    "ES",  # Spain
-    "GR",  # Greece
-    "IT",  # Italy
-    "MT",  # Malta
-    "PT",  # Portugal
-    "SM",  # San Marino
-    "VA",  # Vatican City
-]
-
-
-CENTRAL_EUROPE = [
-    "CZ",  # Czech Republic
-    "HU",  # Hungary
-    "PL",  # Poland
-    "SI",  # Slovenia
-    "SK",  # Slovakia
-]
-
-
-EASTERN_EUROPE = [
-    "AL",  # Albania
-    "AM",  # Armenia
-    "AZ",  # Azerbaijan
-    "BA",  # Bosnia and Herzegovina
-    "BG",  # Bulgaria
-    "BY",  # Belarus
-    "GE",  # Georgia
-    "HR",  # Croatia
-    "XK",  # Kosovo
-    "MD",  # Moldova
-    "ME",  # Montenegro
-    "MK",  # North Macedonia
-    "RO",  # Romania
-    "RS",  # Serbia
-    "RU",  # Russia
-    "TR",  # Turkey
-    "UA",  # Ukraine
-]
-
-
-SOUTH_ASIA = [
-    "AF",  # Afghanistan
-    "BD",  # Bangladesh
-    "BT",  # Bhutan
-    "IN",  # India
-    "LK",  # Sri Lanka
-    "MV",  # Maldives
-    "NP",  # Nepal
-    "PK",  # Pakistan
-]
-
-
-SOUTHEAST_ASIA = [
-    "BN",  # Brunei Darussalam
-    "ID",  # Indonesia
-    "KH",  # Cambodia
-    "LA",  # Laos
-    "MM",  # Myanmar
-    "MY",  # Malaysia
-    "PH",  # Philippines
-    "SG",  # Singapore
-    "TH",  # Thailand
-    "TL",  # Timor-Leste
-    "VN",  # Vietnam
-]
-
-
-EAST_ASIA = [
-    "CN",  # China
-    "HK",  # Hong Kong
-    "JP",  # Japan
-    "KP",  # North Korea
-    "KR",  # South Korea
-    "MN",  # Mongolia
-    "MO",  # Macao
-    "TW",  # Taiwan
-]
-
-
-CENTRAL_ASIA = [
-    "KG",  # Kyrgyzstan
-    "KZ",  # Kazakhstan
-    "TJ",  # Tajikistan
-    "TM",  # Turkmenistan
-    "UZ",  # Uzbekistan
-]
-
-
-OCEANIA = [
-    "AU",  # Australia
-    "NZ",  # New Zealand
-    "AS",  # American Samoa
-    "CK",  # Cook Islands
-    "FJ",  # Fiji
-    "FM",  # Micronesia
-    "GU",  # Guam
-    "KI",  # Kiribati
-    "MH",  # Marshall Islands
-    "MP",  # Northern Mariana Islands
-    "NC",  # New Caledonia
-    "NR",  # Nauru
-    "NU",  # Niue
-    "PF",  # French Polynesia
-    "PG",  # Papua New Guinea
-    "PN",  # Pitcairn Islands
-    "PW",  # Palau
-    "WS",  # Samoa
-    "SB",  # Solomon Islands
-    "TK",  # Tokelau
-    "TO",  # Tonga
-    "TV",  # Tuvalu
-    "VU",  # Vanuatu
-    "WF",  # Wallis and Futuna
-]
-
-
-MIDDLE_EAST = [
-    "AE",  # United Arab Emirates
-    "BH",  # Bahrain
-    "CY",  # Cyprus
-    "EG",  # Egypt
-    "IR",  # Iran
-    "IQ",  # Iraq
-    "IL",  # Israel
-    "JO",  # Jordan
-    "KW",  # Kuwait
-    "LB",  # Lebanon
-    "OM",  # Oman
-    "PS",  # Palestine, State of (or Palestinian Territories)
-    "QA",  # Qatar
-    "SA",  # Saudi Arabia
-    "SY",  # Syria
-    "TR",  # Turkey
-    "YE",  # Yemen
-]
+COUNTRY_GROUPS = {
+    "Caribbean": [
+        "AG",  # Antigua and Barbuda
+        "BB",  # Barbados
+        "BS",  # Bahamas
+        "CU",  # Cuba
+        "DM",  # Dominica
+        "DO",  # Dominican Republic
+        "GD",  # Grenada
+        "GF",  # French Guiana
+        "GY",  # Guyana
+        "HT",  # Haiti
+        "JM",  # Jamaica
+        "KN",  # Saint Kitts and Nevis
+        "LC",  # Saint Lucia
+        "PR",  # Puerto Rico
+        "SR",  # Suriname
+        "TT",  # Trinidad and Tobago
+        "VC",  # Saint Vincent and the Grenadines
+    ],
+    "Central America": [
+        "BZ",  # Belize
+        "CR",  # Costa Rica
+        "GT",  # Guatemala
+        "HN",  # Honduras
+        "MX",  # Mexico
+        "NI",  # Nicaragua
+        "PA",  # Panama
+        "SV",  # El Salvador
+    ],
+    "Central Asia": [
+        "KG",  # Kyrgyzstan
+        "KZ",  # Kazakhstan
+        "TJ",  # Tajikistan
+        "TM",  # Turkmenistan
+        "UZ",  # Uzbekistan
+    ],
+    "Central Europe": [
+        "CZ",  # Czech Republic
+        "HU",  # Hungary
+        "PL",  # Poland
+        "SI",  # Slovenia
+        "SK",  # Slovakia
+    ],
+    "China": [
+        "CN"  # China
+    ],
+    "East Asia Without China": [
+        "HK",  # Hong Kong
+        "JP",  # Japan
+        "KP",  # North Korea
+        "KR",  # South Korea
+        "MN",  # Mongolia
+        "MO",  # Macao
+        "TW",  # Taiwan
+    ],
+    "Eastern Europe": [
+        "AL",  # Albania
+        "AM",  # Armenia
+        "AZ",  # Azerbaijan
+        "BA",  # Bosnia and Herzegovina
+        "BG",  # Bulgaria
+        "BY",  # Belarus
+        "GE",  # Georgia
+        "HR",  # Croatia
+        "MD",  # Moldova
+        "ME",  # Montenegro
+        "MK",  # North Macedonia
+        "RO",  # Romania
+        "RS",  # Serbia
+        "RU",  # Russia
+        "TR",  # Turkey
+        "UA",  # Ukraine
+        "XK",  # Kosovo
+    ],
+    "Middle East": [
+        "AE",  # United Arab Emirates
+        "BH",  # Bahrain
+        "CY",  # Cyprus
+        "EG",  # Egypt
+        "IL",  # Israel
+        "IQ",  # Iraq
+        "IR",  # Iran
+        "JO",  # Jordan
+        "KW",  # Kuwait
+        "LB",  # Lebanon
+        "OM",  # Oman
+        "PS",  # Palestine, State of (or Palestinian Territories)
+        "QA",  # Qatar
+        "SA",  # Saudi Arabia
+        "SY",  # Syria
+        "TR",  # Turkey
+        "YE",  # Yemen
+    ],
+    "North Africa": [
+        "DZ",  # Algeria
+        "EG",  # Egypt
+        "LY",  # Libya
+        "MA",  # Morocco
+        "MR",  # Mauritania
+        "SD",  # Sudan
+        "TN",  # Tunisia
+    ],
+    "North America": [
+        "CA",  # Canada
+        "US",  # United States
+    ],
+    "Northern Europe": [
+        "DK",  # Denmark
+        "EE",  # Estonia
+        "FI",  # Finland
+        "FO",  # Faroe Islands
+        "GL",  # Greenland
+        "IS",  # Iceland
+        "LT",  # Lithuania
+        "LV",  # Latvia
+        "NO",  # Norway
+        "SE",  # Sweden
+    ],
+    "Oceania": [
+        "AS",  # American Samoa
+        "AU",  # Australia
+        "CK",  # Cook Islands
+        "FJ",  # Fiji
+        "FM",  # Micronesia
+        "GU",  # Guam
+        "KI",  # Kiribati
+        "MH",  # Marshall Islands
+        "MP",  # Northern Mariana Islands
+        "NC",  # New Caledonia
+        "NR",  # Nauru
+        "NU",  # Niue
+        "NZ",  # New Zealand
+        "PF",  # French Polynesia
+        "PG",  # Papua New Guinea
+        "PN",  # Pitcairn Islands
+        "PW",  # Palau
+        "SB",  # Solomon Islands
+        "TK",  # Tokelau
+        "TO",  # Tonga
+        "TV",  # Tuvalu
+        "VU",  # Vanuatu
+        "WF",  # Wallis and Futuna
+        "WS",  # Samoa
+    ],
+    "South America": [
+        "AR",  # Argentina
+        "BO",  # Bolivia
+        "BR",  # Brazil
+        "CL",  # Chile
+        "CO",  # Colombia
+        "EC",  # Ecuador
+        "PE",  # Peru
+        "PY",  # Paraguay
+        "UY",  # Uruguay
+        "VE",  # Venezuela
+    ],
+    "South Asia": [
+        "AF",  # Afghanistan
+        "BD",  # Bangladesh
+        "BT",  # Bhutan
+        "IN",  # India
+        "LK",  # Sri Lanka
+        "MV",  # Maldives
+        "NP",  # Nepal
+        "PK",  # Pakistan
+    ],
+    "Southeast Asia": [
+        "BN",  # Brunei Darussalam
+        "ID",  # Indonesia
+        "KH",  # Cambodia
+        "LA",  # Laos
+        "MM",  # Myanmar
+        "MY",  # Malaysia
+        "PH",  # Philippines
+        "SG",  # Singapore
+        "TH",  # Thailand
+        "TL",  # Timor-Leste
+        "VN",  # Vietnam
+    ],
+    "Southern Europe": [
+        "AD",  # Andorra
+        "CY",  # Cyprus
+        "ES",  # Spain
+        "GR",  # Greece
+        "IT",  # Italy
+        "MT",  # Malta
+        "PT",  # Portugal
+        "SM",  # San Marino
+        "VA",  # Vatican City
+    ],
+    "Sub Saharan Africa": [
+        "AO",  # Angola
+        "BF",  # Burkina Faso
+        "BI",  # Burundi
+        "BJ",  # Benin
+        "BW",  # Botswana
+        "CD",  # Congo (Democratic Republic of the)
+        "CF",  # Central African Republic
+        "CG",  # Congo (Republic of the)
+        "CI",  # Côte d'Ivoire
+        "CM",  # Cameroon
+        "CV",  # Cape Verde
+        "DJ",  # Djibouti
+        "ER",  # Eritrea
+        "ET",  # Ethiopia
+        "GA",  # Gabon
+        "GH",  # Ghana
+        "GM",  # Gambia
+        "GN",  # Guinea
+        "GQ",  # Equatorial Guinea
+        "GW",  # Guinea-Bissau
+        "KE",  # Kenya
+        "LS",  # Lesotho
+        "LR",  # Liberia
+        "MG",  # Madagascar
+        "ML",  # Mali
+        "MW",  # Malawi
+        "MZ",  # Mozambique
+        "NA",  # Namibia
+        "NE",  # Niger
+        "NG",  # Nigeria
+        "RW",  # Rwanda
+        "SC",  # Seychelles
+        "SL",  # Sierra Leone
+        "SO",  # Somalia
+        "SS",  # South Sudan
+        "ST",  # Sao Tome and Principe
+        "SZ",  # Eswatini
+        "TD",  # Chad
+        "TG",  # Togo
+        "TZ",  # Tanzania
+        "UG",  # Uganda
+        "ZA",  # South Africa
+        "ZM",  # Zambia
+        "ZW",  # Zimbabwe
+    ],
+    "Western Europe": [
+        "AT",  # Austria
+        "BE",  # Belgium
+        "CH",  # Switzerland
+        "DE",  # Germany
+        "FR",  # France
+        "GB",  # United Kingdom
+        "IE",  # Ireland
+        "LI",  # Liechtenstein
+        "LU",  # Luxembourg
+        "MC",  # Monaco
+        "NL",  # Netherlands
+        "NIR",  # Northern Ireland
+    ],
+}
 
 
 EVS_TREND_ANSWER_COLUMNS = dict(
