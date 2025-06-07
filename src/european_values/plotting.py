@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 warnings.filterwarnings(action="ignore", category=FutureWarning)
+warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
 
 
