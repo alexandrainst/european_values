@@ -7,7 +7,6 @@ from .constants import (
     CENTRAL_AMERICA,
     CENTRAL_ASIA,
     CENTRAL_EUROPE,
-    EAST_ASIA,
     EASTERN_EUROPE,
     MIDDLE_EAST,
     NORTH_AFRICA,
@@ -35,10 +34,6 @@ def group_country(country_code: str) -> str:
     Returns:
         The group the country belongs to, or the country code if it does not belong to
         any group.
-
-    Raises:
-        ValueError:
-            If the country code does not belong to any group.
     """
     if country_code in NORTH_AMERICA:
         return "North America"
@@ -66,8 +61,8 @@ def group_country(country_code: str) -> str:
         return "South Asia"
     elif country_code in SOUTHEAST_ASIA:
         return "Southeast Asia"
-    elif country_code in EAST_ASIA:
-        return "East Asia"
+    # elif country_code in EAST_ASIA:
+    #     return "East Asia"
     elif country_code in CENTRAL_ASIA:
         return "Central Asia"
     elif country_code in OCEANIA:
@@ -75,7 +70,8 @@ def group_country(country_code: str) -> str:
     elif country_code in MIDDLE_EAST:
         return "Middle East"
     else:
-        raise ValueError(
-            f"Country code {country_code!r} does not belong to any group. Please check "
-            "the country code and try again."
+        logger.warning(
+            f"Country code {country_code!r} does not belong to any group. Returning "
+            f"the country code itself."
         )
+        return country_code
