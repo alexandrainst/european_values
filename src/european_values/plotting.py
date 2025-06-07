@@ -88,8 +88,8 @@ def confidence_ellipse(
     x: np.ndarray,
     y: np.ndarray,
     ax: Axes,
-    n_std: float = 1.0,
-    facecolor: str = "none",
+    n_std: float,
+    facecolor: str,
     **ellipse_kwargs,
 ) -> Patch:
     """Create a plot of the covariance confidence ellipse of x- and y-data.
@@ -103,9 +103,8 @@ def confidence_ellipse(
             The matplotlib axes to plot on.
         n_std (optional):
             The number of standard deviations to determine the ellipse's radii.
-            Defaults to 3.0.
         facecolor (optional):
-            The face color of the ellipse, or 'none' for no fill. Defaults to 'none'.
+            The face color of the ellipse, or 'none' for no fill.
         **ellipse_kwargs:
             Additional keyword arguments to pass to the Ellipse constructor.
 
