@@ -1,12 +1,12 @@
 """Constants used in the project."""
 
-NORTH_AMERICA_ANGLOPHONE = [
+NORTH_AMERICA = [
     "CA",  # Canada
     "US",  # United States
 ]
 
 
-MIDDLE_AMERICA = [
+CENTRAL_AMERICA = [
     "BZ",  # Belize
     "CR",  # Costa Rica
     "SV",  # El Salvador
@@ -39,7 +39,7 @@ CARIBBEAN = [
 ]
 
 
-HISPANIC_SOUTH_AMERICA = [
+SOUTH_AMERICA = [
     "AR",  # Argentina
     "BO",  # Bolivia
     "CL",  # Chile
@@ -49,11 +49,7 @@ HISPANIC_SOUTH_AMERICA = [
     "PY",  # Paraguay
     "UY",  # Uruguay
     "VE",  # Venezuela
-]
-
-
-BRAZIL = [
-    "BR"  # Brazil
+    "BR",  # Brazil
 ]
 
 
@@ -265,7 +261,7 @@ OCEANIA = [
 ]
 
 
-MIDDLE_EASTERN_COUNTRY_CODES = [
+MIDDLE_EAST = [
     "AE",  # United Arab Emirates
     "BH",  # Bahrain
     "CY",  # Cyprus

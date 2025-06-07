@@ -3,19 +3,18 @@
 import logging
 
 from .constants import (
-    BRAZIL,
     CARIBBEAN,
+    CENTRAL_AMERICA,
     CENTRAL_ASIA,
     CENTRAL_EUROPE,
     EAST_ASIA,
     EASTERN_EUROPE,
-    HISPANIC_SOUTH_AMERICA,
-    MIDDLE_AMERICA,
-    MIDDLE_EASTERN_COUNTRY_CODES,
+    MIDDLE_EAST,
     NORTH_AFRICA,
-    NORTH_AMERICA_ANGLOPHONE,
+    NORTH_AMERICA,
     NORTHERN_EUROPE,
     OCEANIA,
+    SOUTH_AMERICA,
     SOUTH_ASIA,
     SOUTHEAST_ASIA,
     SOUTHERN_EUROPE,
@@ -41,16 +40,14 @@ def group_country(country_code: str) -> str:
         ValueError:
             If the country code does not belong to any group.
     """
-    if country_code in NORTH_AMERICA_ANGLOPHONE:
-        return "North America Anglophone"
-    elif country_code in MIDDLE_AMERICA:
-        return "Middle America"
+    if country_code in NORTH_AMERICA:
+        return "North America"
+    elif country_code in CENTRAL_AMERICA:
+        return "Central America"
     elif country_code in CARIBBEAN:
         return "Caribbean"
-    elif country_code in HISPANIC_SOUTH_AMERICA:
-        return "Hispanic South America"
-    elif country_code in BRAZIL:
-        return "Brazil"
+    elif country_code in SOUTH_AMERICA:
+        return "South America"
     elif country_code in NORTH_AFRICA:
         return "North Africa"
     elif country_code in SUB_SAHARAN_AFRICA:
@@ -75,7 +72,7 @@ def group_country(country_code: str) -> str:
         return "Central Asia"
     elif country_code in OCEANIA:
         return "Oceania"
-    elif country_code in MIDDLE_EASTERN_COUNTRY_CODES:
+    elif country_code in MIDDLE_EAST:
         return "Middle East"
     else:
         raise ValueError(
