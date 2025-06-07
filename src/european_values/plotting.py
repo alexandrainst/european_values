@@ -40,9 +40,6 @@ def create_scatter(
         dataset_name:
             The name of the dataset to use for the plot title.
     """
-    # TEMP
-    survey_df.country_group = survey_df.country_code
-
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 
