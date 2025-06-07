@@ -12,6 +12,8 @@ from matplotlib.patches import Ellipse, Patch
 from omegaconf import DictConfig
 from umap import UMAP
 
+from .utils import group_country
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,6 +33,12 @@ def create_scatter(
         config:
             The Hydra config.
     """
+    # Group countries
+    logger.info("Grouping countries into regions...")
+    survey_df["country_group"] = survey_df.country_code.apply(group_country)
+
+    # Create the embedding matrix
+    logger.info("Creating embedding matrix...")
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 

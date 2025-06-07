@@ -9,8 +9,6 @@ from sklearn.impute import KNNImputer
 from sklearn.preprocessing import MinMaxScaler
 from tqdm.auto import tqdm
 
-from .utils import group_country
-
 logger = logging.getLogger(__name__)
 
 
@@ -26,23 +24,18 @@ def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
     Returns:
         The processed DataFrame.
     """
-    # Group countries
-    logger.info("Grouping countries into regions...")
-    df["country_group"] = df.country_code.apply(group_country)
-
-    # Remove questions for which a country group exists that have not answered the
-    # question
+    # Remove questions for which a country exists that have not answered the question
     questions_with_missing_answers: dict[str, list[str]] = defaultdict(list)
-    for country_group in df.country_group.unique():
-        country_group_df = df.query("country_group == @country_group")
-        na_df = country_group_df.isna().all(axis=0)
+    for country_code in df.country_code.unique():
+        country_code_df = df.query("country_code == @country_code")
+        na_df = country_code_df.isna().all(axis=0)
         assert isinstance(na_df, pd.Series)
         na_df = na_df[na_df]
         assert isinstance(na_df, pd.Series)
         questions = na_df.index.tolist()
         for question in questions:
             assert isinstance(question, str)
-            questions_with_missing_answers[question].append(country_group)
+            questions_with_missing_answers[question].append(country_code)
     if questions_with_missing_answers:
         survey_df = df.drop(columns=list(questions_with_missing_answers.keys()))
         questions_removed_str = "\n\t- ".join(
@@ -53,7 +46,7 @@ def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
         )
         logger.info(
             f"Removed {len(questions_with_missing_answers)} questions where at least "
-            f"one country group has not answered:\n\t- {questions_removed_str}"
+            f"one country has not answered:\n\t- {questions_removed_str}"
         )
         logger.info(
             f"Shape of the data after removing questions with missing answers: "
@@ -67,12 +60,12 @@ def process_data(df: pd.DataFrame, imputation_neighbours: int) -> pd.DataFrame:
     imputer = KNNImputer(
         n_neighbors=imputation_neighbours, weights="distance", keep_empty_features=True
     )
-    for country_group in tqdm(
-        iterable=df.country_group.unique(),
+    for country_code in tqdm(
+        iterable=df.country_code.unique(),
         desc="Imputing missing values",
-        unit="country group",
+        unit="country",
     ):
-        country_df = df.query("country_group == @country_group")
+        country_df = df.query("country_code == @country_code")
         country_df = country_df[question_columns].copy()
         assert isinstance(country_df, pd.DataFrame)
         country_embedding = imputer.fit_transform(X=country_df)
