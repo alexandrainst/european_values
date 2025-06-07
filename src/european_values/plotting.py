@@ -13,8 +13,6 @@ from omegaconf import DictConfig
 from pandas.errors import PerformanceWarning
 from umap import UMAP
 
-from .utils import group_country
-
 logger = logging.getLogger(__name__)
 
 
@@ -31,24 +29,40 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
         config:
             The Hydra config.
     """
-    # Group countries
-    if config.use_country_groups:
-        logger.info("Grouping countries into regions...")
-        survey_df["country_group"] = survey_df.country_code.apply(group_country)
-    else:
-        logger.info("Using individual countries without grouping.")
-        survey_df["country_group"] = survey_df.country_code
-
     # Create the embedding matrix
     logger.info("Creating embedding matrix...")
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 
     logger.info("Reducing to two dimensions with UMAP...")
-    embedding_matrix = UMAP(
-        n_components=2, n_neighbors=config.umap_neighbours, n_jobs=-1
-    ).fit_transform(embedding_matrix)
+    umap = UMAP(n_components=2, n_neighbors=config.umap_neighbours, random_state=4242)
+    embedding_matrix = umap.fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
+
+    # Get feature importances from UMAP
+    logger.info("Calculating feature importances based on UMAP...")
+    df_with_umap = pd.concat(
+        [survey_df, pd.DataFrame(embedding_matrix, columns=["umap_1", "umap_2"])],
+        axis=1,
+    )
+    importances: dict[str, float] = dict()
+    for question in question_columns:
+        importance = (
+            df_with_umap[["umap_1", "umap_2", question]].corr().iloc[:2, 2].abs().mean()
+        )
+        importances[question] = importance
+    most_important_questions = sorted(
+        importances.items(), key=lambda item: item[1], reverse=True
+    )[: config.top_umap_importances]
+    logger.info(
+        "Most important questions based on UMAP feature importances:\n\t- "
+        + "\n\t- ".join(
+            [
+                f"{question}: {importance:.4f}"
+                for question, importance in most_important_questions
+            ]
+        )
+    )
 
     # Create a matrix with mean values for each country group
     country_embedding_matrix = np.empty(

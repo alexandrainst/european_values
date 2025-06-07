@@ -44,13 +44,8 @@ def main(config: DictConfig) -> None:
     logger.info("Combining the EVS trend and EVS/WVS data...")
     df = pd.concat([evs_trend_df, evs_wvs_df], ignore_index=True)
 
-    if config.countries != "all":
-        logger.info(f"Filtering data for countries: {config.countries}")
-        df = df.query("country_code in @config.countries").reset_index(drop=True)
-        logger.info(f"Shape of the data after filtering: {df.shape}")
-
     logger.info("Processing the data...")
-    df = process_data(df=df)
+    df = process_data(df=df, config=config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     logger.info("Creating the scatter plot...")
