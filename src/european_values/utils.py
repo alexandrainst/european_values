@@ -1,5 +1,7 @@
 """Utility functions for the project."""
 
+import logging
+
 from .constants import (
     BRAZIL,
     CARIBBEAN,
@@ -9,6 +11,7 @@ from .constants import (
     EASTERN_EUROPE,
     HISPANIC_SOUTH_AMERICA,
     MIDDLE_AMERICA,
+    MIDDLE_EASTERN_COUNTRY_CODES,
     NORTH_AFRICA,
     NORTH_AMERICA_ANGLOPHONE,
     NORTHERN_EUROPE,
@@ -19,6 +22,8 @@ from .constants import (
     SUB_SAHARAN_AFRICA,
     WESTERN_EUROPE,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def group_country(country_code: str) -> str:
@@ -66,5 +71,11 @@ def group_country(country_code: str) -> str:
         return "Central Asia"
     elif country_code in OCEANIA:
         return "Oceania"
+    elif country_code in MIDDLE_EASTERN_COUNTRY_CODES:
+        return "Middle East"
     else:
+        logger.warning(
+            f"Country code {country_code} does not belong to any group. "
+            "Returning the country code as the group."
+        )
         return country_code

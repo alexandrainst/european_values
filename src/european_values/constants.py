@@ -265,6 +265,27 @@ OCEANIA = [
 ]
 
 
+MIDDLE_EASTERN_COUNTRY_CODES = [
+    "AE",  # United Arab Emirates
+    "BH",  # Bahrain
+    "CY",  # Cyprus
+    "EG",  # Egypt
+    "IR",  # Iran
+    "IQ",  # Iraq
+    "IL",  # Israel
+    "JO",  # Jordan
+    "KW",  # Kuwait
+    "LB",  # Lebanon
+    "OM",  # Oman
+    "PS",  # Palestine, State of (or Palestinian Territories)
+    "QA",  # Qatar
+    "SA",  # Saudi Arabia
+    "SY",  # Syria
+    "TR",  # Turkey
+    "YE",  # Yemen
+]
+
+
 EVS_TREND_ANSWER_COLUMNS = dict(
     A001="question_a001_important_in_life__family",
     A002="question_a002_important_in_life__friends",
