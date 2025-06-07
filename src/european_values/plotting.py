@@ -77,6 +77,8 @@ def create_scatter(
             va="center",
             color=colour,
         )
+    # We create an invisible scatter plot to set the limits of the axes, which is
+    # required to display the ellipses correctly
     ax.scatter(
         x=country_embedding_matrix[:, 0], y=country_embedding_matrix[:, 1], alpha=0.0
     )
