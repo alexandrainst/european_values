@@ -1,278 +1,278 @@
 """Constants used in the project."""
 
 EUROPEAN_COUNTRY_CODES = [
-    "AD",
-    "AL",
-    "AT",
-    "BA",
-    "BE",
-    "BG",
-    "BY",
-    "CH",
-    "CY",
-    "CZ",
-    "DE",
-    "DK",
-    "EE",
-    "ES",
-    "FI",
-    "FR",
-    "GB",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "IS",
-    "IT",
-    "LI",
-    "LT",
-    "LU",
-    "LV",
-    "MC",
-    "MD",
-    "ME",
-    "MK",
-    "MT",
-    "NL",
-    "NO",
-    "PL",
-    "PT",
-    "RO",
-    "RS",
-    "RU",
-    "SE",
-    "SI",
-    "SK",
-    "SM",
-    "TR",
-    "UA",
-    "VA",
-    "XK",
-    "NIR",
+    "AD",  # Andorra
+    "AL",  # Albania
+    "AT",  # Austria
+    "BA",  # Bosnia and Herzegovina
+    "BE",  # Belgium
+    "BG",  # Bulgaria
+    "BY",  # Belarus
+    "CH",  # Switzerland
+    "CY",  # Cyprus
+    "CZ",  # Czech Republic
+    "DE",  # Germany
+    "DK",  # Denmark
+    "EE",  # Estonia
+    "ES",  # Spain
+    "FI",  # Finland
+    "FR",  # France
+    "GB",  # United Kingdom
+    "GR",  # Greece
+    "HR",  # Croatia
+    "HU",  # Hungary
+    "IE",  # Ireland
+    "IS",  # Iceland
+    "IT",  # Italy
+    "LI",  # Liechtenstein
+    "LT",  # Lithuania
+    "LU",  # Luxembourg
+    "LV",  # Latvia
+    "MC",  # Monaco
+    "MD",  # Moldova
+    "ME",  # Montenegro
+    "MK",  # North Macedonia
+    "MT",  # Malta
+    "NL",  # Netherlands
+    "NO",  # Norway
+    "PL",  # Poland
+    "PT",  # Portugal
+    "RO",  # Romania
+    "RS",  # Serbia
+    "RU",  # Russia
+    "SE",  # Sweden
+    "SI",  # Slovenia
+    "SK",  # Slovakia
+    "SM",  # San Marino
+    "TR",  # Turkey
+    "UA",  # Ukraine
+    "VA",  # Vatican City
+    "XK",  # Kosovo
+    "NIR",  # Northern Ireland
 ]
 
 
 EU_COUNTRY_CODES = [
-    "AT",
-    "BE",
-    "BG",
-    "HR",
-    "CY",
-    "CZ",
-    "DE",
-    "DK",
-    "EE",
-    "FI",
-    "FR",
-    "GR",
-    "HU",
-    "IE",
-    "IT",
-    "LT",
-    "LU",
-    "LV",
-    "MT",
-    "NL",
-    "PL",
-    "PT",
-    "RO",
-    "SE",
-    "SI",
-    "SK",
-    "ES",
-    "NIR",
+    "AT",  # Austria
+    "BE",  # Belgium
+    "BG",  # Bulgaria
+    "HR",  # Croatia
+    "CY",  # Cyprus
+    "CZ",  # Czech Republic
+    "DE",  # Germany
+    "DK",  # Denmark
+    "EE",  # Estonia
+    "FI",  # Finland
+    "FR",  # France
+    "GR",  # Greece
+    "HU",  # Hungary
+    "IE",  # Ireland
+    "IT",  # Italy
+    "LT",  # Lithuania
+    "LU",  # Luxembourg
+    "LV",  # Latvia
+    "MT",  # Malta
+    "NL",  # Netherlands
+    "PL",  # Poland
+    "PT",  # Portugal
+    "RO",  # Romania
+    "SE",  # Sweden
+    "SI",  # Slovenia
+    "SK",  # Slovakia
+    "ES",  # Spain
+    "NIR",  # Northern Ireland
 ]
 
 
 AFRICAN_COUNTRY_CODES = [
-    "DZ",
-    "AO",
-    "BJ",
-    "BW",
-    "BF",
-    "BI",
-    "CV",
-    "CM",
-    "CF",
-    "TD",
-    "KM",
-    "CG",
-    "CD",
-    "CI",
-    "DJ",
-    "EG",
-    "GQ",
-    "ER",
-    "SZ",
-    "ET",
-    "GA",
-    "GM",
-    "GH",
-    "GN",
-    "GW",
-    "KE",
-    "LS",
-    "LR",
-    "LY",
-    "MG",
-    "MW",
-    "ML",
-    "MR",
-    "MU",
-    "MA",
-    "MZ",
-    "NA",
-    "NE",
-    "NG",
-    "RW",
-    "ST",
-    "SN",
-    "SC",
-    "SL",
-    "SO",
-    "ZA",
-    "SS",
-    "SD",
-    "TZ",
-    "TG",
-    "TN",
-    "UG",
-    "ZM",
-    "ZW",
+    "DZ",  # Algeria
+    "AO",  # Angola
+    "BJ",  # Benin
+    "BW",  # Botswana
+    "BF",  # Burkina Faso
+    "BI",  # Burundi
+    "CV",  # Cape Verde
+    "CM",  # Cameroon
+    "CF",  # Central African Republic
+    "TD",  # Chad
+    "KM",  # Comoros
+    "CG",  # Congo (Republic of the)
+    "CD",  # Congo (Democratic Republic of the)
+    "CI",  # Côte d'Ivoire
+    "DJ",  # Djibouti
+    "EG",  # Egypt
+    "GQ",  # Equatorial Guinea
+    "ER",  # Eritrea
+    "SZ",  # Eswatini
+    "ET",  # Ethiopia
+    "GA",  # Gabon
+    "GM",  # Gambia
+    "GH",  # Ghana
+    "GN",  # Guinea
+    "GW",  # Guinea-Bissau
+    "KE",  # Kenya
+    "LS",  # Lesotho
+    "LR",  # Liberia
+    "LY",  # Libya
+    "MG",  # Madagascar
+    "MW",  # Malawi
+    "ML",  # Mali
+    "MR",  # Mauritania
+    "MU",  # Mauritius
+    "MA",  # Morocco
+    "MZ",  # Mozambique
+    "NA",  # Namibia
+    "NE",  # Niger
+    "NG",  # Nigeria
+    "RW",  # Rwanda
+    "ST",  # Sao Tome and Principe
+    "SN",  # Senegal
+    "SC",  # Seychelles
+    "SL",  # Sierra Leone
+    "SO",  # Somalia
+    "ZA",  # South Africa
+    "SS",  # South Sudan
+    "SD",  # Sudan
+    "TZ",  # Tanzania
+    "TG",  # Togo
+    "TN",  # Tunisia
+    "UG",  # Uganda
+    "ZM",  # Zambia
+    "ZW",  # Zimbabwe
 ]
 
 NORTH_AMERICAN_COUNTRY_CODES = [
-    "AG",
-    "BS",
-    "BB",
-    "BZ",
-    "CA",
-    "CR",
-    "CU",
-    "DM",
-    "DO",
-    "SV",
-    "GD",
-    "GL",
-    "GT",
-    "HT",
-    "HN",
-    "JM",
-    "MX",
-    "NI",
-    "PA",
-    "KN",
-    "LC",
-    "VC",
-    "TT",
-    "US",
-    "PR",
+    "AG",  # Antigua and Barbuda
+    "BS",  # Bahamas
+    "BB",  # Barbados
+    "BZ",  # Belize
+    "CA",  # Canada
+    "CR",  # Costa Rica
+    "CU",  # Cuba
+    "DM",  # Dominica
+    "DO",  # Dominican Republic
+    "SV",  # El Salvador
+    "GD",  # Grenada
+    "GL",  # Greenland
+    "GT",  # Guatemala
+    "HT",  # Haiti
+    "HN",  # Honduras
+    "JM",  # Jamaica
+    "MX",  # Mexico
+    "NI",  # Nicaragua
+    "PA",  # Panama
+    "KN",  # Saint Kitts and Nevis
+    "LC",  # Saint Lucia
+    "VC",  # Saint Vincent and the Grenadines
+    "TT",  # Trinidad and Tobago
+    "US",  # United States
+    "PR",  # Puerto Rico
 ]
 
 
 SOUTH_AMERICAN_COUNTRY_CODES = [
-    "AR",
-    "BO",
-    "BR",
-    "CL",
-    "CO",
-    "EC",
-    "GF",
-    "GY",
-    "PY",
-    "PE",
-    "SR",
-    "UY",
-    "VE",
+    "AR",  # Argentina
+    "BO",  # Bolivia
+    "BR",  # Brazil
+    "CL",  # Chile
+    "CO",  # Colombia
+    "EC",  # Ecuador
+    "GF",  # French Guiana
+    "GY",  # Guyana
+    "PY",  # Paraguay
+    "PE",  # Peru
+    "SR",  # Suriname
+    "UY",  # Uruguay
+    "VE",  # Venezuela
 ]
 
 
 MIDDLE_EASTERN_COUNTRY_CODES = [
-    "AE",
-    "BH",
-    "CY",
-    "EG",
-    "IR",
-    "IQ",
-    "IL",
-    "JO",
-    "KW",
-    "LB",
-    "OM",
-    "PS",
-    "QA",
-    "SA",
-    "SY",
-    "TR",
-    "YE",
+    "AE",  # United Arab Emirates
+    "BH",  # Bahrain
+    "CY",  # Cyprus
+    "EG",  # Egypt
+    "IR",  # Iran
+    "IQ",  # Iraq
+    "IL",  # Israel
+    "JO",  # Jordan
+    "KW",  # Kuwait
+    "LB",  # Lebanon
+    "OM",  # Oman
+    "PS",  # Palestine
+    "QA",  # Qatar
+    "SA",  # Saudi Arabia
+    "SY",  # Syria
+    "TR",  # Turkey
+    "YE",  # Yemen
 ]
 
 
 ASIAN_COUNTRY_CODES = [
-    "AF",
-    "AM",
-    "AZ",
-    "BD",
-    "BN",
-    "BT",
-    "CN",
-    "GE",
-    "HK",
-    "ID",
-    "IN",
-    "JP",
-    "KG",
-    "KH",
-    "KP",
-    "KR",
-    "KZ",
-    "LA",
-    "LK",
-    "MM",
-    "MN",
-    "MO",
-    "MV",
-    "MY",
-    "NP",
-    "PH",
-    "PK",
-    "SG",
-    "TH",
-    "TJ",
-    "TL",
-    "TM",
-    "TW",
-    "UZ",
-    "VN",
+    "AF",  # Afghanistan
+    "AM",  # Armenia
+    "AZ",  # Azerbaijan
+    "BD",  # Bangladesh
+    "BN",  # Brunei Darussalam
+    "BT",  # Bhutan
+    "CN",  # China
+    "GE",  # Georgia
+    "HK",  # Hong Kong
+    "ID",  # Indonesia
+    "IN",  # India
+    "JP",  # Japan
+    "KG",  # Kyrgyzstan
+    "KH",  # Cambodia
+    "KP",  # North Korea
+    "KR",  # South Korea
+    "KZ",  # Kazakhstan
+    "LA",  # Laos
+    "LK",  # Sri Lanka
+    "MM",  # Myanmar
+    "MN",  # Mongolia
+    "MO",  # Macao
+    "MV",  # Maldives
+    "MY",  # Malaysia
+    "NP",  # Nepal
+    "PH",  # Philippines
+    "PK",  # Pakistan
+    "SG",  # Singapore
+    "TH",  # Thailand
+    "TJ",  # Tajikistan
+    "TL",  # Timor-Leste
+    "TM",  # Turkmenistan
+    "TW",  # Taiwan
+    "UZ",  # Uzbekistan
+    "VN",  # Vietnam
 ]
 
 
 OCEANIA_COUNTRY_CODES = [
-    "AU",
-    "FJ",
-    "KI",
-    "MH",
-    "FM",
-    "NR",
-    "NZ",
-    "PW",
-    "PG",
-    "WS",
-    "SB",
-    "TO",
-    "TV",
-    "VU",
-    "AS",
-    "CK",
-    "PF",
-    "GU",
-    "NC",
-    "NU",
-    "NF",
-    "MP",
-    "PN",
-    "TK",
-    "WF",
+    "AU",  # Australia
+    "FJ",  # Fiji
+    "KI",  # Kiribati
+    "MH",  # Marshall Islands
+    "FM",  # Micronesia
+    "NR",  # Nauru
+    "NZ",  # New Zealand
+    "PW",  # Palau
+    "PG",  # Papua New Guinea
+    "WS",  # Samoa
+    "SB",  # Solomon Islands
+    "TO",  # Tonga
+    "TV",  # Tuvalu
+    "VU",  # Vanuatu
+    "AS",  # American Samoa
+    "CK",  # Cook Islands
+    "PF",  # French Polynesia
+    "GU",  # Guam
+    "NC",  # New Caledonia
+    "NU",  # Niue
+    "NF",  # Norfolk Island
+    "MP",  # Northern Mariana Islands
+    "PN",  # Pitcairn Islands
+    "TK",  # Tokelau
+    "WF",  # Wallis and Futuna
 ]
 
 
