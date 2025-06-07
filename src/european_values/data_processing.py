@@ -35,7 +35,7 @@ def process_data(df: pd.DataFrame) -> pd.DataFrame:
             assert isinstance(question, str)
             questions_with_missing_answers[question].append(country_code)
     if questions_with_missing_answers:
-        survey_df = df.drop(columns=list(questions_with_missing_answers.keys()))
+        df = df.drop(columns=list(questions_with_missing_answers.keys()))
         questions_removed_str = "\n\t- ".join(
             [
                 f"{question} (missing for {', '.join(countries)})"
@@ -48,7 +48,7 @@ def process_data(df: pd.DataFrame) -> pd.DataFrame:
         )
         logger.info(
             f"Shape of the data after removing questions with missing answers: "
-            f"{survey_df.shape}"
+            f"{df.shape}"
         )
 
     # Impute missing values
