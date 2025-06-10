@@ -30,15 +30,15 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
         config:
             The Hydra config.
     """
-    if config.sample_size is not None:
+    if config.sample_size_per_group is not None:
         logger.info(
-            f"Sampling {config.sample_size:,} rows from each country group "
+            f"Sampling {config.sample_size_per_group:,} rows from each country group "
             "to speed up the optimisation."
         )
         survey_df = pd.concat(
             [
                 survey_df.query("country_group == @country_group").sample(
-                    n=config.sample_size, random_state=4242
+                    n=config.sample_size_per_group, random_state=4242
                 )
                 for country_group in survey_df.country_group.unique()
             ]
