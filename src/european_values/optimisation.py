@@ -104,12 +104,17 @@ def negative_silhouette_score(
     Returns:
         The negative silhouette score of the survey with the given questions.
     """
+    # Ensure that the question_mask is a boolean array
     question_mask = np.round(question_mask).astype(bool)
+
+    # Get the embedding matrix containing the question responses for the selected
+    # questions
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
+    # Compute the silhouette coefficients for either all rows or only the focus group
     silhouette_coefficients = silhouette_samples(
         X=embedding_matrix, labels=survey_df.country_group
     )
@@ -118,6 +123,8 @@ def negative_silhouette_score(
         if focus is not None
         else survey_df.index
     )
+
+    # Calculate the mean silhouette score for the focus group (or all rows)
     silhouette_score = np.mean(silhouette_coefficients[focus_rows])
 
     return -silhouette_score
