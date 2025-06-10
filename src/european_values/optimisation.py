@@ -51,7 +51,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
     )
     result = opt.differential_evolution(
         func=negative_silhouette_score,
-        args=(survey_df,),
+        args=(survey_df, config.focus),
         bounds=[(0, 1)] * num_questions,
         x0=np.ones(num_questions),
         popsize=config.population_size,
