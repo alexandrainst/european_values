@@ -1,193 +1,6 @@
 """Constants used in the project."""
 
 COUNTRY_GROUPS = {
-    "Caribbean": [
-        "AG",  # Antigua and Barbuda
-        "BB",  # Barbados
-        "BS",  # Bahamas
-        "CU",  # Cuba
-        "DM",  # Dominica
-        "DO",  # Dominican Republic
-        "GD",  # Grenada
-        "GF",  # French Guiana
-        "GY",  # Guyana
-        "HT",  # Haiti
-        "JM",  # Jamaica
-        "KN",  # Saint Kitts and Nevis
-        "LC",  # Saint Lucia
-        "PR",  # Puerto Rico
-        "SR",  # Suriname
-        "TT",  # Trinidad and Tobago
-        "VC",  # Saint Vincent and the Grenadines
-    ],
-    "Central America": [
-        "BZ",  # Belize
-        "CR",  # Costa Rica
-        "GT",  # Guatemala
-        "HN",  # Honduras
-        "MX",  # Mexico
-        "NI",  # Nicaragua
-        "PA",  # Panama
-        "SV",  # El Salvador
-    ],
-    "Central Asia": [
-        "KG",  # Kyrgyzstan
-        "KZ",  # Kazakhstan
-        "TJ",  # Tajikistan
-        "TM",  # Turkmenistan
-        "UZ",  # Uzbekistan
-    ],
-    "China": [
-        "CN"  # China
-    ],
-    "East Asia Without China": [
-        "HK",  # Hong Kong
-        "JP",  # Japan
-        "KP",  # North Korea
-        "KR",  # South Korea
-        "MN",  # Mongolia
-        "MO",  # Macao
-        "TW",  # Taiwan
-    ],
-    "Middle East": [
-        "AE",  # United Arab Emirates
-        "BH",  # Bahrain
-        "CY",  # Cyprus
-        "EG",  # Egypt
-        "IL",  # Israel
-        "IQ",  # Iraq
-        "IR",  # Iran
-        "JO",  # Jordan
-        "KW",  # Kuwait
-        "LB",  # Lebanon
-        "OM",  # Oman
-        "PS",  # Palestine, State of (or Palestinian Territories)
-        "QA",  # Qatar
-        "SA",  # Saudi Arabia
-        "SY",  # Syria
-        "TR",  # Turkey
-        "YE",  # Yemen
-    ],
-    "North Africa": [
-        "DZ",  # Algeria
-        "EG",  # Egypt
-        "LY",  # Libya
-        "MA",  # Morocco
-        "MR",  # Mauritania
-        "SD",  # Sudan
-        "TN",  # Tunisia
-    ],
-    "North America": [
-        "CA",  # Canada
-        "US",  # United States
-    ],
-    "Oceania": [
-        "AS",  # American Samoa
-        "AU",  # Australia
-        "CK",  # Cook Islands
-        "FJ",  # Fiji
-        "FM",  # Micronesia
-        "GU",  # Guam
-        "KI",  # Kiribati
-        "MH",  # Marshall Islands
-        "MP",  # Northern Mariana Islands
-        "NC",  # New Caledonia
-        "NR",  # Nauru
-        "NU",  # Niue
-        "NZ",  # New Zealand
-        "PF",  # French Polynesia
-        "PG",  # Papua New Guinea
-        "PN",  # Pitcairn Islands
-        "PW",  # Palau
-        "SB",  # Solomon Islands
-        "TK",  # Tokelau
-        "TO",  # Tonga
-        "TV",  # Tuvalu
-        "VU",  # Vanuatu
-        "WF",  # Wallis and Futuna
-        "WS",  # Samoa
-    ],
-    "South America": [
-        "AR",  # Argentina
-        "BO",  # Bolivia
-        "BR",  # Brazil
-        "CL",  # Chile
-        "CO",  # Colombia
-        "EC",  # Ecuador
-        "PE",  # Peru
-        "PY",  # Paraguay
-        "UY",  # Uruguay
-        "VE",  # Venezuela
-    ],
-    "South Asia": [
-        "AF",  # Afghanistan
-        "BD",  # Bangladesh
-        "BT",  # Bhutan
-        "IN",  # India
-        "LK",  # Sri Lanka
-        "MV",  # Maldives
-        "NP",  # Nepal
-        "PK",  # Pakistan
-    ],
-    "Southeast Asia": [
-        "BN",  # Brunei Darussalam
-        "ID",  # Indonesia
-        "KH",  # Cambodia
-        "LA",  # Laos
-        "MM",  # Myanmar
-        "MY",  # Malaysia
-        "PH",  # Philippines
-        "SG",  # Singapore
-        "TH",  # Thailand
-        "TL",  # Timor-Leste
-        "VN",  # Vietnam
-    ],
-    "Sub Saharan Africa": [
-        "AO",  # Angola
-        "BF",  # Burkina Faso
-        "BI",  # Burundi
-        "BJ",  # Benin
-        "BW",  # Botswana
-        "CD",  # Congo (Democratic Republic of the)
-        "CF",  # Central African Republic
-        "CG",  # Congo (Republic of the)
-        "CI",  # Côte d'Ivoire
-        "CM",  # Cameroon
-        "CV",  # Cape Verde
-        "DJ",  # Djibouti
-        "ER",  # Eritrea
-        "ET",  # Ethiopia
-        "GA",  # Gabon
-        "GH",  # Ghana
-        "GM",  # Gambia
-        "GN",  # Guinea
-        "GQ",  # Equatorial Guinea
-        "GW",  # Guinea-Bissau
-        "KE",  # Kenya
-        "LS",  # Lesotho
-        "LR",  # Liberia
-        "MG",  # Madagascar
-        "ML",  # Mali
-        "MW",  # Malawi
-        "MZ",  # Mozambique
-        "NA",  # Namibia
-        "NE",  # Niger
-        "NG",  # Nigeria
-        "RW",  # Rwanda
-        "SC",  # Seychelles
-        "SL",  # Sierra Leone
-        "SO",  # Somalia
-        "SS",  # South Sudan
-        "ST",  # Sao Tome and Principe
-        "SZ",  # Eswatini
-        "TD",  # Chad
-        "TG",  # Togo
-        "TZ",  # Tanzania
-        "UG",  # Uganda
-        "ZA",  # South Africa
-        "ZM",  # Zambia
-        "ZW",  # Zimbabwe
-    ],
     "Western Europe": [
         "EE",  # Estonia
         "CZ",  # Czech Republic
@@ -237,6 +50,74 @@ COUNTRY_GROUPS = {
         "BA",  # Bosnia and Herzegovina
         "AZ",  # Azerbaijan
         "TR",  # Turkey
+    ],
+    "Anglo-America": [
+        "US",  # United States
+        "CA",  # Canada
+    ],
+    "Latin America": [
+        "BO",  # Bolivia
+        "PE",  # Peru
+        "EC",  # Ecuador
+        "BR",  # Brazil
+        "GT",  # Guatemala
+        "PR",  # Puerto Rico
+        "AR",  # Argentina
+        "MX",  # Mexico
+        "VE",  # Venezuela
+        "NI",  # Nicaragua
+        "CO",  # Colombia
+        "CL",  # Chile
+        "UY",  # Uruguay
+    ],
+    "East Asia": [
+        "CN",  # China
+        "JP",  # Japan
+        "MO",  # Macao
+        "KR",  # South Korea
+        "MN",  # Mongolia
+        "HK",  # Hong Kong
+        "TW",  # Taiwan
+        "SG",  # Singapore
+        "MM",  # Myanmar
+        "TH",  # Thailand
+        "VN",  # Vietnam
+        "IN",  # India
+        "BD",  # Bangladesh
+        "PH",  # Philippines
+        "MY",  # Malaysia
+        "ID",  # Indonesia
+    ],
+    "Central Asia": [
+        "KZ",  # Kazakhstan
+        "TJ",  # Tajikistan
+        "KG",  # Kyrgyzstan
+        "UZ",  # Uzbekistan
+    ],
+    "Middle East": [
+        "LB",  # Lebanon
+        "MV",  # Maldives
+        "PK",  # Pakistan
+        "IR",  # Iran
+        "IQ",  # Iraq
+        "TR",  # Turkey
+        "JO",  # Jordan
+    ],
+    "North Africa": [
+        "MA",  # Morocco
+        "LY",  # Libya
+        "TN",  # Tunisia
+        "EG",  # Egypt
+    ],
+    "Sub-Saharan Africa": [
+        "KE",  # Kenya
+        "ZW",  # Zimbabwe
+        "ET",  # Ethiopia
+        "NG",  # Nigeria
+    ],
+    "Oceania": [
+        "AU",  # Australia
+        "NZ",  # New Zealand
     ],
 }
 
