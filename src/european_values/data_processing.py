@@ -10,6 +10,7 @@ from omegaconf import DictConfig
 from sklearn.preprocessing import MinMaxScaler
 from tqdm.auto import tqdm
 
+from .constants import EUROPE_SEPARATING_COLUMNS
 from .utils import group_country
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,17 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         logger.info(f"Filtering data for country groups: {config.country_groups}")
         df = df.query("country_group in @config.country_groups").reset_index(drop=True)
         logger.info(f"Shape of the data after filtering: {df.shape}")
+
+    # Remove questions that separates European countries from each other
+    if config.remove_europe_separating_questions:
+        df = df.drop(columns=EUROPE_SEPARATING_COLUMNS, errors="ignore")
+        logger.info(
+            f"Removed {len(EUROPE_SEPARATING_COLUMNS):,} questions that separate "
+            "European countries from each other."
+        )
+        logger.info(
+            f"Shape of the data after removing separating questions: {df.shape}"
+        )
 
     # Remove questions for which a country exists that have not answered the question
     questions_with_missing_answers: dict[str, set[str]] = defaultdict(set)

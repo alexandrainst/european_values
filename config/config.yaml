@@ -4,6 +4,7 @@ defaults:
 
 data: null
 repo_id: EuropeanValuesProject/european_values_survey
+remove_europe_separating_questions: true
 
 umap_neighbours: 20
 top_umap_importances: 50
