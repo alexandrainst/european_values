@@ -19,4 +19,5 @@ optimisation:
   sample_size: 100
   max_iterations: 1000
   population_size: 10
+  min_questions: 50
   focus: null
