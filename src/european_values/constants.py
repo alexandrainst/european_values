@@ -37,13 +37,6 @@ COUNTRY_GROUPS = {
         "TM",  # Turkmenistan
         "UZ",  # Uzbekistan
     ],
-    "Central Europe": [
-        "CZ",  # Czech Republic
-        "HU",  # Hungary
-        "PL",  # Poland
-        "SI",  # Slovenia
-        "SK",  # Slovakia
-    ],
     "China": [
         "CN"  # China
     ],
@@ -55,25 +48,6 @@ COUNTRY_GROUPS = {
         "MN",  # Mongolia
         "MO",  # Macao
         "TW",  # Taiwan
-    ],
-    "Eastern Europe": [
-        "AL",  # Albania
-        "AM",  # Armenia
-        "AZ",  # Azerbaijan
-        "BA",  # Bosnia and Herzegovina
-        "BG",  # Bulgaria
-        "BY",  # Belarus
-        "GE",  # Georgia
-        "HR",  # Croatia
-        "MD",  # Moldova
-        "ME",  # Montenegro
-        "MK",  # North Macedonia
-        "RO",  # Romania
-        "RS",  # Serbia
-        "RU",  # Russia
-        "TR",  # Turkey
-        "UA",  # Ukraine
-        "XK",  # Kosovo
     ],
     "Middle East": [
         "AE",  # United Arab Emirates
@@ -106,18 +80,6 @@ COUNTRY_GROUPS = {
     "North America": [
         "CA",  # Canada
         "US",  # United States
-    ],
-    "Northern Europe": [
-        "DK",  # Denmark
-        "EE",  # Estonia
-        "FI",  # Finland
-        "FO",  # Faroe Islands
-        "GL",  # Greenland
-        "IS",  # Iceland
-        "LT",  # Lithuania
-        "LV",  # Latvia
-        "NO",  # Norway
-        "SE",  # Sweden
     ],
     "Oceania": [
         "AS",  # American Samoa
@@ -180,17 +142,6 @@ COUNTRY_GROUPS = {
         "TL",  # Timor-Leste
         "VN",  # Vietnam
     ],
-    "Southern Europe": [
-        "AD",  # Andorra
-        "CY",  # Cyprus
-        "ES",  # Spain
-        "GR",  # Greece
-        "IT",  # Italy
-        "MT",  # Malta
-        "PT",  # Portugal
-        "SM",  # San Marino
-        "VA",  # Vatican City
-    ],
     "Sub Saharan Africa": [
         "AO",  # Angola
         "BF",  # Burkina Faso
@@ -238,18 +189,54 @@ COUNTRY_GROUPS = {
         "ZW",  # Zimbabwe
     ],
     "Western Europe": [
-        "AT",  # Austria
-        "BE",  # Belgium
-        "CH",  # Switzerland
-        "DE",  # Germany
+        "EE",  # Estonia
+        "CZ",  # Czech Republic
+        "LV",  # Latvia
+        "HU",  # Hungary
+        "NL",  # Netherlands
         "FR",  # France
         "GB",  # United Kingdom
-        "IE",  # Ireland
-        "LI",  # Liechtenstein
+        "DE",  # Germany
+        "AD",  # Andorra
         "LU",  # Luxembourg
-        "MC",  # Monaco
-        "NL",  # Netherlands
+        "SI",  # Slovenia
+        "SK",  # Slovakia
+        "BE",  # Belgium
+        "ES",  # Spain
+        "AT",  # Austria
+        "HR",  # Croatia
+        "IT",  # Italy
+        "PT",  # Portugal
+        "IE",  # Ireland
+        "PL",  # Poland
+        "LT",  # Lithuania
+        "MT",  # Malta
         "NIR",  # Northern Ireland
+        "IS",  # Iceland
+        "DK",  # Denmark
+        "FI",  # Finland
+        "NO",  # Norway
+        "SE",  # Sweden
+        "CH",  # Switzerland
+    ],
+    "Eastern Europe": [
+        "BG",  # Bulgaria
+        "RU",  # Russia
+        "BY",  # Belarus
+        "UA",  # Ukraine
+        "RS",  # Serbia
+        "AL",  # Albania
+        "ME",  # Montenegro
+        "MK",  # North Macedonia
+        "AM",  # Armenia
+        "GE",  # Georgia
+        "CY",  # Cyprus
+        "GR",  # Greece
+        "MD",  # Moldova
+        "RO",  # Romania
+        "BA",  # Bosnia and Herzegovina
+        "AZ",  # Azerbaijan
+        "TR",  # Turkey
     ],
 }
 
