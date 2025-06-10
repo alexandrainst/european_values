@@ -5,12 +5,18 @@ defaults:
 data: null
 repo_id: EuropeanValuesProject/european_values_survey
 
-umap_neighbours: 100
-top_umap_importances: 50
-
 countries: null
 country_groups: null
 use_country_groups: true
 
-ellipses: true
-ellipse_std: 1.0
+plotting:
+  umap_neighbours: 100
+  top_umap_importances: 50
+  ellipses: true
+  ellipse_std: 1.0
+
+optimisation:
+  sample_size: 100
+  max_iterations: 1000
+  population_size: 10
+  focus: null
