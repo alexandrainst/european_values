@@ -5,7 +5,7 @@ defaults:
 data: null
 repo_id: EuropeanValuesProject/european_values_survey
 
-umap_neighbours: 20
+umap_neighbours: 100
 top_umap_importances: 50
 
 countries: null
