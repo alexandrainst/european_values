@@ -55,7 +55,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
         x0=np.ones(num_questions),
         popsize=config.population_size,
         maxiter=config.max_iterations,
-        workers=-1,
+        workers=config.n_jobs,
         disp=True,
         constraints=opt.LinearConstraint(
             A=np.ones((1, num_questions)), lb=config.min_questions, ub=num_questions

@@ -21,3 +21,4 @@ optimisation:
   population_size: 10
   min_questions: 50
   focus: null
+  n_jobs: -1
