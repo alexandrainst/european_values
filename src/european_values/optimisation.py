@@ -32,15 +32,19 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
     """
     logger.info("Optimising the survey data...")
 
-    # TEMP
-    survey_df = pd.concat(
-        [
-            survey_df.query("country_group == @country_group").sample(
-                n=config.sample_size, random_state=4242
-            )
-            for country_group in survey_df.country_group.unique()
-        ]
-    ).reset_index(drop=True)
+    if config.sample_size is not None:
+        logger.info(
+            f"Sampling {config.sample_size:,} rows from each country group "
+            "to speed up the optimisation."
+        )
+        survey_df = pd.concat(
+            [
+                survey_df.query("country_group == @country_group").sample(
+                    n=config.sample_size, random_state=4242
+                )
+                for country_group in survey_df.country_group.unique()
+            ]
+        ).reset_index(drop=True)
 
     num_questions = len(
         [col for col in survey_df.columns if col.startswith("question_")]
