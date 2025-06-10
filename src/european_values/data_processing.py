@@ -41,10 +41,11 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
 
     # Filter countries
     if config.countries is not None:
-        if any(country not in df.country_code.unique() for country in config.countries):
-            raise ValueError(
-                f"Some countries in the config ({config.countries}) are not present "
-                f"in the data. Available countries: {df.country_code.unique().tolist()}"
+        missing_countries = set(config.countries) - set(df.country_code.unique())
+        if missing_countries:
+            logger.warning(
+                f"The countries {missing_countries} in the config are not present "
+                "in the data. Ignoring them."
             )
         logger.info(f"Filtering data for countries: {config.countries}")
         df = df.query("country_code in @config.countries").reset_index(drop=True)
@@ -52,13 +53,11 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
 
     # Filter country groups
     if config.country_groups is not None:
-        if any(
-            group not in df.country_group.unique() for group in config.country_groups
-        ):
-            raise ValueError(
-                f"Some country groups in the config ({config.country_groups}) are not "
-                f"present in the data. Available country groups: "
-                f"{df.country_group.unique().tolist()}"
+        missing_groups = set(config.country_groups) - set(df.country_group.unique())
+        if missing_groups:
+            logger.warning(
+                f"The country groups {missing_groups} in the config are not present "
+                "in the data. Ignoring them."
             )
         logger.info(f"Filtering data for country groups: {config.country_groups}")
         df = df.query("country_group in @config.country_groups").reset_index(drop=True)
