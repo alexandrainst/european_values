@@ -17,7 +17,7 @@ plotting:
 
 optimisation:
   sample_size_per_group: 1000
-  max_iterations: 100
+  max_iterations: 500
   population_size: 10
   min_questions: 50
   focus: null
