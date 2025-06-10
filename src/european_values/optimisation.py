@@ -30,8 +30,6 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
         config:
             The Hydra config.
     """
-    logger.info("Optimising the survey data...")
-
     if config.sample_size is not None:
         logger.info(
             f"Sampling {config.sample_size:,} rows from each country group "
@@ -46,6 +44,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
             ]
         ).reset_index(drop=True)
 
+    logger.info(f"Initiating optimisation for {config.max_iterations:,} iterations...")
     num_questions = len(
         [col for col in survey_df.columns if col.startswith("question_")]
     )
