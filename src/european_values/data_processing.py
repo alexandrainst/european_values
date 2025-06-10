@@ -5,8 +5,8 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
+from feature_engine.imputation import RandomSampleImputer
 from omegaconf import DictConfig
-from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import MinMaxScaler
 from tqdm.auto import tqdm
 
@@ -97,7 +97,6 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
     logger.info("Imputing missing values...")
     question_columns = [col for col in df.columns if col.startswith("question_")]
     embedding_matrix = np.empty(shape=(df.shape[0], len(question_columns)))
-    imputer = SimpleImputer(strategy="mean")
     for country_group in tqdm(
         iterable=df.country_group.unique(),
         desc="Imputing missing values",
@@ -106,7 +105,11 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         country_group_df = df.query("country_group == @country_group")
         country_group_df = country_group_df[question_columns].copy()
         assert isinstance(country_group_df, pd.DataFrame)
-        country_embedding = imputer.fit_transform(X=country_group_df)
+        country_embedding = (
+            RandomSampleImputer(random_state=4242)
+            .fit_transform(X=country_group_df)
+            .values
+        )
         assert isinstance(country_embedding, np.ndarray)
         embedding_matrix[country_group_df.index, :] = country_embedding
 

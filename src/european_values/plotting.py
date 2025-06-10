@@ -107,7 +107,9 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     ax.scatter(
         x=country_embedding_matrix[:, 0], y=country_embedding_matrix[:, 1], alpha=0.0
     )
-    ax.set_title("UMAP projection", fontsize=20)
+    ax.set_title(
+        f"UMAP projection with ellipse radii = {config.ellipse_std}σ", fontsize=20
+    )
     plt.show()
 
 
