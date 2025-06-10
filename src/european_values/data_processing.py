@@ -97,7 +97,7 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
     logger.info("Imputing missing values...")
     question_columns = [col for col in df.columns if col.startswith("question_")]
     embedding_matrix = np.empty(shape=(df.shape[0], len(question_columns)))
-    imputer = SimpleImputer(strategy="mean", keep_empty_features=True)
+    imputer = SimpleImputer(strategy="mean")
     for country_group in tqdm(
         iterable=df.country_group.unique(),
         desc="Imputing missing values",
