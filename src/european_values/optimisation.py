@@ -34,7 +34,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         A DataFrame containing the survey data with only the selected questions and
         the non-question columns.
     """
-    survey_df = pd.concat(
+    sample_df = pd.concat(
         [
             survey_df.query("country_group == @country_group").sample(
                 n=config.sample_size_per_group, random_state=4242
@@ -43,13 +43,12 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         ]
     ).reset_index(drop=True)
 
-    logger.info(f"Initiating optimisation for {config.max_iterations:,} iterations...")
     num_questions = len(
-        [col for col in survey_df.columns if col.startswith("question_")]
+        [col for col in sample_df.columns if col.startswith("question_")]
     )
     result = opt.differential_evolution(
         func=negative_silhouette_score,
-        args=(survey_df, config.focus),
+        args=(sample_df, config.focus),
         bounds=[(0, 1)] * num_questions,
         x0=np.ones(num_questions),
         popsize=config.population_size,
@@ -63,7 +62,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         updating="deferred",
     )
 
-    question_columns = [col for col in survey_df.columns if col.startswith("question_")]
+    question_columns = [col for col in sample_df.columns if col.startswith("question_")]
     identified_questions = [
         question_columns[i]
         for i, value in enumerate(np.round(result.x).astype(bool))
@@ -76,9 +75,9 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
     )
 
     non_question_columns = [
-        col for col in survey_df.columns if not col.startswith("question_")
+        col for col in sample_df.columns if not col.startswith("question_")
     ]
-    return survey_df[non_question_columns + identified_questions]
+    return survey_df.loc[:, non_question_columns + identified_questions]
 
 
 def negative_silhouette_score(

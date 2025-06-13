@@ -16,8 +16,8 @@ plotting:
   ellipse_std: 1.0
 
 optimisation:
-  sample_size_per_group: 1000
-  max_iterations: 500
+  sample_size_per_group: 100
+  max_iterations: 100
   population_size: 10
   min_questions: 50
   focus: null

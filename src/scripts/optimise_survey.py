@@ -49,6 +49,7 @@ def main(config: DictConfig) -> None:
     df = process_data(df=df, config=config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
+    logger.info(f"Optimising for {config.optimisation.max_iterations:,} iterations...")
     df = optimise_survey(survey_df=df, config=config.optimisation)
 
     logger.info("Creating the scatter plot...")
