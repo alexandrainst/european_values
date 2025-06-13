@@ -53,6 +53,7 @@ def main(config: DictConfig) -> None:
     df = optimise_survey(survey_df=df, config=config.optimisation)
 
     logger.info("Creating the scatter plot...")
+    config.plotting.fast = True  # Set fast mode for plotting
     create_scatter(survey_df=df, config=config.plotting)
 
 

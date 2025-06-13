@@ -14,6 +14,7 @@ plotting:
   top_umap_importances: 50
   ellipses: true
   ellipse_std: 1.0
+  fast: false
 
 optimisation:
   sample_size_per_group: 100

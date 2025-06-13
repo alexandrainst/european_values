@@ -35,8 +35,15 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 
+    if config.fast:
+        logger.info("Fast UMAP mode enabled, which is non-deterministic but faster.")
     logger.info("Reducing to two dimensions with UMAP...")
-    umap = UMAP(n_components=2, n_neighbors=config.umap_neighbours, random_state=4242)
+    umap = UMAP(
+        n_components=2,
+        n_neighbors=config.umap_neighbours,
+        random_state=4242 if not config.fast else None,
+        n_jobs=-1 if config.fast else 1,
+    )
     embedding_matrix = umap.fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
 
