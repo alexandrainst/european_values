@@ -18,7 +18,7 @@ warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
 
 
-def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
+def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
     """Optimise the survey data by locating the most important questions.
 
     This optimises the separation between the country groups by maximising the
@@ -29,20 +29,19 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
             The survey data.
         config:
             The Hydra config.
+
+    Returns:
+        A DataFrame containing the survey data with only the selected questions and
+        the non-question columns.
     """
-    if config.sample_size_per_group is not None:
-        logger.info(
-            f"Sampling {config.sample_size_per_group:,} rows from each country group "
-            "to speed up the optimisation."
-        )
-        survey_df = pd.concat(
-            [
-                survey_df.query("country_group == @country_group").sample(
-                    n=config.sample_size_per_group, random_state=4242
-                )
-                for country_group in survey_df.country_group.unique()
-            ]
-        ).reset_index(drop=True)
+    survey_df = pd.concat(
+        [
+            survey_df.query("country_group == @country_group").sample(
+                n=config.sample_size_per_group, random_state=4242
+            )
+            for country_group in survey_df.country_group.unique()
+        ]
+    ).reset_index(drop=True)
 
     logger.info(f"Initiating optimisation for {config.max_iterations:,} iterations...")
     num_questions = len(
@@ -61,6 +60,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
             A=np.ones((1, num_questions)), lb=config.min_questions, ub=num_questions
         ),
         integrality=np.array([True] * num_questions, dtype=bool),
+        updating="deferred",
     )
 
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
@@ -70,19 +70,15 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> None:
         if value
     ]
     logger.info(
-        "Identified questions for the survey, with a silhouette score of "
-        f"{-result.fun:.4f}:\n\t- " + "\n\t- ".join(identified_questions)
+        f"Identified {len(identified_questions):,} questions for the survey, with a "
+        f"silhouette score of {-result.fun:.4f}:\n\t- "
+        + "\n\t- ".join(identified_questions)
     )
-    logger.info(
-        "The questions that got removed from the survey:\n\t- "
-        + "\n\t- ".join(
-            [
-                question
-                for question in question_columns
-                if question not in identified_questions
-            ]
-        )
-    )
+
+    non_question_columns = [
+        col for col in survey_df.columns if not col.startswith("question_")
+    ]
+    return survey_df[non_question_columns + identified_questions]
 
 
 def negative_silhouette_score(

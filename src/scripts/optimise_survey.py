@@ -13,6 +13,7 @@ from omegaconf import DictConfig
 
 from european_values.data_processing import process_data
 from european_values.optimisation import optimise_survey
+from european_values.plotting import create_scatter
 
 logger = logging.getLogger("optimise_survey")
 
@@ -48,7 +49,10 @@ def main(config: DictConfig) -> None:
     df = process_data(df=df, config=config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
-    optimise_survey(survey_df=df, config=config.optimisation)
+    df = optimise_survey(survey_df=df, config=config.optimisation)
+
+    logger.info("Creating the scatter plot...")
+    create_scatter(survey_df=df, config=config.plotting)
 
 
 if __name__ == "__main__":

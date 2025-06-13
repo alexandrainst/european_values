@@ -1,7 +1,8 @@
 """Constants used in the project."""
 
 COUNTRY_GROUPS = {
-    "Western Europe": [
+    # "Western Europe": [
+    "Europe": [
         "EE",  # Estonia
         "CZ",  # Czech Republic
         "LV",  # Latvia
@@ -31,8 +32,8 @@ COUNTRY_GROUPS = {
         "NO",  # Norway
         "SE",  # Sweden
         "CH",  # Switzerland
-    ],
-    "Eastern Europe": [
+        # ],
+        # "Eastern Europe": [
         "BG",  # Bulgaria
         "RU",  # Russia
         "BY",  # Belarus
