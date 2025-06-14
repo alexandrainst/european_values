@@ -60,6 +60,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         ),
         integrality=np.array([True] * num_questions, dtype=bool),
         updating="deferred",
+        polish=False,
     )
 
     identified_questions = [
