@@ -98,6 +98,10 @@ def negative_silhouette_score(
     Returns:
         The negative silhouette score of the survey with the given questions.
     """
+    # If there are no chosen questions, return 0
+    if question_mask.sum().item() == 0:
+        return 0
+
     # Ensure that the question_mask is a boolean array
     question_mask = np.round(question_mask).astype(bool)
 
