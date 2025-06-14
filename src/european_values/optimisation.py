@@ -50,7 +50,6 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         func=negative_silhouette_score,
         args=(sample_df, config.focus),
         bounds=[(0, 1)] * num_questions,
-        x0=np.ones(num_questions),
         popsize=config.population_size,
         maxiter=config.max_iterations,
         workers=config.n_jobs,
