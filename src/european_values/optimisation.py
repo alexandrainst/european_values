@@ -43,9 +43,9 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         ]
     ).reset_index(drop=True)
 
-    num_questions = len(
-        [col for col in sample_df.columns if col.startswith("question_")]
-    )
+    question_columns = [col for col in sample_df.columns if col.startswith("question_")]
+    num_questions = len(question_columns)
+
     result = opt.differential_evolution(
         func=negative_silhouette_score,
         args=(sample_df, config.focus),
@@ -62,7 +62,6 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         updating="deferred",
     )
 
-    question_columns = [col for col in sample_df.columns if col.startswith("question_")]
     identified_questions = [
         question_columns[i]
         for i, value in enumerate(np.round(result.x).astype(bool))
@@ -119,7 +118,7 @@ def negative_silhouette_score(
         else survey_df.index
     )
 
-    # Calculate the mean silhouette score for the focus group (or all rows)
+    # Aggregate the silhouette scores for the focus group (or all rows)
     silhouette_score = np.mean(silhouette_coefficients[focus_rows])
 
     return -silhouette_score
