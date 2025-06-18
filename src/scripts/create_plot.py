@@ -25,18 +25,33 @@ def main(config: DictConfig) -> None:
         config:
             The Hydra config for your project.
     """
-    evs_trend_df = load_evs_trend_data()
-    evs_wvs_df = load_evs_wvs_data()
-
-    logger.info("Combining the EVS trend and EVS/WVS data...")
-    df = pd.concat([evs_trend_df, evs_wvs_df], ignore_index=True)
+    match (config.include_evs_trend, config.include_evs_wvs):
+        case (True, True):
+            logger.info("Loading EVS trend and EVS/WVS data...")
+            evs_trend_df = load_evs_trend_data()
+            evs_wvs_df = load_evs_wvs_data()
+            df = pd.concat([evs_trend_df, evs_wvs_df], ignore_index=True)
+        case (True, False):
+            logger.info("Loading only EVS trend data...")
+            df = load_evs_trend_data()
+        case (False, True):
+            logger.info("Loading only EVS/WVS data...")
+            df = load_evs_wvs_data()
+        case _:
+            raise ValueError(
+                "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
+            )
 
     logger.info("Processing the data...")
     df = process_data(df=df, config=config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     logger.info("Creating the scatter plot...")
-    create_scatter(survey_df=df, config=config.plotting)
+    create_scatter(
+        survey_df=df,
+        use_country_groups=config.use_country_groups,
+        config=config.plotting,
+    )
 
 
 if __name__ == "__main__":

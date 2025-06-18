@@ -21,12 +21,16 @@ warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
 
 
-def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
+def create_scatter(
+    survey_df: pd.DataFrame, use_country_groups: bool, config: DictConfig
+) -> None:
     """Create a scatter plot of the survey data.
 
     Args:
         survey_df:
             The survey data.
+        use_country_groups:
+            Whether to use country groups or individual countries for the scatter plot.
         config:
             The Hydra config.
     """
@@ -72,13 +76,22 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
         )
     )
 
+    # Get the country groupings, which depends on whether we are working with countries
+    # or country groups
+    country_grouping_str = "country group" if use_country_groups else "country_code"
+    unique_country_groupings = (
+        survey_df.country_group.unique()
+        if use_country_groups
+        else survey_df.country_code.unique()
+    )
+
     # Create a matrix with mean values for each country group
     country_embedding_matrix = np.empty(
-        shape=(survey_df.country_group.nunique(), embedding_matrix.shape[1])
+        shape=(len(unique_country_groupings), embedding_matrix.shape[1])
     )
-    for country_idx, country_group in enumerate(survey_df.country_group.unique()):
+    for country_idx, country_grouping in enumerate(unique_country_groupings):
         country_indices = survey_df.query(
-            "country_group == @country_group"
+            f"{country_grouping_str} == @country_grouping"
         ).index.tolist()
         country_embedding_matrix[country_idx, :] = np.mean(
             embedding_matrix[country_indices, :], axis=0
@@ -86,10 +99,10 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
 
     logger.info("Creating scatter plot with matplotlib...")
     ax = plt.figure(figsize=(10, 8)).add_subplot(111)
-    for country_idx, country_group in enumerate(survey_df.country_group.unique()):
-        colour = plt.cm.tab20(country_idx / survey_df.country_group.nunique())  # type: ignore[attr-defined]
+    for country_idx, country_grouping in enumerate(unique_country_groupings):
+        colour = plt.cm.tab20(country_idx / len(unique_country_groupings))  # type: ignore[attr-defined]
         country_indices = survey_df.query(
-            "country_group == @country_group"
+            f"{country_grouping_str} == @country_grouping"
         ).index.tolist()
         if config.ellipses:
             confidence_ellipse(
@@ -103,7 +116,7 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
         ax.text(
             x=country_embedding_matrix[country_idx, 0],
             y=country_embedding_matrix[country_idx, 1],
-            s=country_group,
+            s=country_grouping,
             fontsize=12,
             ha="center",
             va="center",
