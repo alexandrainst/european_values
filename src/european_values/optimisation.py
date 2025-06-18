@@ -18,7 +18,9 @@ warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
 
 
-def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
+def optimise_survey(
+    survey_df: pd.DataFrame, use_country_groups: bool, config: DictConfig
+) -> pd.DataFrame:
     """Optimise the survey data by locating the most important questions.
 
     This optimises the separation between the country groups by maximising the
@@ -27,6 +29,8 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
     Args:
         survey_df:
             The survey data.
+        use_country_groups:
+            Whether to use country groups or individual countries for the optimisation.
         config:
             The Hydra config.
 
@@ -34,12 +38,21 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         A DataFrame containing the survey data with only the selected questions and
         the non-question columns.
     """
+    # Get the country groupings, which depends on whether we are working with countries
+    # or country groups
+    country_grouping_str = "country_group" if use_country_groups else "country_code"
+    unique_country_groupings = (
+        survey_df.country_group.unique()
+        if use_country_groups
+        else survey_df.country_code.unique()
+    )
+
     sample_df = pd.concat(
         [
-            survey_df.query("country_group == @country_group").sample(
+            survey_df.query(f"{country_grouping_str} == @country_grouping").sample(
                 n=config.sample_size_per_group, random_state=4242
             )
-            for country_group in survey_df.country_group.unique()
+            for country_grouping in unique_country_groupings
         ]
     ).reset_index(drop=True)
 
