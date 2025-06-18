@@ -48,7 +48,11 @@ def main(config: DictConfig) -> None:
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     logger.info(f"Optimising for {config.optimisation.max_iterations:,} iterations...")
-    df = optimise_survey(survey_df=df, config=config.optimisation)
+    df = optimise_survey(
+        survey_df=df,
+        use_country_groups=config.use_country_groups,
+        config=config.optimisation,
+    )
 
     logger.info("Creating the scatter plot...")
     config.plotting.fast = True  # Set fast mode for plotting
