@@ -78,7 +78,7 @@ def create_scatter(
 
     # Get the country groupings, which depends on whether we are working with countries
     # or country groups
-    country_grouping_str = "country group" if use_country_groups else "country_code"
+    country_grouping_str = "country_group" if use_country_groups else "country_code"
     unique_country_groupings = (
         survey_df.country_group.unique()
         if use_country_groups

@@ -62,7 +62,7 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
     # Get the country groupings, which depends on whether we are working with countries
     # or country groups
     country_grouping_str = (
-        "country group" if config.use_country_groups else "country_code"
+        "country_group" if config.use_country_groups else "country_code"
     )
     unique_country_groupings = (
         df.country_group.unique()
