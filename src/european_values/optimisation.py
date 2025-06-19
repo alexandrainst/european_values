@@ -19,9 +19,7 @@ warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
 
 
-def optimise_survey(
-    survey_df: pd.DataFrame, use_country_groups: bool, config: DictConfig
-) -> pd.DataFrame:
+def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
     """Optimise the survey data by locating the most important questions.
 
     This optimises the separation between the country groups by maximising the
@@ -30,8 +28,6 @@ def optimise_survey(
     Args:
         survey_df:
             The survey data.
-        use_country_groups:
-            Whether to use country groups or individual countries for the optimisation.
         config:
             The Hydra config.
 
@@ -39,21 +35,23 @@ def optimise_survey(
         A DataFrame containing the survey data with only the selected questions and
         the non-question columns.
     """
-    if config.sample_size_per_group is None:
+    if config.optimisation.sample_size_per_group is None:
         sample_df = survey_df.copy()
     else:
         # Get the country groupings, which depends on whether we are working with
         # countries or country groups
-        country_grouping_str = "country_group" if use_country_groups else "country_code"
+        country_grouping_str = (
+            "country_group" if config.use_country_groups else "country_code"
+        )
         unique_country_groupings = (
             survey_df.country_group.unique()
-            if use_country_groups
+            if config.use_country_groups
             else survey_df.country_code.unique()
         )
         sample_df = pd.concat(
             [
                 survey_df.query(f"{country_grouping_str} == @country_grouping").sample(
-                    n=config.sample_size_per_group, random_state=4242
+                    n=config.optimisation.sample_size_per_group, random_state=4242
                 )
                 for country_grouping in unique_country_groupings
             ]
@@ -67,12 +65,14 @@ def optimise_survey(
         args=(sample_df, config.focus),
         bounds=[(0, 1)] * num_questions,
         x0=np.ones(num_questions),
-        popsize=config.population_size,
-        maxiter=config.max_iterations,
-        workers=config.n_jobs,
+        popsize=config.optimisation.population_size,
+        maxiter=config.optimisation.max_iterations,
+        workers=config.optimisation.n_jobs,
         disp=True,
         constraints=opt.LinearConstraint(
-            A=np.ones((1, num_questions)), lb=config.min_questions, ub=num_questions
+            A=np.ones((1, num_questions)),
+            lb=config.optimisation.min_questions,
+            ub=num_questions,
         ),
         integrality=np.array([True] * num_questions, dtype=bool),
         updating="deferred",

@@ -10,6 +10,7 @@ include_evs_wvs: true
 countries: null
 country_groups: null
 use_country_groups: true
+focus: null
 
 plotting:
   umap_neighbours: 100
@@ -23,5 +24,4 @@ optimisation:
   max_iterations: 100
   population_size: 10
   min_questions: 3
-  focus: null
   n_jobs: -1

@@ -47,11 +47,7 @@ def main(config: DictConfig) -> None:
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     logger.info("Creating the scatter plot...")
-    create_scatter(
-        survey_df=df,
-        use_country_groups=config.use_country_groups,
-        config=config.plotting,
-    )
+    create_scatter(survey_df=df, config=config)
 
 
 if __name__ == "__main__":

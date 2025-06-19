@@ -21,16 +21,12 @@ warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
 
 
-def create_scatter(
-    survey_df: pd.DataFrame, use_country_groups: bool, config: DictConfig
-) -> None:
+def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     """Create a scatter plot of the survey data.
 
     Args:
         survey_df:
             The survey data.
-        use_country_groups:
-            Whether to use country groups or individual countries for the scatter plot.
         config:
             The Hydra config.
     """
@@ -39,14 +35,25 @@ def create_scatter(
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
 
-    if config.fast:
+    # Get the country groupings, which depends on whether we are working with countries
+    # or country groups
+    country_grouping_str = (
+        "country_group" if config.use_country_groups else "country_code"
+    )
+    unique_country_groupings = (
+        survey_df.country_group.unique()
+        if config.use_country_groups
+        else survey_df.country_code.unique()
+    )
+
+    if config.plotting.fast:
         logger.info("Fast UMAP mode enabled, which is non-deterministic but faster.")
     logger.info("Reducing to two dimensions with UMAP...")
     umap = UMAP(
         n_components=2,
-        n_neighbors=config.umap_neighbours,
-        random_state=4242 if not config.fast else None,
-        n_jobs=-1 if config.fast else 1,
+        n_neighbors=config.plotting.umap_neighbours,
+        random_state=4242 if not config.plotting.fast else None,
+        n_jobs=-1 if config.plotting.fast else 1,
     )
     embedding_matrix = umap.fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
@@ -65,18 +72,18 @@ def create_scatter(
         importances[question] = importance
     most_important_questions = sorted(
         importances.items(), key=lambda item: item[1], reverse=True
-    )[: config.top_umap_importances]
+    )[: config.plotting.top_umap_importances]
 
     # Get the average values for the most important questions in Europe, if available
-    if "Europe" in survey_df.country_group.unique():
+    if config.focus in survey_df.country_group.unique():
         europe_mean_values = (
-            survey_df.query("country_group == 'Europe'")
+            survey_df.query(f"{country_grouping_str} == @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .mean()
             .tolist()
         )
         non_europe_mean_values = (
-            survey_df.query("country_group != 'Europe'")
+            survey_df.query(f"{country_grouping_str} != @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .mean()
             .tolist()
@@ -86,7 +93,8 @@ def create_scatter(
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"(Europe: {europe_mean}, non-Europe: {non_europe_mean})"
+                    f"({config.focus}: {europe_mean}, "
+                    f"non-{config.focuxs}: {non_europe_mean})"
                     for (question, importance), europe_mean, non_europe_mean in zip(
                         most_important_questions,
                         europe_mean_values,
@@ -105,15 +113,6 @@ def create_scatter(
                 ]
             )
         )
-
-    # Get the country groupings, which depends on whether we are working with countries
-    # or country groups
-    country_grouping_str = "country_group" if use_country_groups else "country_code"
-    unique_country_groupings = (
-        survey_df.country_group.unique()
-        if use_country_groups
-        else survey_df.country_code.unique()
-    )
 
     # Create a matrix with mean values for each country group
     country_embedding_matrix = np.empty(
@@ -134,12 +133,12 @@ def create_scatter(
         country_indices = survey_df.query(
             f"{country_grouping_str} == @country_grouping"
         ).index.tolist()
-        if config.ellipses:
+        if config.plotting.ellipses:
             confidence_ellipse(
                 x=embedding_matrix[country_indices, 0],
                 y=embedding_matrix[country_indices, 1],
                 ax=ax,
-                n_std=config.ellipse_std,
+                n_std=config.plotting.ellipse_std,
                 facecolor="none",
                 edgecolor=colour,
             )
@@ -157,9 +156,10 @@ def create_scatter(
     ax.scatter(
         x=country_embedding_matrix[:, 0], y=country_embedding_matrix[:, 1], alpha=0.0
     )
-    if config.ellipses:
+    if config.plotting.ellipses:
         ax.set_title(
-            f"UMAP projection with ellipse radii = {config.ellipse_std}σ", fontsize=20
+            f"UMAP projection with ellipse radii = {config.plotting.ellipse_std}σ",
+            fontsize=20,
         )
     else:
         ax.set_title("UMAP projection", fontsize=20)
