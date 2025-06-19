@@ -8,7 +8,7 @@ import pandas as pd
 import scipy.optimize as opt
 from omegaconf import DictConfig
 from pandas.errors import PerformanceWarning
-from sklearn.metrics import silhouette_samples
+from sklearn.metrics import davies_bouldin_score, silhouette_samples
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +60,8 @@ def optimise_survey(
     num_questions = len(question_columns)
 
     result = opt.differential_evolution(
-        func=negative_silhouette_score,
-        args=(sample_df, config.focus),
+        func=davies_bouldin_index,
+        args=(sample_df,),
         bounds=[(0, 1)] * num_questions,
         popsize=config.population_size,
         maxiter=config.max_iterations,
@@ -82,7 +82,7 @@ def optimise_survey(
     ]
     logger.info(
         f"Identified {len(identified_questions):,} questions for the survey, with a "
-        f"silhouette score of {-result.fun:.4f}:\n\t- "
+        f"Davies-Bouldin index of {result.fun:.4f}:\n\t- "
         + "\n\t- ".join(identified_questions)
     )
 
@@ -139,3 +139,34 @@ def negative_silhouette_score(
     silhouette_score = np.mean(silhouette_coefficients[focus_rows])
 
     return -silhouette_score
+
+
+def davies_bouldin_index(question_mask: np.ndarray, survey_df: pd.DataFrame) -> float:
+    """Calculate the Davies-Bouldin index for the given questions.
+
+    Args:
+        question_mask:
+            A boolean mask indicating which questions to use, of shape (n_questions,).
+        survey_df:
+            The survey data, which must contain columns starting with "question_"
+            and a column "country_group" indicating the country group for each row.
+
+    Returns:
+        The Davies-Bouldin index of the survey with the given questions.
+    """
+    # If there are no chosen questions, return 100
+    if question_mask.sum().item() == 0:
+        return 100.0
+
+    # Ensure that the question_mask is a boolean array
+    question_mask = np.round(question_mask).astype(bool)
+
+    # Get the embedding matrix containing the question responses for the selected
+    # questions
+    question_columns = [col for col in survey_df.columns if col.startswith("question_")]
+    embedding_matrix = survey_df[question_columns].values
+    assert isinstance(embedding_matrix, np.ndarray)
+    embedding_matrix = embedding_matrix[:, question_mask]
+
+    # Compute the Davies-Bouldin index
+    return davies_bouldin_score(X=embedding_matrix, labels=survey_df.country_group)
