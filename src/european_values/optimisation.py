@@ -93,7 +93,7 @@ def optimise_survey(
     non_question_columns = [
         col for col in sample_df.columns if not col.startswith("question_")
     ]
-    return sample_df.loc[:, non_question_columns + identified_questions]
+    return survey_df.loc[:, non_question_columns + identified_questions]
 
 
 def negative_silhouette_score(

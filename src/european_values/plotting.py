@@ -66,15 +66,45 @@ def create_scatter(
     most_important_questions = sorted(
         importances.items(), key=lambda item: item[1], reverse=True
     )[: config.top_umap_importances]
-    logger.info(
-        "Most important questions based on UMAP feature importances:\n\t- "
-        + "\n\t- ".join(
-            [
-                f"{question}: {importance:.4f}"
-                for question, importance in most_important_questions
-            ]
+
+    # Get the average values for the most important questions in Europe, if available
+    if "Europe" in survey_df.country_group.unique():
+        europe_mean_values = (
+            survey_df.query("country_group == 'Europe'")
+            .loc[:, [q for q, _ in most_important_questions]]
+            .mean()
+            .tolist()
         )
-    )
+        non_europe_mean_values = [
+            survey_df.query("country_group != 'Europe'")
+            .loc[:, [q for q, _ in most_important_questions]]
+            .mean()
+            .tolist()
+        ]
+        logger.info(
+            "Most important questions based on UMAP feature importances:\n\t- "
+            + "\n\t- ".join(
+                [
+                    f"{question}: {importance:.4f} "
+                    f"(Europe: {europe_mean:.4f}, non-Europe: {non_europe_mean:.4f})"
+                    for (question, importance), europe_mean, non_europe_mean in zip(
+                        most_important_questions,
+                        europe_mean_values,
+                        non_europe_mean_values,
+                    )
+                ]
+            )
+        )
+    else:
+        logger.info(
+            "Most important questions based on UMAP feature importances:\n\t- "
+            + "\n\t- ".join(
+                [
+                    f"{question}: {importance:.4f}"
+                    for question, importance in most_important_questions
+                ]
+            )
+        )
 
     # Get the country groupings, which depends on whether we are working with countries
     # or country groups

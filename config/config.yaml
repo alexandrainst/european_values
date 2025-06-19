@@ -19,9 +19,9 @@ plotting:
   fast: false
 
 optimisation:
-  sample_size_per_group: 100
+  sample_size_per_group: null  # If null, will use the full dataset
   max_iterations: 100
   population_size: 10
-  min_questions: 50
+  min_questions: 3
   focus: null
   n_jobs: -1
