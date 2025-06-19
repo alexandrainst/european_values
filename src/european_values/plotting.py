@@ -75,18 +75,18 @@ def create_scatter(
             .mean()
             .tolist()
         )
-        non_europe_mean_values = [
+        non_europe_mean_values = (
             survey_df.query("country_group != 'Europe'")
             .loc[:, [q for q, _ in most_important_questions]]
             .mean()
             .tolist()
-        ]
+        )
         logger.info(
             "Most important questions based on UMAP feature importances:\n\t- "
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"(Europe: {europe_mean:.4f}, non-Europe: {non_europe_mean:.4f})"
+                    f"(Europe: {europe_mean}, non-Europe: {non_europe_mean})"
                     for (question, importance), europe_mean, non_europe_mean in zip(
                         most_important_questions,
                         europe_mean_values,
