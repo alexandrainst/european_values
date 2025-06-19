@@ -8,7 +8,8 @@ import pandas as pd
 import scipy.optimize as opt
 from omegaconf import DictConfig
 from pandas.errors import PerformanceWarning
-from sklearn.metrics import davies_bouldin_score, silhouette_samples
+from sklearn.metrics import pairwise_distances, silhouette_samples
+from sklearn.preprocessing import LabelEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -38,31 +39,34 @@ def optimise_survey(
         A DataFrame containing the survey data with only the selected questions and
         the non-question columns.
     """
-    # Get the country groupings, which depends on whether we are working with countries
-    # or country groups
-    country_grouping_str = "country_group" if use_country_groups else "country_code"
-    unique_country_groupings = (
-        survey_df.country_group.unique()
-        if use_country_groups
-        else survey_df.country_code.unique()
-    )
-
-    sample_df = pd.concat(
-        [
-            survey_df.query(f"{country_grouping_str} == @country_grouping").sample(
-                n=config.sample_size_per_group, random_state=4242
-            )
-            for country_grouping in unique_country_groupings
-        ]
-    ).reset_index(drop=True)
+    if config.sample_size_per_group is None:
+        sample_df = survey_df.copy()
+    else:
+        # Get the country groupings, which depends on whether we are working with
+        # countries or country groups
+        country_grouping_str = "country_group" if use_country_groups else "country_code"
+        unique_country_groupings = (
+            survey_df.country_group.unique()
+            if use_country_groups
+            else survey_df.country_code.unique()
+        )
+        sample_df = pd.concat(
+            [
+                survey_df.query(f"{country_grouping_str} == @country_grouping").sample(
+                    n=config.sample_size_per_group, random_state=4242
+                )
+                for country_grouping in unique_country_groupings
+            ]
+        ).reset_index(drop=True)
 
     question_columns = [col for col in sample_df.columns if col.startswith("question_")]
     num_questions = len(question_columns)
 
     result = opt.differential_evolution(
         func=davies_bouldin_index,
-        args=(sample_df,),
+        args=(sample_df, config.focus),
         bounds=[(0, 1)] * num_questions,
+        x0=np.ones(num_questions),
         popsize=config.population_size,
         maxiter=config.max_iterations,
         workers=config.n_jobs,
@@ -89,7 +93,7 @@ def optimise_survey(
     non_question_columns = [
         col for col in sample_df.columns if not col.startswith("question_")
     ]
-    return survey_df.loc[:, non_question_columns + identified_questions]
+    return sample_df.loc[:, non_question_columns + identified_questions]
 
 
 def negative_silhouette_score(
@@ -141,7 +145,9 @@ def negative_silhouette_score(
     return -silhouette_score
 
 
-def davies_bouldin_index(question_mask: np.ndarray, survey_df: pd.DataFrame) -> float:
+def davies_bouldin_index(
+    question_mask: np.ndarray, survey_df: pd.DataFrame, focus: str | None = None
+) -> float:
     """Calculate the Davies-Bouldin index for the given questions.
 
     Args:
@@ -150,6 +156,10 @@ def davies_bouldin_index(question_mask: np.ndarray, survey_df: pd.DataFrame) -> 
         survey_df:
             The survey data, which must contain columns starting with "question_"
             and a column "country_group" indicating the country group for each row.
+        focus:
+            The group to focus on, where focusing here means that we only consider the
+            Davies-Bouldin index of the rows that belong to this group. If None then
+            all rows are considered.
 
     Returns:
         The Davies-Bouldin index of the survey with the given questions.
@@ -168,5 +178,44 @@ def davies_bouldin_index(question_mask: np.ndarray, survey_df: pd.DataFrame) -> 
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
-    # Compute the Davies-Bouldin index
-    return davies_bouldin_score(X=embedding_matrix, labels=survey_df.country_group)
+    # Encode the country groups
+    le = LabelEncoder()
+    labels = le.fit_transform(survey_df.country_group)
+    num_labels = survey_df.country_group.nunique()
+    num_questions = question_mask.sum().item()
+
+    # Compute the intra-cluster distances and centroids for each country group
+    intra_dists = np.zeros(num_labels)
+    centroids = np.zeros((num_labels, num_questions), dtype=float)
+    for k in range(num_labels):
+        cluster_k = embedding_matrix[labels == k]
+        centroid = cluster_k.mean(axis=0)
+        centroids[k] = centroid
+        intra_dists[k] = np.average(pairwise_distances(cluster_k, [centroid]))
+
+    # Compute the distances between centroids
+    # Shape: (num_labels, num_labels)
+    centroid_distances = pairwise_distances(centroids)
+
+    # Since we are also comparing each centroid to itself, we set those distances to
+    # infinity to avoid division by zero in the next step
+    if np.allclose(intra_dists, 0) or np.allclose(centroid_distances, 0):
+        return 0.0
+    centroid_distances[centroid_distances == 0] = np.inf
+
+    # Compute the combined intra-cluster distances, where entry (i, j) is the sum of
+    # the intra-cluster distances of cluster i and cluster j.
+    # Shape: (num_labels, num_labels)
+    combined_intra_dists = intra_dists[:, None] + intra_dists
+
+    # If we are focusing on a specific group, we only consider the rows that belong
+    # to that group
+    if focus is not None:
+        focus_label = le.transform([focus])[0]
+        centroid_distances = centroid_distances[focus_label, :]
+        combined_intra_dists = combined_intra_dists[focus_label, :]
+
+    # Compute the Davies-Bouldin index as the maximum of the ratio of combined intra-
+    # cluster distances to centroid distances for each cluster
+    scores = np.max(combined_intra_dists / centroid_distances, axis=1)
+    return float(np.mean(scores))
