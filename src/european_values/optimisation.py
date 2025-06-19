@@ -221,5 +221,5 @@ def davies_bouldin_index(
 
     # Compute the Davies-Bouldin index as the maximum of the ratio of combined intra-
     # cluster distances to centroid distances for each cluster
-    scores = np.max(combined_intra_dists / centroid_distances, axis=1)
+    scores = np.max(combined_intra_dists / centroid_distances, axis=-1)
     return float(np.mean(scores))
