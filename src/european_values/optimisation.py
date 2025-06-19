@@ -60,9 +60,10 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
     question_columns = [col for col in sample_df.columns if col.startswith("question_")]
     num_questions = len(question_columns)
 
+    focus_log = f" with a focus on {config.focus!r}" if config.focus is not None else ""
     logger.info(
         f"Optimising {len(sample_df):,} samples for "
-        f"{config.optimisation.max_iterations:,} iterations..."
+        f"{config.optimisation.max_iterations:,} iterations{focus_log}..."
     )
     result = opt.differential_evolution(
         func=davies_bouldin_index,
