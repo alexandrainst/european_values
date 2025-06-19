@@ -1,7 +1,7 @@
 """Constants used in the project."""
 
 COUNTRY_GROUPS = {
-    "EU Single Market": [
+    "EU+": [
         "EE",  # Estonia
         "CZ",  # Czech Republic
         "LV",  # Latvia
