@@ -1,7 +1,8 @@
 """Constants used in the project."""
 
 COUNTRY_GROUPS = {
-    "EU+": [
+    "Europe": [
+        # EU countries
         "EE",  # Estonia
         "CZ",  # Czech Republic
         "LV",  # Latvia
@@ -22,34 +23,34 @@ COUNTRY_GROUPS = {
         "PL",  # Poland
         "LT",  # Lithuania
         "MT",  # Malta
-        "IS",  # Iceland
         "DK",  # Denmark
         "FI",  # Finland
-        "NO",  # Norway
         "SE",  # Sweden
-        "CH",  # Switzerland
         "BG",  # Bulgaria
         "CY",  # Cyprus
         "GR",  # Greece
         "RO",  # Romania
+        # EFTA countries
+        "IS",  # Iceland
+        "NO",  # Norway
+        "CH",  # Switzerland
+        # Non-EU countries
         "GB",  # United Kingdom
         "NIR",  # Northern Ireland
-    ],
-    "Rest of Europe": [
         "AD",  # Andorra
         "RU",  # Russia
         "BY",  # Belarus
-        "RS",  # Serbia
-        "AL",  # Albania
-        "ME",  # Montenegro
-        "MK",  # North Macedonia
+        "RS",  # Serbia *
+        "AL",  # Albania *
+        "ME",  # Montenegro *
+        "MK",  # North Macedonia *
         "AM",  # Armenia
-        "GE",  # Georgia
-        "UA",  # Ukraine
-        "MD",  # Moldova
-        "BA",  # Bosnia and Herzegovina
+        "GE",  # Georgia *
+        "UA",  # Ukraine *
+        "MD",  # Moldova *
+        "BA",  # Bosnia and Herzegovina *
         "AZ",  # Azerbaijan
-        "TR",  # Turkey
+        "TR",  # Turkey *
     ],
     "Anglo-America": [
         "US",  # United States
