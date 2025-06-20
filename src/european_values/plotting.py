@@ -94,7 +94,7 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
                 [
                     f"{question}: {importance:.4f} "
                     f"({config.focus}: {europe_mean}, "
-                    f"non-{config.focuxs}: {non_europe_mean})"
+                    f"non-{config.focus}: {non_europe_mean})"
                     for (question, importance), europe_mean, non_europe_mean in zip(
                         most_important_questions,
                         europe_mean_values,
