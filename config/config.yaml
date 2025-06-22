@@ -20,6 +20,7 @@ plotting:
   fast: false
 
 optimisation:
+  method: davies_bouldin
   sample_size_per_group: null  # If null, will use the full dataset
   max_iterations: 1000
   population_size: 10
