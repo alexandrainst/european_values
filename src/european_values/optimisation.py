@@ -321,4 +321,4 @@ def centroid_distance(
         centroid_distances = centroid_distances[focus_label, :]
 
     # Return the mean distance between centroids
-    return float(centroid_distances.mean())
+    return float(centroid_distances[centroid_distances != np.inf].mean())
