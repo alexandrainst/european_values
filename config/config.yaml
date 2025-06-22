@@ -25,4 +25,5 @@ optimisation:
   max_iterations: 1000
   population_size: 10
   min_questions: 3
+  max_questions: null  # If null, will use all questions
   n_jobs: -1

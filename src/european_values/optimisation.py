@@ -88,15 +88,15 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         popsize=config.optimisation.population_size,
         maxiter=config.optimisation.max_iterations,
         workers=config.optimisation.n_jobs,
-        disp=True,
         constraints=opt.LinearConstraint(
             A=np.ones((1, num_questions)),
             lb=config.optimisation.min_questions,
-            ub=num_questions,
+            ub=config.optimisation.max_questions or num_questions,
         ),
         integrality=np.array([True] * num_questions, dtype=bool),
         updating="deferred",
         polish=False,
+        callback=callback,
     )
 
     identified_questions = [
@@ -322,3 +322,17 @@ def centroid_distance(
 
     # Return the mean distance between centroids
     return float(centroid_distances[centroid_distances != np.inf].mean())
+
+
+def callback(intermediate_result: opt.OptimizeResult) -> None:
+    """Callback function to log the intermediate results of the optimisation.
+
+    Args:
+        intermediate_result:
+            The intermediate result of the optimisation.
+    """
+    logger.info(
+        f"Iteration {intermediate_result.nit:,}: "
+        f"Objective function value: {intermediate_result.fun:.4f}, "
+        f"number of questions: {intermediate_result.x.sum():,}"
+    )
