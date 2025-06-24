@@ -106,7 +106,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
     ]
     logger.info(
         f"Identified {len(identified_questions):,} questions for the survey, with a "
-        f"Davies-Bouldin index of {result.fun:.4f}:\n\t- "
+        f"{config.optimisation.method} value of {result.fun:.4f}:\n\t- "
         + "\n\t- ".join(identified_questions)
     )
 
@@ -306,7 +306,7 @@ def centroid_distance(
 
     # Compute the distances between centroids
     # Shape: (num_labels, num_labels)
-    centroid_distances = pairwise_distances(centroids)
+    centroid_distances = pairwise_distances(X=centroids, metric="cosine")
 
     # Since we are also comparing each centroid to itself, we set those distances to
     # infinity to avoid division by zero in the next step
