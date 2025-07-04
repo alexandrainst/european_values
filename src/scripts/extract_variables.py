@@ -168,6 +168,7 @@ def extract_answers(div: BeautifulSoup) -> Dict[str, str]:
 
 
 def extract_notes(div: BeautifulSoup) -> Optional[str]:
+    """Extract additional notes related to a survey question from a `div` HTML tag."""
     details_div = div.find('div', class_='details')
     if details_div:
         notes_div = details_div.find('div', class_='notes')
