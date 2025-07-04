@@ -12,6 +12,11 @@ import click
 
 from european_values.question_extraction import process_survey_html
 
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger("extract_questions_from_html")
 
 
