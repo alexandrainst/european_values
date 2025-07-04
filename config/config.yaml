@@ -27,3 +27,9 @@ optimisation:
   min_questions: 3
   max_questions: null  # If null, will use all questions
   n_jobs: -1
+
+training:
+  n_estimators: 100
+  n_cross_val: 10
+  n_jobs: -1
+  fast_shap: false
