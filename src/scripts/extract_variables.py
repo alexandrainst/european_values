@@ -15,6 +15,7 @@ SURVEYS = ['EVS5', 'WVS7']
 
 
 def parse_arguments():
+    """Parse the arguments given by the user."""
     parser = argparse.ArgumentParser(description="Extract Survey Questions")
     parser.add_argument('--input', required=True, help='path to HTML survey description')
     parser.add_argument('--output', required=True, help='path to output JSON dictionary')
