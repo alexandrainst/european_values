@@ -1,3 +1,9 @@
+"""Extraction of survey questions.
+
+Usage:
+    uv run extract_variables.py [--input INPUT_FILE] [--output OUTPUT_FILE]
+"""
+
 import argparse
 import re
 import json
