@@ -227,7 +227,7 @@ def davies_bouldin_index(
     # Compute the intra-cluster distances and centroids for each country group. If we
     # are focusing on a specific group, we only compute the intra-cluster distances
     # for that group.
-    intra_dists = np.zeros(num_labels) if focus is None else np.zeros(1)
+    intra_dists: np.ndarray = np.zeros(num_labels) if focus is None else np.zeros(1)
     centroids = np.zeros((num_labels, num_questions), dtype=float)
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
