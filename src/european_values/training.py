@@ -77,7 +77,7 @@ def train_model(
         X=embedding_matrix, check_additivity=False, approximate=fast_shap
     ).values
     assert isinstance(importances, np.ndarray), "SHAP values should be a numpy array"
-    importances = importances.mean(axis=0)[:, 1].sort()[::-1]
+    importances = np.sort(importances.mean(axis=0)[:, 1])[::-1]
     logger.info(
         "Most important questions:\n"
         + "\n".join(
