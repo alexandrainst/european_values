@@ -158,15 +158,6 @@ def extract_answers(div: BeautifulSoup) -> Dict[str, str]:
                             label = cells[1].get_text(strip=True)
                             # Clean up any HTML artifacts
                             label = re.sub(r'<[^>]+>', '', label)
-                            # # convert if possible
-                            # try:
-                            #     value = int(value)
-                            # except ValueError:
-                            #     pass
-                            # try:
-                            #     label = int(label)
-                            # except ValueError:
-                            #     pass
                             answers[value] = label if label else None
 
     return answers
