@@ -128,6 +128,7 @@ def extract_question_text(div):
 
 
 def extract_pre_question_text(div: BeautifulSoup) -> Optional[str]:
+    """Extract the text preceeding a question in a `div` HTML tag."""
     details_div = div.find('div', class_='details')
     if details_div:
         question_label_div = details_div.find('div', class_='question_label')
