@@ -4,7 +4,7 @@ import logging
 import re
 import typing as t
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +31,7 @@ def process_survey_html(html_content: str) -> dict[str, t.Any]:
     logger.info(f"Found {len(question_divs)} question div(s) to process")
 
     for div in question_divs:
-        assert isinstance(div, BeautifulSoup), (
-            "Expected `div` to be a BeautifulSoup object"
-        )
+        assert isinstance(div, Tag), "Expected `div` to be a Tag object"
         div_id = div.get(key="id", default="")
         assert isinstance(div_id, str), "Expected `div id` to be a string"
         question_id = extract_question_id(div_id=div_id)
@@ -147,12 +145,12 @@ def extract_question_id(div_id: str) -> str | None:
         return None
 
 
-def extract_title(div: BeautifulSoup, question_id: str) -> str | None:
+def extract_title(div: Tag, question_id: str) -> str | None:
     """Extract question title from the div.
 
     Args:
         div:
-            The BeautifulSoup object representing the div element.
+            The Tag object representing the div element.
         question_id:
             The ID of the question to match against the title.
 
@@ -161,16 +159,12 @@ def extract_title(div: BeautifulSoup, question_id: str) -> str | None:
     """
     title_div = div.find("div", class_="title")
     if title_div:
-        assert isinstance(title_div, BeautifulSoup), (
-            "Expected `title_div` to be a BeautifulSoup object"
-        )
+        assert isinstance(title_div, Tag), "Expected `title_div` to be a Tag object"
         h3_tags = title_div.find_all(
             "h3"
         )  # For some reason, there's always an empty h3
         for h3_tag in h3_tags:
-            assert isinstance(h3_tag, BeautifulSoup), (
-                "Expected `h3_tag` to be a BeautifulSoup object"
-            )
+            assert isinstance(h3_tag, Tag), "Expected `h3_tag` to be a Tag object"
             if anchor_tag := h3_tag.find("a"):
                 # Extract text after the dash
                 full_text = anchor_tag.get_text(strip=True)
@@ -182,13 +176,13 @@ def extract_title(div: BeautifulSoup, question_id: str) -> str | None:
 
 
 def extract_item(
-    div: BeautifulSoup,
+    div: Tag,
 ) -> tuple[dict[str, str | None] | None, str | None, str | None]:
     """Extract a single item from a `div` HTML element.
 
     Args:
         div:
-            The BeautifulSoup object representing the div element.
+            The Tag object representing the div element.
 
     Returns:
         A tuple containing:
@@ -234,13 +228,13 @@ def extract_item(
 
 
 def extract_question_text(
-    div: BeautifulSoup,
+    div: Tag,
 ) -> tuple[dict[str, str | None] | None, dict[str, str | None] | None]:
     """Extract the question text and keys from a `div` HTML tag.
 
     Args:
         div:
-            The BeautifulSoup object representing the div element.
+            The Tag object representing the div element.
 
     Returns:
         A tuple containing:
@@ -251,13 +245,11 @@ def extract_question_text(
 
     details_div = div.find("div", class_="details")
     if details_div:
-        assert isinstance(details_div, BeautifulSoup), (
-            "Expected `details_div` to be a BeautifulSoup object"
-        )
+        assert isinstance(details_div, Tag), "Expected `details_div` to be a Tag object"
         question_text_div = details_div.find("div", class_="question_text")
         if question_text_div:
-            assert isinstance(question_text_div, BeautifulSoup), (
-                "Expected `question_text_div` to be a BeautifulSoup object"
+            assert isinstance(question_text_div, Tag), (
+                "Expected `question_text_div` to be a Tag object"
             )
             span = question_text_div.find("span", class_="more")
             if span:
@@ -267,8 +259,8 @@ def extract_question_text(
     if text is None:
         abstract_div = div.find("div", class_="abstract_preview")
         if abstract_div:
-            assert isinstance(abstract_div, BeautifulSoup), (
-                "Expected `abstract_div` to be a BeautifulSoup object"
+            assert isinstance(abstract_div, Tag), (
+                "Expected `abstract_div` to be a Tag object"
             )
             span = abstract_div.find("span", class_="more_question")
             if span:
@@ -309,21 +301,19 @@ def extract_question_text(
     return None, None
 
 
-def extract_pre_question_text(div: BeautifulSoup) -> str | None:
+def extract_pre_question_text(div: Tag) -> str | None:
     """Extract the text preceeding a question in a `div` HTML tag.
 
     Args:
         div:
-            The BeautifulSoup object representing the div element.
+            The Tag object representing the div element.
 
     Returns:
         The pre-question text if found, otherwise None.
     """
     details_div = div.find("div", class_="details")
     if details_div:
-        assert isinstance(details_div, BeautifulSoup), (
-            "Expected `details_div` to be a BeautifulSoup object"
-        )
+        assert isinstance(details_div, Tag), "Expected `details_div` to be a Tag object"
         question_label_div = details_div.find("div", class_="question_label")
         if question_label_div:
             text = question_label_div.get_text(strip=True)
@@ -334,12 +324,12 @@ def extract_pre_question_text(div: BeautifulSoup) -> str | None:
     return None
 
 
-def extract_answers(div: BeautifulSoup) -> dict[str, str | None]:
+def extract_answers(div: Tag) -> dict[str, str | None]:
     """Extract all the answers within a `div` HTML tag.
 
     Args:
         div:
-            The BeautifulSoup object representing the div element.
+            The Tag object representing the div element.
 
     Returns:
         A dictionary where keys are answer values and values are their corresponding
@@ -350,29 +340,21 @@ def extract_answers(div: BeautifulSoup) -> dict[str, str | None]:
     # Look for answer_categories div
     details_div = div.find("div", class_="details")
     if details_div:
-        assert isinstance(details_div, BeautifulSoup), (
-            "Expected `details_div` to be a BeautifulSoup object"
-        )
+        assert isinstance(details_div, Tag), "Expected `details_div` to be a Tag object"
         answer_div = details_div.find("div", class_="variable_code_list")
         if answer_div:
-            assert isinstance(answer_div, BeautifulSoup), (
-                "Expected `answer_div` to be a BeautifulSoup object"
+            assert isinstance(answer_div, Tag), (
+                "Expected `answer_div` to be a Tag object"
             )
             table = answer_div.find("table", class_="variables_code_list_table")
             if table:
-                assert isinstance(table, BeautifulSoup), (
-                    "Expected `table` to be a BeautifulSoup object"
-                )
+                assert isinstance(table, Tag), "Expected `table` to be a Tag object"
                 tbody = table.find("tbody")
                 if tbody:
-                    assert isinstance(tbody, BeautifulSoup), (
-                        "Expected `tbody` to be a BeautifulSoup object"
-                    )
+                    assert isinstance(tbody, Tag), "Expected `tbody` to be a Tag object"
                     rows = tbody.find_all("tr")
                     for row in rows:
-                        assert isinstance(row, BeautifulSoup), (
-                            "Expected `row` to be a BeautifulSoup object"
-                        )
+                        assert isinstance(row, Tag), "Expected `row` to be a Tag object"
                         cells = row.find_all("td")
                         if len(cells) >= 2:
                             value = cells[0].get_text(strip=True)
@@ -383,21 +365,19 @@ def extract_answers(div: BeautifulSoup) -> dict[str, str | None]:
     return answers
 
 
-def extract_notes(div: BeautifulSoup) -> str | None:
+def extract_notes(div: Tag) -> str | None:
     """Extract additional notes related to a survey question from a `div` HTML tag.
 
     Args:
         div:
-            The BeautifulSoup object representing the div element.
+            The Tag object representing the div element.
 
     Returns:
         The notes text if found, otherwise None.
     """
     details_div = div.find("div", class_="details")
     if details_div:
-        assert isinstance(details_div, BeautifulSoup), (
-            "Expected `details_div` to be a BeautifulSoup object"
-        )
+        assert isinstance(details_div, Tag), "Expected `details_div` to be a Tag object"
         notes_div = details_div.find("div", class_="notes")
         if notes_div:
             notes = re.sub(
