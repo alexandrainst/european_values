@@ -29,7 +29,7 @@ optimisation:
   n_jobs: -1
 
 training:
-  n_estimators: 100
+  n_estimators: 1000
   n_cross_val: 10
   n_jobs: -1
   fast_shap: false
