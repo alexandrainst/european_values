@@ -8,6 +8,7 @@ import pandas as pd
 import scipy.optimize as opt
 from omegaconf import DictConfig
 from pandas.errors import PerformanceWarning
+from sklearn.decomposition import PCA
 from sklearn.metrics import pairwise_distances, silhouette_samples
 from sklearn.preprocessing import LabelEncoder
 
@@ -208,11 +209,16 @@ def davies_bouldin_index(
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
+    # Use PCA
+    reducer = PCA(n_components=2, random_state=42)
+    embedding_matrix = reducer.fit_transform(embedding_matrix)
+
+    num_questions = embedding_matrix.shape[1]
+
     # Encode the country groups
     le = LabelEncoder()
     labels = le.fit_transform(survey_df[country_grouping_str])
     num_labels = survey_df[country_grouping_str].nunique()
-    num_questions = question_mask.sum().item()
     assert isinstance(num_labels, int)
 
     # Get the index of the focus group if it is specified
