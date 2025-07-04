@@ -49,6 +49,7 @@ def extract_title(div: BeautifulSoup, question_id: str) -> Optional[str]:
 
 
 def extract_item(div: BeautifulSoup):
+    """Extract a single item from a `div` HTML element."""
     item_div = div.find('div', class_='item')
     if item_div:
         item_text = item_div.get_text(strip=True)
