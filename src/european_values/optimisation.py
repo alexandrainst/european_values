@@ -8,6 +8,7 @@ import pandas as pd
 import scipy.optimize as opt
 from omegaconf import DictConfig
 from pandas.errors import PerformanceWarning
+from sklearn.decomposition import PCA
 from sklearn.metrics import pairwise_distances, silhouette_samples
 from sklearn.preprocessing import LabelEncoder
 
@@ -208,25 +209,43 @@ def davies_bouldin_index(
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
+    # Use PCA
+    reducer = PCA(n_components=2, random_state=42)
+    embedding_matrix = reducer.fit_transform(embedding_matrix)
+
+    num_questions = embedding_matrix.shape[1]
+
     # Encode the country groups
     le = LabelEncoder()
     labels = le.fit_transform(survey_df[country_grouping_str])
     num_labels = survey_df[country_grouping_str].nunique()
-    num_questions = question_mask.sum().item()
     assert isinstance(num_labels, int)
 
-    # Compute the intra-cluster distances and centroids for each country group
-    intra_dists = np.zeros(num_labels)
+    # Get the index of the focus group if it is specified
+    focus_label = le.transform([focus])[0] if focus is not None else None
+
+    # Compute the intra-cluster distances and centroids for each country group. If we
+    # are focusing on a specific group, we only compute the intra-cluster distances
+    # for that group.
+    intra_dists = np.zeros(num_labels) if focus is None else np.zeros(1)
     centroids = np.zeros((num_labels, num_questions), dtype=float)
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
         centroid = cluster_k.mean(axis=0)
         centroids[k] = centroid
-        intra_dists[k] = np.average(pairwise_distances(cluster_k, [centroid]))
+        if focus is None:
+            intra_dists[k] = np.average(pairwise_distances(cluster_k, [centroid]))
+        elif k == focus_label:
+            intra_dists[0] = np.average(pairwise_distances(cluster_k, [centroid]))
 
-    # Compute the distances between centroids
+    # Compute the distances between centroids. If we are focusing on a specific
+    # group, we only compute the distances between the centroid of that group and all
+    # other centroids.
     # Shape: (num_labels, num_labels)
-    centroid_distances = pairwise_distances(centroids)
+    if focus is None:
+        centroid_distances = pairwise_distances(centroids)
+    else:
+        centroid_distances = pairwise_distances(centroids[focus_label, None], centroids)
 
     # Since we are also comparing each centroid to itself, we set those distances to
     # infinity to avoid division by zero in the next step
@@ -237,18 +256,12 @@ def davies_bouldin_index(
     # Compute the combined intra-cluster distances, where entry (i, j) is the sum of
     # the intra-cluster distances of cluster i and cluster j.
     # Shape: (num_labels, num_labels)
-    combined_intra_dists = intra_dists[:, None] + intra_dists
-
-    # If we are focusing on a specific group, we only consider the rows that belong
-    # to that group
-    if focus is not None:
-        focus_label = le.transform([focus])[0]
-        centroid_distances = centroid_distances[focus_label, :]
-        combined_intra_dists = combined_intra_dists[focus_label, :]
+    if focus is None:
+        intra_dists = intra_dists[:, None] + intra_dists
 
     # Compute the Davies-Bouldin index as the maximum of the ratio of combined intra-
     # cluster distances to centroid distances for each cluster
-    scores = np.max(combined_intra_dists / centroid_distances, axis=-1)
+    scores = np.max(intra_dists / centroid_distances, axis=-1)
     return float(np.mean(scores))
 
 
