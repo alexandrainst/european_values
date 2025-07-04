@@ -2,4 +2,34 @@ defaults:
   - override hydra/job_logging: custom
   - _self_
 
+data: null
 repo_id: EuropeanValuesProject/european_values_survey
+
+include_evs_trend: false
+include_evs_wvs: true
+countries: null
+country_groups: null
+use_country_groups: true
+focus: null
+
+plotting:
+  umap_neighbours: 100
+  top_umap_importances: 50
+  ellipses: true
+  ellipse_std: 1.0
+  fast: false
+
+optimisation:
+  method: davies_bouldin
+  sample_size_per_group: null  # If null, will use the full dataset
+  max_iterations: 1000
+  population_size: 10
+  min_questions: 3
+  max_questions: null  # If null, will use all questions
+  n_jobs: -1
+
+training:
+  n_estimators: 100
+  n_cross_val: 10
+  n_jobs: -1
+  fast_shap: false

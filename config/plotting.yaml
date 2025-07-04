@@ -1,8 +1,0 @@
-defaults:
-  - override hydra/job_logging: custom
-  - _self_
-
-data: null
-query: null
-max_imputation_iterations: 20
-dimensionality_reduction: umap

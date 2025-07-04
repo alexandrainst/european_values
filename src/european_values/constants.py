@@ -1,5 +1,128 @@
 """Constants used in the project."""
 
+COUNTRY_GROUPS = {
+    "Europe": [
+        # EU countries
+        "EE",  # Estonia
+        "CZ",  # Czech Republic
+        "LV",  # Latvia
+        "HU",  # Hungary
+        "NL",  # Netherlands
+        "FR",  # France
+        "DE",  # Germany
+        "LU",  # Luxembourg
+        "SI",  # Slovenia
+        "SK",  # Slovakia
+        "BE",  # Belgium
+        "ES",  # Spain
+        "AT",  # Austria
+        "HR",  # Croatia
+        "IT",  # Italy
+        "PT",  # Portugal
+        "IE",  # Ireland
+        "PL",  # Poland
+        "LT",  # Lithuania
+        "MT",  # Malta
+        "DK",  # Denmark
+        "FI",  # Finland
+        "SE",  # Sweden
+        "BG",  # Bulgaria
+        "CY",  # Cyprus
+        "GR",  # Greece
+        "RO",  # Romania
+        # EFTA countries
+        "IS",  # Iceland
+        "NO",  # Norway
+        "CH",  # Switzerland
+        # Non-EU countries
+        "GB",  # United Kingdom
+        "NIR",  # Northern Ireland
+        "AD",  # Andorra
+        "RU",  # Russia
+        "BY",  # Belarus
+        "RS",  # Serbia *
+        "AL",  # Albania *
+        "ME",  # Montenegro *
+        "MK",  # North Macedonia *
+        "AM",  # Armenia
+        "GE",  # Georgia *
+        "UA",  # Ukraine *
+        "MD",  # Moldova *
+        "BA",  # Bosnia and Herzegovina *
+        "AZ",  # Azerbaijan
+        "TR",  # Turkey *
+    ],
+    "Anglo-America": [
+        "US",  # United States
+        "CA",  # Canada
+    ],
+    "Latin America": [
+        "BO",  # Bolivia
+        "PE",  # Peru
+        "EC",  # Ecuador
+        "BR",  # Brazil
+        "GT",  # Guatemala
+        "PR",  # Puerto Rico
+        "AR",  # Argentina
+        "MX",  # Mexico
+        "VE",  # Venezuela
+        "NI",  # Nicaragua
+        "CO",  # Colombia
+        "CL",  # Chile
+        "UY",  # Uruguay
+    ],
+    "East Asia": [
+        "CN",  # China
+        "JP",  # Japan
+        "MO",  # Macao
+        "KR",  # South Korea
+        "MN",  # Mongolia
+        "HK",  # Hong Kong
+        "TW",  # Taiwan
+        "SG",  # Singapore
+        "MM",  # Myanmar
+        "TH",  # Thailand
+        "VN",  # Vietnam
+        "IN",  # India
+        "BD",  # Bangladesh
+        "PH",  # Philippines
+        "MY",  # Malaysia
+        "ID",  # Indonesia
+    ],
+    "Central Asia": [
+        "KZ",  # Kazakhstan
+        "TJ",  # Tajikistan
+        "KG",  # Kyrgyzstan
+        "UZ",  # Uzbekistan
+    ],
+    "Middle East": [
+        "LB",  # Lebanon
+        "MV",  # Maldives
+        "PK",  # Pakistan
+        "IR",  # Iran
+        "IQ",  # Iraq
+        "TR",  # Turkey
+        "JO",  # Jordan
+    ],
+    "North Africa": [
+        "MA",  # Morocco
+        "LY",  # Libya
+        "TN",  # Tunisia
+        "EG",  # Egypt
+    ],
+    "Sub-Saharan Africa": [
+        "KE",  # Kenya
+        "ZW",  # Zimbabwe
+        "ET",  # Ethiopia
+        "NG",  # Nigeria
+    ],
+    "Oceania": [
+        "AU",  # Australia
+        "NZ",  # New Zealand
+    ],
+}
+
+
 EVS_TREND_ANSWER_COLUMNS = dict(
     A001="question_a001_important_in_life__family",
     A002="question_a002_important_in_life__friends",

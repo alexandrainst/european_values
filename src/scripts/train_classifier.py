@@ -1,7 +1,7 @@
-"""Create plots with the data.
+"""Train a classifier on the data.
 
 Usage:
-    uv run src/scripts/create_plot.py <config_key>=<config_value> ...
+    uv run src/scripts/train_classifier.py <config_key>=<config_value> ...
 """
 
 import logging
@@ -12,9 +12,9 @@ from omegaconf import DictConfig
 
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
-from european_values.plotting import create_scatter
+from european_values.training import train_model
 
-logger = logging.getLogger("create_plot")
+logger = logging.getLogger("train_classifier")
 
 
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
@@ -46,8 +46,13 @@ def main(config: DictConfig) -> None:
     df = process_data(df=df, config=config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
-    logger.info("Creating the scatter plot...")
-    create_scatter(survey_df=df, config=config)
+    train_model(
+        survey_df=df,
+        n_cross_val=config.training.n_cross_val,
+        n_jobs=config.training.n_jobs,
+        n_estimators=config.training.n_estimators,
+        fast_shap=config.training.fast_shap,
+    )
 
 
 if __name__ == "__main__":

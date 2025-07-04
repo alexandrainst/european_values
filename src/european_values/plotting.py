@@ -1,83 +1,235 @@
 """Plotting functions."""
 
 import logging
-import typing as t
+import warnings
 
+import matplotlib.pyplot as plt
+import matplotlib.transforms as transforms
 import numpy as np
 import pandas as pd
-import plotly.express as px
-from sklearn.decomposition import PCA
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.experimental import enable_iterative_imputer  # noqa: F401
-from sklearn.impute import IterativeImputer
+from matplotlib.axes import Axes
+from matplotlib.patches import Ellipse, Patch
+from omegaconf import DictConfig
+from pandas.errors import PerformanceWarning
 from umap import UMAP
 
 logger = logging.getLogger(__name__)
 
 
-def create_scatter(
-    survey_df: pd.DataFrame,
-    slice_query: str | None,
-    max_imputation_iterations: int,
-    dimensionality_reduction: t.Literal["umap", "pca"] = "umap",
-) -> None:
+warnings.filterwarnings(action="ignore", category=FutureWarning)
+warnings.filterwarnings(action="ignore", category=UserWarning)
+warnings.filterwarnings(action="ignore", category=PerformanceWarning)
+
+
+def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     """Create a scatter plot of the survey data.
 
     Args:
         survey_df:
             The survey data.
-        slice_query:
-            The query to slice the data, compatible with DataFrame.query(). If None,
-            the data will not be sliced.
-        max_imputation_iterations:
-            The maximum number of iterations for the imputer.
-        dimensionality_reduction:
-            The dimensionality reduction class to use. Can be either "umap" or "pca".
+        config:
+            The Hydra config.
     """
-    logger.info(f"Shape of the data: {survey_df.shape}")
+    # Create the embedding matrix
+    logger.info("Creating embedding matrix...")
+    question_columns = [col for col in survey_df.columns if col.startswith("question_")]
+    embedding_matrix = survey_df[question_columns].values
 
-    if slice_query:
-        logger.info(f"Slicing data with query: {slice_query}")
-        survey_df = survey_df.query(slice_query)
-        logger.info(f"Shape of the sliced data: {survey_df.shape}")
-
-    # Create a 2-dimensional embedding of the EVS trend data
-    logger.info("Imputing missing values...")
-    embedding_matrix = IterativeImputer(
-        estimator=RandomForestClassifier(n_estimators=100, n_jobs=-1),
-        skip_complete=True,
-        n_nearest_features=10,
-        initial_strategy="most_frequent",
-        max_iter=max_imputation_iterations,
-        random_state=4242,
-    ).fit_transform(survey_df.iloc[:, 3:])
-    logger.info(f"Shape of the imputed data: {embedding_matrix.shape}")
-
-    logger.info(
-        f"Reducing to two dimensions with {dimensionality_reduction.upper()}..."
+    # Get the country groupings, which depends on whether we are working with countries
+    # or country groups
+    country_grouping_str = (
+        "country_group" if config.use_country_groups else "country_code"
     )
-    reducer_class = UMAP if dimensionality_reduction == "umap" else PCA
-    embedding_matrix = reducer_class(n_components=2).fit_transform(embedding_matrix)
+    unique_country_groupings = (
+        survey_df.country_group.unique()
+        if config.use_country_groups
+        else survey_df.country_code.unique()
+    )
+
+    if config.plotting.fast:
+        logger.info("Fast UMAP mode enabled, which is non-deterministic but faster.")
+    logger.info("Reducing to two dimensions with UMAP...")
+    umap = UMAP(
+        n_components=2,
+        n_neighbors=config.plotting.umap_neighbours,
+        random_state=4242 if not config.plotting.fast else None,
+        n_jobs=-1 if config.plotting.fast else 1,
+    )
+    embedding_matrix = umap.fit_transform(embedding_matrix)
     assert isinstance(embedding_matrix, np.ndarray)
 
-    # Make a scatter plot of the 2D embedding, where the country codes are colored
-    logger.info("Creating scatter plot...")
-    fig = px.scatter(
-        x=embedding_matrix[:, 0],
-        y=embedding_matrix[:, 1],
-        color=survey_df.country_code.tolist(),
-        title=f"{dimensionality_reduction.upper()} projection of the EVS trend data",
-        labels=dict(
-            x=f"{dimensionality_reduction.upper()} 1",
-            y=f"{dimensionality_reduction.upper()} 2",
-            color="Country Code",
-        ),
-        color_discrete_sequence=px.colors.qualitative.Plotly,
-        width=800,
-        height=600,
+    # Get feature importances from UMAP
+    logger.info("Calculating feature importances based on UMAP...")
+    df_with_umap = pd.concat(
+        [survey_df, pd.DataFrame(embedding_matrix, columns=["umap_1", "umap_2"])],
+        axis=1,
     )
-    fig.update_traces(marker=dict(size=5))
-    fig.update_layout(
-        title_font=dict(size=20), legend_title_font=dict(size=16), font=dict(size=14)
+    importances: dict[str, float] = dict()
+    for question in question_columns:
+        importance = (
+            df_with_umap[["umap_1", "umap_2", question]].corr().iloc[:2, 2].abs().mean()
+        )
+        importances[question] = importance
+    most_important_questions = sorted(
+        importances.items(), key=lambda item: item[1], reverse=True
+    )[: config.plotting.top_umap_importances]
+
+    # Get the average values for the most important questions in Europe, if available
+    if config.focus in survey_df.country_group.unique():
+        europe_mean_values = (
+            survey_df.query(f"{country_grouping_str} == @config.focus")
+            .loc[:, [q for q, _ in most_important_questions]]
+            .mean()
+            .tolist()
+        )
+        non_europe_mean_values = (
+            survey_df.query(f"{country_grouping_str} != @config.focus")
+            .loc[:, [q for q, _ in most_important_questions]]
+            .mean()
+            .tolist()
+        )
+        logger.info(
+            "Most important questions based on UMAP feature importances:\n\t- "
+            + "\n\t- ".join(
+                [
+                    f"{question}: {importance:.4f} "
+                    f"({config.focus}: {europe_mean}, "
+                    f"non-{config.focus}: {non_europe_mean})"
+                    for (question, importance), europe_mean, non_europe_mean in zip(
+                        most_important_questions,
+                        europe_mean_values,
+                        non_europe_mean_values,
+                    )
+                ]
+            )
+        )
+    else:
+        logger.info(
+            "Most important questions based on UMAP feature importances:\n\t- "
+            + "\n\t- ".join(
+                [
+                    f"{question}: {importance:.4f}"
+                    for question, importance in most_important_questions
+                ]
+            )
+        )
+
+    # Create a matrix with mean values for each country group
+    country_embedding_matrix = np.empty(
+        shape=(len(unique_country_groupings), embedding_matrix.shape[1])
     )
-    fig.show()
+    for country_idx, country_grouping in enumerate(unique_country_groupings):
+        country_indices = survey_df.query(
+            f"{country_grouping_str} == @country_grouping"
+        ).index.tolist()
+        country_embedding_matrix[country_idx, :] = np.mean(
+            embedding_matrix[country_indices, :], axis=0
+        )
+
+    logger.info("Creating scatter plot with matplotlib...")
+    ax = plt.figure(figsize=(10, 8)).add_subplot(111)
+    for country_idx, country_grouping in enumerate(unique_country_groupings):
+        colour = plt.cm.tab20(country_idx / len(unique_country_groupings))  # type: ignore[attr-defined]
+        country_indices = survey_df.query(
+            f"{country_grouping_str} == @country_grouping"
+        ).index.tolist()
+        if config.plotting.ellipses:
+            confidence_ellipse(
+                x=embedding_matrix[country_indices, 0],
+                y=embedding_matrix[country_indices, 1],
+                ax=ax,
+                n_std=config.plotting.ellipse_std,
+                facecolor="none",
+                edgecolor=colour,
+            )
+        ax.text(
+            x=country_embedding_matrix[country_idx, 0],
+            y=country_embedding_matrix[country_idx, 1],
+            s=country_grouping,
+            fontsize=12,
+            ha="center",
+            va="center",
+            color=colour,
+        )
+    # We create an invisible scatter plot to set the limits of the axes, which is
+    # required to display the ellipses correctly
+    ax.scatter(
+        x=country_embedding_matrix[:, 0], y=country_embedding_matrix[:, 1], alpha=0.0
+    )
+    if config.plotting.ellipses:
+        ax.set_title(
+            f"UMAP projection with ellipse radii = {config.plotting.ellipse_std}σ",
+            fontsize=20,
+        )
+    else:
+        ax.set_title("UMAP projection", fontsize=20)
+    plt.show()
+
+
+def confidence_ellipse(
+    x: np.ndarray,
+    y: np.ndarray,
+    ax: Axes,
+    n_std: float,
+    facecolor: str,
+    **ellipse_kwargs,
+) -> Patch:
+    """Create a plot of the covariance confidence ellipse of x- and y-data.
+
+    Args:
+        x:
+            The x-data to plot.
+        y:
+            The y-data to plot.
+        ax:
+            The matplotlib axes to plot on.
+        n_std (optional):
+            The number of standard deviations to determine the ellipse's radii.
+        facecolor (optional):
+            The face color of the ellipse, or 'none' for no fill.
+        **ellipse_kwargs:
+            Additional keyword arguments to pass to the Ellipse constructor.
+
+    Returns:
+        The matplotlib patch object for the ellipse.
+
+    Raises:
+        ValueError:
+            If x and y are not the same size.
+    """
+    if x.size != y.size:
+        raise ValueError("x and y must be the same size")
+
+    # Compute the Pearson correlation coefficient
+    cov = np.cov(x, y)
+    pearson = cov[0, 1] / np.sqrt(cov[0, 0] * cov[1, 1])
+
+    # Using a special case to obtain the eigenvalues of this two-dimensional dataset.
+    ell_radius_x = np.sqrt(1 + pearson)
+    ell_radius_y = np.sqrt(1 - pearson)
+    ellipse = Ellipse(
+        xy=(0, 0),
+        width=ell_radius_x * 2,
+        height=ell_radius_y * 2,
+        facecolor=facecolor,
+        **ellipse_kwargs,
+    )
+
+    # Calculate the standard deviation of x from the squareroot of the variance and
+    # multiplying with the given number of standard deviations.
+    scale_x = np.sqrt(cov[0, 0]) * n_std
+    mean_x = np.mean(x).item()
+
+    # Calculate the standard deviation of y
+    scale_y = np.sqrt(cov[1, 1]) * n_std
+    mean_y = np.mean(y).item()
+
+    transf = (
+        transforms.Affine2D()
+        .rotate_deg(45)
+        .scale(scale_x, scale_y)
+        .translate(mean_x, mean_y)
+    )
+
+    ellipse.set_transform(transf + ax.transData)
+    return ax.add_patch(ellipse)
