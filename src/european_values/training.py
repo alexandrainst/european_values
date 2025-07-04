@@ -62,8 +62,8 @@ def train_model(
     mean_score = scores["test_score"].mean()
     std_err = np.std(scores["test_score"], ddof=1) / np.sqrt(n_cross_val)
     logger.info(
-        f"Model trained with mean accuracy: {mean_score:.4f} ± {std_err:.4f} "
-        f"({n_cross_val}-fold cross-validation)"
+        f"Model trained with mean accuracy: {mean_score:.4f} ± {1.96 * std_err:.4f} "
+        f"(95% confidence interval, {n_cross_val}-fold cross-validation)"
     )
 
     # Fit the model on the full dataset, as this is needed for SHAP values
@@ -77,7 +77,7 @@ def train_model(
         X=embedding_matrix, check_additivity=False, approximate=fast_shap
     ).values
     assert isinstance(importances, np.ndarray), "SHAP values should be a numpy array"
-    importances = importances.mean(axis=0)[:, 1]
+    importances = importances.mean(axis=0)
     sorted_question_indices = np.argsort(importances)[::-1]
     logger.info(
         "Most important questions:\n"
