@@ -142,6 +142,7 @@ def extract_pre_question_text(div: BeautifulSoup) -> Optional[str]:
 
 
 def extract_answers(div: BeautifulSoup) -> Dict[str, str]:
+    """Extract all the answers within a `div` HTML tag."""
     answers = {}
 
     # Look for answer_categories div
