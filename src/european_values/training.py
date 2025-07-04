@@ -79,7 +79,6 @@ def train_model(
     assert isinstance(importances, np.ndarray), "SHAP values should be a numpy array"
     importances = importances.mean(axis=0)[:, 1]
     sorted_question_indices = np.argsort(importances)[::-1]
-    importances = importances[sorted_question_indices]
     logger.info(
         "Most important questions:\n"
         + "\n".join(
