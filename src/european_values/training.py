@@ -81,7 +81,7 @@ def train_model(
     logger.info(
         "Most important questions:\n"
         + "\n".join(
-            f"\t{question} (importance: {importance:.4f})"
+            f"\t{question} (importance: {importance})"
             for question, importance in zip(question_columns, importances)
             if importance > 0
         )
