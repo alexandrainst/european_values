@@ -27,6 +27,7 @@ dependencies = [
     "shap>=0.48.0",
     "tqdm>=4.67.1",
     "umap-learn>=0.5.7",
+    "xgboost>=3.0.2",
 ]
 
 [project.urls]

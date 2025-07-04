@@ -5,8 +5,8 @@ import logging
 import numpy as np
 import pandas as pd
 from shap import TreeExplainer
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
+from xgboost import XGBClassifier
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +47,12 @@ def train_model(
     # Set up the labels
     logger.info("Setting up binary labels...")
     labels = [
-        "Europe" if country_group == "Europe" else "Non-Europe"
+        1 if country_group == "Europe" else 0
         for country_group in survey_df.country_group
     ]
 
     # Load the model
-    model = RandomForestClassifier(n_estimators=n_estimators, random_state=8446)
+    model = XGBClassifier(n_estimators=n_estimators, random_state=8446)
 
     # Train the model
     logger.info(f"Training the model with {n_cross_val}-fold cross-validation...")
