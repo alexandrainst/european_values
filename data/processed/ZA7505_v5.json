@@ -3098,10 +3098,12 @@
             "EVS5": "Q1A",
             "WVS7": "Q5"
         },
+        "preamble": "We start with some questions about life in general, leisure time activities and work.",
         "text": {
-            "EVS5": "We start with some questions about life in general, leisure time activities and work.Please say, for each of the following, how important it is in your life.Work",
-            "WVS7": "We start with some questions about life in general, leisure time activities and work.Please say, for each of the following, how important it is in your life.Work"
+            "EVS5": "Please say, for each of the following, how important it is in your life.",
+            "WVS7": "Please say, for each of the following, how important it is in your life."
         },
+        "item": "Work",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
@@ -3121,10 +3123,12 @@
             "EVS5": "Q1F",
             "WVS7": "Q6"
         },
+        "preamble": "We start with some questions about life in general, leisure time activities and work.",
         "text": {
-            "EVS5": "We start with some questions about life in general, leisure time activities and work.Please say, for each of the following, how important it is in your life.Religion",
-            "WVS7": "We start with some questions about life in general, leisure time activities and work.Please say, for each of the following, how important it is in your life.Religion"
+            "EVS5": "Please say, for each of the following, how important it is in your life.",
+            "WVS7": "Please say, for each of the following, how important it is in your life."
         },
+        "item": "Religion",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
@@ -3860,8 +3864,8 @@
             "-3": "Not applicable",
             "-2": "No answer",
             "-1": "Don´t know",
-            "1": "Protecting environment",
-            "2": "Economy growth and creating jobs",
+            "1": "Protecting the environment should be given priority, even if it causes slower economic growth and some loss of jobs.",
+            "2": "Economic growth and creating jobs should be the top priority, even if the environment suffers to some extent.",
             "3": "Other answer (if volunteered only)"
         }
     },
@@ -3872,9 +3876,10 @@
             "WVS7": "Q33"
         },
         "text": {
-            "EVS5": "Jobs scarce: Men should have more right to a job than women(3-point scale)",
-            "WVS7": "Jobs scarce: Men should have more right to a job than women(3-point scale)"
+            "EVS5": "For each of the following statements I read out, can you tell me how strongly you agree or disagree with each. Do you strongly agree, agree, disagree, or strongly disagree?",
+            "WVS7": "For each of the following statements I read out, can you tell me how strongly you agree or disagree with each. Do you strongly agree, agree, disagree, or strongly disagree?"
         },
+        "item": "When jobs are scarce, men have more right to a job than women",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
@@ -3919,9 +3924,10 @@
             "WVS7": "Q34"
         },
         "text": {
-            "EVS5": "Jobs scarce: Employers should give priority to (nation) people than immigrants(3-point scale)",
-            "WVS7": "Jobs scarce: Employers should give priority to (nation) people than immigrants(3-point scale)"
+            "EVS5": "For each of the following statements I read out, can you tell me how strongly you agree or disagree with each. Do you strongly agree, agree, disagree, or strongly disagree?",
+            "WVS7": "For each of the following statements I read out, can you tell me how strongly you agree or disagree with each. Do you strongly agree, agree, disagree, or strongly disagree?"
         },
+        "item": "When jobs are scarce, employers should give priority to [NATIONALITY] people over immigrants",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
@@ -3994,7 +4000,7 @@
             "EVS5": "How would you feel about the following statements? Do you agree or disagree with them?",
             "WVS7": "How would you feel about the following statements? Do you agree or disagree with them?"
         },
-        "item": "Duty towards society to have children",
+        "item": "It is a duty towards society to have children",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
@@ -4018,7 +4024,7 @@
             "EVS5": "How would you feel about the following statements? Do you agree or disagree with them?",
             "WVS7": "How would you feel about the following statements? Do you agree or disagree with them?"
         },
-        "item": "Duty towards society to have children",
+        "item": "Adult children have the duty to provide long-term care for their parents ",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
@@ -7062,8 +7068,8 @@
             "WVS7": "Q289"
         },
         "text": {
-            "EVS5": "[Do you belong to a religious denomination? (IF YES)]Which one?",
-            "WVS7": "[Do you belong to a religious denomination? (IF YES)]Which one?"
+            "EVS5": "Do you belong to a religious denomination? If yes, which one?",
+            "WVS7": "Do you belong to a religious denomination? If yes, which one?"
         },
         "answers": {
             "-5": "Missing: Other",
@@ -7798,7 +7804,7 @@
             "EVS5": "People have different views about themselves and how they relate to the world. Using this card, would you tell me how close do you feel to…?",
             "WVS7": "People have different views about themselves and how they relate to the world. Using this card, would you tell me how close do you feel to…?"
         },
-        "item": "Your town or city",
+        "item": "Your [town, city]",
         "answers": {
             "-5": "Missing: Other",
             "-4": "Not asked in survey",
