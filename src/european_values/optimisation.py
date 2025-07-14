@@ -53,7 +53,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
             [
                 survey_df.query(f"{country_grouping_str} == @country_grouping").sample(
                     n=config.optimisation.sample_size_per_group,
-                    random_state=config.optimisation.seed,
+                    random_state=config.seed,
                 )
                 for country_grouping in unique_country_groupings
             ]
@@ -68,7 +68,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
             func = negative_silhouette_score
         case "davies_bouldin":
             logger.info("Optimising the survey using the Davies-Bouldin index...")
-            func = partial(davies_bouldin_index, seed=config.optimisation.seed)
+            func = partial(davies_bouldin_index, seed=config.seed)
         case "centroid_distance":
             logger.info("Optimising the survey using the centroid distance...")
             func = centroid_distance
@@ -100,7 +100,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         updating="deferred",
         polish=False,
         callback=callback,
-        rng=config.optimisation.seed,
+        rng=config.seed,
     )
 
     identified_questions = [

@@ -171,12 +171,12 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     # Save the plot if configured to do so. We do not overwrite existing files, and
     # instead create a new file with an incremented version number.
     if config.plotting.save_plot:
-        output_path = Path("gfx", f"umap_projection_seed{config.plotting.seed}.png")
+        output_path = Path("gfx", f"umap_projection_seed{config.seed}.png")
         version = 1
         while output_path.exists():
             version += 1
             output_path = output_path.with_name(
-                f"umap_projection_seed{config.plotting.seed}_v{version}.png"
+                f"umap_projection_seed{config.seed}_v{version}.png"
             )
         plt.savefig(output_path.as_posix(), dpi=200, bbox_inches="tight")
 
