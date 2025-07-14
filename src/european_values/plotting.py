@@ -165,9 +165,6 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     else:
         ax.set_title("UMAP projection", fontsize=20)
 
-    if config.plotting.show_plot:
-        plt.show()
-
     # Save the plot if configured to do so. We do not overwrite existing files, and
     # instead create a new file with an incremented version number.
     if config.plotting.save_plot:
@@ -179,6 +176,10 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
                 f"umap_projection_seed{config.seed}_v{version}.png"
             )
         plt.savefig(output_path.as_posix(), dpi=200, bbox_inches="tight")
+        logger.info(f"Saved plot to {output_path.as_posix()!r}")
+
+    if config.plotting.show_plot:
+        plt.show()
 
 
 def confidence_ellipse(
