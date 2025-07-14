@@ -105,3 +105,6 @@ models/*
 
 # Mkdocs compiled documentation
 site/
+
+# Plots
+gfx/umap_projection_*.png
