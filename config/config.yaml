@@ -17,7 +17,7 @@ plotting:
   umap_neighbours: 100
   top_umap_importances: 50
   ellipses: true
-  ellipse_std: 1.0
+  ellipse_std: 0.5
   fast: false
   save_plot: true
   show_plot: true
