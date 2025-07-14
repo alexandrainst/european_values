@@ -18,6 +18,8 @@ plotting:
   ellipses: true
   ellipse_std: 1.0
   fast: false
+  save_plot: true
+  show_plot: true
 
 optimisation:
   method: davies_bouldin
@@ -27,6 +29,7 @@ optimisation:
   min_questions: 3
   max_questions: null  # If null, will use all questions
   n_jobs: -1
+  seed: 4242
 
 training:
   n_estimators: 1000

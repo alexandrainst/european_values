@@ -2,6 +2,7 @@
 
 import logging
 import warnings
+from functools import partial
 
 import numpy as np
 import pandas as pd
@@ -51,7 +52,8 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         sample_df = pd.concat(
             [
                 survey_df.query(f"{country_grouping_str} == @country_grouping").sample(
-                    n=config.optimisation.sample_size_per_group, random_state=4242
+                    n=config.optimisation.sample_size_per_group,
+                    random_state=config.optimisation.seed,
                 )
                 for country_grouping in unique_country_groupings
             ]
@@ -66,7 +68,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
             func = negative_silhouette_score
         case "davies_bouldin":
             logger.info("Optimising the survey using the Davies-Bouldin index...")
-            func = davies_bouldin_index
+            func = partial(davies_bouldin_index, seed=config.optimisation.seed)
         case "centroid_distance":
             logger.info("Optimising the survey using the centroid distance...")
             func = centroid_distance
@@ -98,6 +100,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         updating="deferred",
         polish=False,
         callback=callback,
+        rng=config.optimisation.seed,
     )
 
     identified_questions = [
@@ -176,6 +179,7 @@ def davies_bouldin_index(
     survey_df: pd.DataFrame,
     focus: str | None,
     country_grouping_str: str,
+    seed: int,
 ) -> float:
     """Calculate the Davies-Bouldin index for the given questions.
 
@@ -191,6 +195,8 @@ def davies_bouldin_index(
         country_grouping_str:
             The name of the column that contains the country grouping information,
             either "country_group" or "country_code".
+        seed:
+            The random seed to use for reproducibility.
 
     Returns:
         The Davies-Bouldin index of the survey with the given questions.
@@ -210,7 +216,7 @@ def davies_bouldin_index(
     embedding_matrix = embedding_matrix[:, question_mask]
 
     # Use PCA
-    reducer = PCA(n_components=2, random_state=42)
+    reducer = PCA(n_components=2, random_state=seed)
     embedding_matrix = reducer.fit_transform(embedding_matrix)
 
     num_questions = embedding_matrix.shape[1]
