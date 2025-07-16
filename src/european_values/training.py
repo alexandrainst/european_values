@@ -59,14 +59,26 @@ def train_model(
 
     # Train the model
     logger.info(f"Training the model with {n_cross_val}-fold cross-validation...")
+    metrics = ["f1", "precision", "recall", "accuracy"]
     scores = cross_validate(
-        estimator=model, X=embedding_matrix, y=labels, cv=n_cross_val, n_jobs=n_jobs
+        estimator=model,
+        X=embedding_matrix,
+        y=labels,
+        cv=n_cross_val,
+        n_jobs=n_jobs,
+        scoring=metrics,
     )
-    mean_score = scores["test_score"].mean()
-    std_err = np.std(scores["test_score"], ddof=1) / np.sqrt(n_cross_val)
+    mean_scores = [np.mean(scores[f"test_{metric}"]) for metric in metrics]
+    std_errs = [
+        np.std(scores[f"test_{metric}"], ddof=1) / np.sqrt(n_cross_val)
+        for metric in metrics
+    ]
     logger.info(
-        f"Model trained with mean accuracy: {mean_score:.4f} ± {1.96 * std_err:.4f} "
-        f"(95% confidence interval, {n_cross_val}-fold cross-validation)"
+        f"Cross-validation scores (with {n_cross_val} folds):\n"
+        + "\n".join(
+            f"\t{metric}: {mean:.4f} ± {1.96 * std_err:.4f} (95% CI)"
+            for metric, mean, std_err in zip(metrics, mean_scores, std_errs)
+        )
     )
 
     # Fit the model on the full dataset, as this is needed for SHAP values
