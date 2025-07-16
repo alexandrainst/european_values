@@ -74,9 +74,9 @@ def train_model(
         for metric in metrics
     ]
     logger.info(
-        f"Cross-validation scores (with {n_cross_val} folds):\n"
+        "Cross-validation scores:\n"
         + "\n".join(
-            f"\t{metric}: {mean:.4f} ± {1.96 * std_err:.4f} (95% CI)"
+            f"\t{metric}: {mean:.2%} ± {1.96 * std_err:.2%} (95% CI)"
             for metric, mean, std_err in zip(metrics, mean_scores, std_errs)
         )
     )
