@@ -16,6 +16,7 @@ def train_model(
     n_cross_val: int,
     n_jobs: int,
     n_estimators: int,
+    seed: int,
     fast_shap: bool,
 ) -> None:
     """Train a random forest classifier that classifies survey data into country groups.
@@ -31,6 +32,8 @@ def train_model(
             CPUs are used.
         n_estimators:
             The number of trees in the random forest.
+        seed:
+            The random seed for reproducibility.
         fast_shap:
             Whether the SHAP values should be computed using the fast method, which is
             less accurate but faster.
@@ -52,7 +55,7 @@ def train_model(
     ]
 
     # Load the model
-    model = XGBClassifier(n_estimators=n_estimators, random_state=8446)
+    model = XGBClassifier(n_estimators=n_estimators, random_state=seed)
 
     # Train the model
     logger.info(f"Training the model with {n_cross_val}-fold cross-validation...")
