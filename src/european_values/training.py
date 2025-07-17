@@ -8,10 +8,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
-from shap import maskers as shap_maskers
-from sklearn.ensemble import RandomForestClassifier
+from shap import kmeans, maskers
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.svm import SVC
 from xgboost import XGBClassifier
 
 logger = logging.getLogger(__name__)
@@ -19,20 +20,26 @@ logger = logging.getLogger(__name__)
 
 def train_model(
     survey_df: pd.DataFrame,
-    model_type: Literal["xgboost", "random_forest", "logistic_regression"],
+    model_type: Literal[
+        "xgboost",
+        "logistic_regression",
+        "support_vector_machine",
+        "naive_bayes_gaussian",
+        "naive_bayes_multinomial",
+    ],
     n_cross_val: int,
     n_jobs: int,
     n_estimators: int,
+    seed: int,
 ) -> None:
-    """Train a random forest classifier that classifies survey data into country groups.
+    """Train a classifier that classifies survey data into country groups.
 
     Args:
         survey_df:
             The DataFrame containing the survey data. It should have the features
             in the columns and the target variable (country group) in the last column.
         model_type:
-            The type of model to train. Can be one of "xgboost", "random_forest",
-            or "logistic_regression".
+            The type of model to train.
         n_cross_val:
             The number of cross-validation folds to use.
         n_jobs:
@@ -40,11 +47,15 @@ def train_model(
             are used.
         n_estimators:
             The number of trees in the random forest.
+        seed:
+            The random seed to use for reproducibility.
 
     Raises:
         ValueError:
             If an unsupported model type is provided.
     """
+    logging.getLogger("shap").setLevel(logging.CRITICAL)
+
     # Create the embedding matrix
     logger.info("Creating embedding matrix...")
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
@@ -61,12 +72,21 @@ def train_model(
     match model_type:
         case "xgboost":
             model = XGBClassifier(n_estimators=n_estimators)
-        case "random_forest":
-            model = RandomForestClassifier(n_estimators=n_estimators)
         case "logistic_regression":
             model = LogisticRegression()
+        case "support_vector_machine":
+            model = SVC(probability=True, random_state=seed)
+        case "naive_bayes_gaussian":
+            model = GaussianNB()
+        case "naive_bayes_multinomial":
+            model = MultinomialNB()
         case _:
-            raise ValueError("Unsupported model type: {model_type}.")
+            raise ValueError(
+                "Unsupported model type: {model_type}. Supported types are: "
+                "'xgboost', 'logistic_regression', 'support_vector_machine', "
+                "'naive_bayes_gaussian', 'naive_bayes_multinomial'. Please check "
+                "your configuration."
+            )
 
     # Train the model
     logger.info(f"Training the model with {n_cross_val}-fold cross-validation...")
@@ -99,11 +119,24 @@ def train_model(
     # Get the SHAP explainer
     match model_type:
         case "xgboost" | "random_forest":
+            logger.info("Using the TreeExplainer for SHAP values.")
             explainer = shap.TreeExplainer(model=model, feature_names=question_columns)
         case "logistic_regression":
+            logger.info("Using the LinearExplainer for SHAP values.")
             explainer = shap.LinearExplainer(
                 model=model,
-                masker=shap_maskers.Independent(data=embedding_matrix),
+                masker=maskers.Independent(data=embedding_matrix),
+                feature_names=question_columns,
+            )
+        case _:
+            logger.info(
+                "Using the KernelExplainer for SHAP values. Clustering the data "
+                "into a smaller number of clusters to speed up the computation..."
+            )
+            clustered_data = kmeans(X=embedding_matrix, k=10)
+            explainer = shap.KernelExplainer(
+                model=model.predict_proba,
+                data=clustered_data,
                 feature_names=question_columns,
             )
 
@@ -126,11 +159,13 @@ def train_model(
     )
 
     # Create a summary plot of the feature importances
-    plot_path = Path("gfx", "shap_feature_importance_summary.png")
+    plot_path = Path("gfx", f"shap_feature_importance_summary_{model_type}.png")
     version = 1
     while plot_path.exists():
         version += 1
-        plot_path = Path("gfx", f"shap_feature_importance_summary_v{version}.png")
+        plot_path = plot_path.with_name(
+            f"shap_feature_importance_summary_{model_type}_v{version}.png"
+        )
     shap.plots.beeswarm(
         shap_values=shap_values,
         max_display=100,
