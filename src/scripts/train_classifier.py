@@ -51,7 +51,7 @@ def main(config: DictConfig) -> None:
         n_cross_val=config.training.n_cross_val,
         n_jobs=config.training.n_jobs,
         n_estimators=config.training.n_estimators,
-        seed=config.training.seed,
+        seed=config.seed,
         fast_shap=config.training.fast_shap,
     )
 

@@ -36,4 +36,3 @@ training:
   n_cross_val: 10
   n_jobs: -1
   fast_shap: false
-  seed: 4242
