@@ -110,6 +110,10 @@ def train_model(
 
     # Create a summary plot of the feature importances
     plot_path = Path("gfx", "shap_feature_importance_summary.png")
+    version = 1
+    while plot_path.exists():
+        version += 1
+        plot_path = Path("gfx", f"shap_feature_importance_summary_v{version}.png")
     shap.plots.beeswarm(
         shap_values=shap_values,
         max_display=100,
