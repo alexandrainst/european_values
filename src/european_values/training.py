@@ -122,4 +122,5 @@ def train_model(
     )
     plt.title("SHAP Feature Importance Summary")
     plt.savefig(plot_path.as_posix(), bbox_inches="tight", dpi=300)
+    plt.close()
     logger.info(f"Feature importance summary plot saved as {plot_path.as_posix()!r}")
