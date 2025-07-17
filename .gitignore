@@ -108,3 +108,4 @@ site/
 
 # Plots
 gfx/umap_projection_*.png
+gfx/shap_feature_importance_summary.png

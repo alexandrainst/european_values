@@ -1,10 +1,13 @@
 """Training classification models on the dataset."""
 
 import logging
+import re
+from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from shap import TreeExplainer
+import shap
 from sklearn.model_selection import cross_validate
 from xgboost import XGBClassifier
 
@@ -87,12 +90,23 @@ def train_model(
 
     # Get the most important questions
     logger.info("Calculating feature importances...")
-    explainer = TreeExplainer(model=model, feature_names=question_columns)
-    importances = explainer(
+    shortened_question_columns = []
+    for question in question_columns:
+        _, question_number, maybe_question_number = question.split("_", 2)
+        new_question = question_number
+        if re.match(r"^\d+$", maybe_question_number):
+            new_question += f"_{maybe_question_number}"
+        choice = question.split("choice")[-1] if "choice" in question else None
+        if choice is not None:
+            new_question += f":{choice}"
+        shortened_question_columns.append(new_question.upper())
+    explainer = shap.TreeExplainer(model=model, feature_names=question_columns)
+    shap_values = explainer(
         X=embedding_matrix, check_additivity=False, approximate=fast_shap
-    ).values
+    )
+    importances = shap_values.values
     assert isinstance(importances, np.ndarray), "SHAP values should be a numpy array"
-    importances = importances.mean(axis=0)
+    importances = np.abs(importances).mean(axis=0)
     sorted_question_indices = np.argsort(importances)[::-1]
     logger.info(
         "Most important questions:\n"
@@ -102,6 +116,17 @@ def train_model(
                 np.array(question_columns)[sorted_question_indices],
                 importances[sorted_question_indices],
             )
-            if importance > 0
         )
     )
+
+    # Create a summary plot of the feature importances
+    plot_path = Path("gfx", "shap_feature_importance_summary.png")
+    shap.plots.beeswarm(
+        shap_values=shap_values,
+        max_display=100,
+        group_remaining_features=False,
+        show=False,
+    )
+    plt.title("SHAP Feature Importance Summary")
+    plt.savefig(plot_path.as_posix(), bbox_inches="tight", dpi=300)
+    logger.info(f"Feature importance summary plot saved as {plot_path.as_posix()!r}")
