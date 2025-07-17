@@ -107,5 +107,5 @@ models/*
 site/
 
 # Plots
-gfx/umap_projection_*.png
-gfx/shap_feature_importance_summary.png
+gfx/umap_projection*.png
+gfx/shap_feature_importance_summary*.png
