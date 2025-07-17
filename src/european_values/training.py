@@ -2,11 +2,15 @@
 
 import logging
 from pathlib import Path
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
+from shap import maskers as shap_maskers
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
 from xgboost import XGBClassifier
 
@@ -15,11 +19,10 @@ logger = logging.getLogger(__name__)
 
 def train_model(
     survey_df: pd.DataFrame,
+    model_type: Literal["xgboost", "random_forest", "logistic_regression"],
     n_cross_val: int,
     n_jobs: int,
     n_estimators: int,
-    seed: int,
-    fast_shap: bool,
 ) -> None:
     """Train a random forest classifier that classifies survey data into country groups.
 
@@ -27,18 +30,16 @@ def train_model(
         survey_df:
             The DataFrame containing the survey data. It should have the features
             in the columns and the target variable (country group) in the last column.
+        model_type:
+            The type of model to train. Can be one of "xgboost", "random_forest",
+            or "logistic_regression".
         n_cross_val:
             The number of cross-validation folds to use.
         n_jobs:
-            The number of jobs to run in parallel for cross-validation. If -1, all
-            CPUs are used.
+            The number of jobs to run in parallel for cross-validation. If -1, all CPUs
+            are used.
         n_estimators:
             The number of trees in the random forest.
-        seed:
-            The random seed for reproducibility.
-        fast_shap:
-            Whether the SHAP values should be computed using the fast method, which is
-            less accurate but faster.
 
     Raises:
         ValueError:
@@ -57,7 +58,15 @@ def train_model(
     ]
 
     # Load the model
-    model = XGBClassifier(n_estimators=n_estimators, random_state=seed)
+    match model_type:
+        case "xgboost":
+            model = XGBClassifier(n_estimators=n_estimators)
+        case "random_forest":
+            model = RandomForestClassifier(n_estimators=n_estimators)
+        case "logistic_regression":
+            model = LogisticRegression()
+        case _:
+            raise ValueError("Unsupported model type: {model_type}.")
 
     # Train the model
     logger.info(f"Training the model with {n_cross_val}-fold cross-validation...")
@@ -87,12 +96,20 @@ def train_model(
     logger.info("Training the model on the full dataset to get feature importances...")
     model.fit(X=embedding_matrix, y=labels)
 
+    # Get the SHAP explainer
+    match model_type:
+        case "xgboost" | "random_forest":
+            explainer = shap.TreeExplainer(model=model, feature_names=question_columns)
+        case "logistic_regression":
+            explainer = shap.LinearExplainer(
+                model=model,
+                masker=shap_maskers.Independent(data=embedding_matrix),
+                feature_names=question_columns,
+            )
+
     # Get the most important questions
     logger.info("Calculating feature importances...")
-    explainer = shap.TreeExplainer(model=model, feature_names=question_columns)
-    shap_values = explainer(
-        X=embedding_matrix, check_additivity=False, approximate=fast_shap
-    )
+    shap_values = explainer(embedding_matrix)
     importances = shap_values.values
     assert isinstance(importances, np.ndarray), "SHAP values should be a numpy array"
     importances = np.abs(importances).mean(axis=0)
