@@ -32,7 +32,13 @@ optimisation:
   n_jobs: -1
 
 training:
+  # Model type options:
+  # - xgboost
+  # - logistic_regression
+  # - support_vector_machine
+  # - naive_bayes_gaussian
+  # - naive_bayes_multinomial
   model_type: xgboost
-  n_estimators: 1000
+  n_estimators: 1000  # Only relevant for tree-based models
   n_cross_val: 10
   n_jobs: -1
