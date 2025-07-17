@@ -73,7 +73,9 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
         importances[question] = importance
     most_important_questions = sorted(
         importances.items(), key=lambda item: item[1], reverse=True
-    )[: config.plotting.top_umap_importances]
+    )
+    if num_importances := config.plotting.top_umap_importances > 0:
+        most_important_questions = most_important_questions[:num_importances]
 
     # Get the average values for the most important questions in Europe, if available
     if config.focus in survey_df.country_group.unique():
