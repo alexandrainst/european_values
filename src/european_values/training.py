@@ -31,6 +31,7 @@ def train_model(
     n_jobs: int,
     n_estimators: int,
     seed: int,
+    bootstrap: bool,
 ) -> None:
     """Train a classifier that classifies survey data into country groups.
 
@@ -49,6 +50,8 @@ def train_model(
             The number of trees in the random forest.
         seed:
             The random seed to use for reproducibility.
+        bootstrap:
+            Whether to bootstrap the data for training, using the `seed` parameter.
 
     Raises:
         ValueError:
@@ -67,6 +70,18 @@ def train_model(
         1 if country_group == "Europe" else 0
         for country_group in survey_df.country_group
     ]
+
+    # Bootstrap the embedding matrix and the labels
+    if bootstrap:
+        logger.info(
+            f"Bootstrapping the embedding matrix and labels with seed {seed}..."
+        )
+        rng = np.random.default_rng(seed)
+        indices = rng.choice(
+            a=np.arange(len(embedding_matrix)), size=len(embedding_matrix), replace=True
+        )
+        embedding_matrix = embedding_matrix[indices]
+        labels = np.array(labels)[indices]
 
     # Load the model
     match model_type:

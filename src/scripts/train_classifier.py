@@ -53,6 +53,7 @@ def main(config: DictConfig) -> None:
         n_jobs=config.training.n_jobs,
         n_estimators=config.training.n_estimators,
         seed=config.seed,
+        bootstrap=config.training.bootstrap,
     )
 
 
