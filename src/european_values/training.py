@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
-from shap import kmeans, maskers
+from shap import kmeans
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
@@ -124,9 +124,7 @@ def train_model(
         case "logistic_regression":
             logger.info("Using the LinearExplainer for SHAP values.")
             explainer = shap.LinearExplainer(
-                model=model,
-                masker=maskers.Independent(data=embedding_matrix),
-                feature_names=question_columns,
+                model=model, masker=embedding_matrix, feature_names=question_columns
             )
         case _:
             logger.info(
