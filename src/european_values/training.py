@@ -190,6 +190,8 @@ def train_model(
         plot_path = plot_path.with_name(
             plot_path.stem + f"_v{version}" + plot_path.suffix
         )
+    questions_path.parent.mkdir(parents=True, exist_ok=True)
+    plot_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save the important questions to a CSV file
     pd.DataFrame(
