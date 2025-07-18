@@ -171,14 +171,33 @@ def train_model(
         )
     )
 
-    # Create a summary plot of the feature importances
-    plot_path = Path("gfx", f"shap_feature_importance_summary_{model_type}.png")
+    # Set up paths
+    questions_path = Path("data", f"important_questions_{model_type}_seed{seed}.csv")
+    plot_path = Path(
+        "gfx", f"shap_feature_importance_summary_{model_type}_seed{seed}.png"
+    )
     version = 1
-    while plot_path.exists():
+    while questions_path.exists() or plot_path.exists():
         version += 1
-        plot_path = plot_path.with_name(
-            f"shap_feature_importance_summary_{model_type}_v{version}.png"
+        questions_path = questions_path.with_name(
+            questions_path.stem + f"_v{version}" + questions_path.suffix
         )
+        plot_path = plot_path.with_name(
+            plot_path.stem + f"_v{version}" + plot_path.suffix
+        )
+
+    # Save the important questions to a CSV file
+    pd.DataFrame(
+        {
+            "model_type": model_type,
+            "seed": seed,
+            "question": np.array(question_columns)[sorted_question_indices],
+            "importance": importances[sorted_question_indices],
+        }
+    ).to_csv(questions_path.as_posix(), index=False, encoding="utf-8")
+    logger.info(f"Important questions saved to {questions_path.as_posix()!r}")
+
+    # Create a summary plot of the feature importances
     shap.plots.beeswarm(
         shap_values=shap_values,
         max_display=100,
