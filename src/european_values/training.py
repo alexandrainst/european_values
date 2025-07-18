@@ -172,9 +172,14 @@ def train_model(
     )
 
     # Set up paths
-    questions_path = Path("data", f"important_questions_{model_type}_seed{seed}.csv")
+    questions_path = Path(
+        "data",
+        "processed",
+        "importances",
+        f"important_questions_{model_type}_seed{seed}.csv",
+    )
     plot_path = Path(
-        "gfx", f"shap_feature_importance_summary_{model_type}_seed{seed}.png"
+        "gfx", "shap_feature_importances", f"shap_{model_type}_seed{seed}.png"
     )
     version = 1
     while questions_path.exists() or plot_path.exists():
