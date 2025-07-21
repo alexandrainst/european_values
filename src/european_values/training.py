@@ -32,6 +32,7 @@ def train_model(
     n_estimators: int,
     seed: int,
     bootstrap: bool,
+    compute_importances: bool,
 ) -> None:
     """Train a classifier that classifies survey data into country groups.
 
@@ -52,6 +53,8 @@ def train_model(
             The random seed to use for reproducibility.
         bootstrap:
             Whether to bootstrap the data for training, using the `seed` parameter.
+        compute_importances:
+            Whether to compute and save feature importances using SHAP values.
 
     Raises:
         ValueError:
@@ -126,6 +129,10 @@ def train_model(
             for metric, mean, std_err in zip(metrics, mean_scores, std_errs)
         )
     )
+
+    if not compute_importances:
+        logger.info("Skipping feature importance calculation as per configuration.")
+        return
 
     # Fit the model on the full dataset, as this is needed for SHAP values
     logger.info("Training the model on the full dataset to get feature importances...")

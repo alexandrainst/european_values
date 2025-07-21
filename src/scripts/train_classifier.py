@@ -46,6 +46,26 @@ def main(config: DictConfig) -> None:
     df = process_data(df=df, config=config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
+    # Only use a subset of questions if specified
+    if config.training.subset_csv is not None:
+        question_subset = list(
+            {
+                line.split(":")[0]
+                for line in pd.read_csv(config.training.subset_csv).index.tolist()
+            }
+        )
+        question_columns_to_remove = [
+            col
+            for col in df.columns
+            if col.startswith("question_") and col not in question_subset
+        ]
+        df.drop(columns=question_columns_to_remove, inplace=True)
+        logger.info(
+            f"Removed {len(question_columns_to_remove):,} questions not in the "
+            f"specified subset CSV file {config.training.subset_csv}:\n"
+            + "\n".join([f"  - {col}" for col in question_columns_to_remove])
+        )
+
     train_model(
         survey_df=df,
         model_type=config.training.model_type,
@@ -54,6 +74,7 @@ def main(config: DictConfig) -> None:
         n_estimators=config.training.n_estimators,
         seed=config.seed,
         bootstrap=config.training.bootstrap,
+        compute_importances=config.training.compute_importances,
     )
 
 
