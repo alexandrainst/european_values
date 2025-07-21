@@ -113,6 +113,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
         polish=False,
         callback=callback,
         rng=config.seed,
+        tol=0,  # No tolerance for convergence, it has to run for `max_iterations` steps
     )
 
     identified_questions = [
