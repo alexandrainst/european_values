@@ -47,13 +47,16 @@ def main(config: DictConfig) -> None:
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     # Only use a subset of questions if specified
-    if config.training.subset_csv is not None:
-        question_subset = list(
-            {
-                line.split(":")[0]
-                for line in pd.read_csv(config.training.subset_csv).index.tolist()
-            }
-        )
+    if config.subset_csv is not None:
+        subset_df = pd.read_csv(config.subset_csv)
+        if "question" in subset_df.columns:
+            question_subset = subset_df.question.unique().tolist()
+            if config.top_num_questions_in_subset is not None:
+                question_subset = question_subset[: config.top_num_questions_in_subset]
+        else:
+            question_subset = list(
+                {line.split(":")[0] for line in subset_df.index.tolist()}
+            )
         question_columns_to_remove = [
             col
             for col in df.columns
@@ -62,9 +65,9 @@ def main(config: DictConfig) -> None:
         df.drop(columns=question_columns_to_remove, inplace=True)
         logger.info(
             f"Removed {len(question_columns_to_remove):,} questions not in the "
-            f"specified subset CSV file {config.training.subset_csv}:\n"
-            + "\n".join([f"  - {col}" for col in question_columns_to_remove])
+            f"specified subset CSV file {config.subset_csv}."
         )
+        logger.info(f"Shape of the data after filtering: {df.shape}")
 
     train_model(
         survey_df=df,
