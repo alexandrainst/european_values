@@ -38,11 +38,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    strategy:
-        matrix:
-            os: [windows-latest, macos-latest, ubuntu-latest]
-            python-version: ["3.11"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,7 +48,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Install Dependencies
         run: uv sync --all-extras
