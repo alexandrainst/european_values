@@ -65,13 +65,25 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
     match config.optimisation.method:
         case "silhouette":
             logger.info("Optimising the survey using the silhouette score...")
-            func = negative_silhouette_score
+            func = partial(
+                negative_silhouette_score,
+                min_questions=config.optimisation.min_questions,
+                seed=config.seed,
+            )
         case "davies_bouldin":
             logger.info("Optimising the survey using the Davies-Bouldin index...")
-            func = partial(davies_bouldin_index, seed=config.seed)
+            func = partial(
+                davies_bouldin_index,
+                min_questions=config.optimisation.min_questions,
+                seed=config.seed,
+            )
         case "centroid_distance":
             logger.info("Optimising the survey using the centroid distance...")
-            func = centroid_distance
+            func = partial(
+                centroid_distance,
+                min_questions=config.optimisation.min_questions,
+                seed=config.seed,
+            )
         case _:
             raise ValueError(
                 f"Unknown optimisation method: {config.optimisation.method!r}. "
@@ -125,6 +137,8 @@ def negative_silhouette_score(
     survey_df: pd.DataFrame,
     focus: str | None,
     country_grouping_str: str,
+    min_questions: int,
+    seed: int,
 ) -> float:
     """Calculate the negative silhouette score for the given questions.
 
@@ -140,6 +154,10 @@ def negative_silhouette_score(
         country_grouping_str:
             The name of the column that contains the country grouping information,
             either "country_group" or "country_code".
+        min_questions:
+            The minimum number of questions to select for the survey.
+        seed:
+            The random seed to use for reproducibility.
 
     Returns:
         The negative silhouette score of the survey with the given questions.
@@ -157,6 +175,10 @@ def negative_silhouette_score(
     embedding_matrix = survey_df[question_columns].values
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
+
+    # Use PCA
+    reducer = PCA(n_components=min_questions, random_state=seed)
+    embedding_matrix = reducer.fit_transform(embedding_matrix)
 
     # Compute the silhouette coefficients for either all rows or only the focus group
     silhouette_coefficients = silhouette_samples(
@@ -179,6 +201,7 @@ def davies_bouldin_index(
     survey_df: pd.DataFrame,
     focus: str | None,
     country_grouping_str: str,
+    min_questions: int,
     seed: int,
 ) -> float:
     """Calculate the Davies-Bouldin index for the given questions.
@@ -195,6 +218,8 @@ def davies_bouldin_index(
         country_grouping_str:
             The name of the column that contains the country grouping information,
             either "country_group" or "country_code".
+        min_questions:
+            The minimum number of questions to select for the survey.
         seed:
             The random seed to use for reproducibility.
 
@@ -216,7 +241,7 @@ def davies_bouldin_index(
     embedding_matrix = embedding_matrix[:, question_mask]
 
     # Use PCA
-    reducer = PCA(n_components=2, random_state=seed)
+    reducer = PCA(n_components=min_questions, random_state=seed)
     embedding_matrix = reducer.fit_transform(embedding_matrix)
 
     num_questions = embedding_matrix.shape[1]
@@ -276,6 +301,8 @@ def centroid_distance(
     survey_df: pd.DataFrame,
     focus: str | None,
     country_grouping_str: str,
+    min_questions: int,
+    seed: int,
 ) -> float:
     """Calculate the centroid distance for the given questions.
 
@@ -286,11 +313,15 @@ def centroid_distance(
             The survey data, which must contain columns starting with "question_".
         focus:
             The group to focus on, where focusing here means that we only consider the
-            Davies-Bouldin index of the rows that belong to this group. If None then
-            all rows are considered.
+            centroid distance of the rows that belong to this group. If None then all
+            rows are considered.
         country_grouping_str:
             The name of the column that contains the country grouping information,
             either "country_group" or "country_code".
+        min_questions:
+            The minimum number of questions to select for the survey.
+        seed:
+            The random seed to use for reproducibility.
 
     Returns:
         The centroid distance of the survey with the given questions.
@@ -309,15 +340,19 @@ def centroid_distance(
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
+    # TODO: Check if this is necessary to avoid bias towards fewer questions
+    # Use PCA
+    # reducer = PCA(n_components=min_questions, random_state=seed)
+    # embedding_matrix = reducer.fit_transform(embedding_matrix)
+
     # Encode the country groups
     le = LabelEncoder()
     labels = le.fit_transform(survey_df[country_grouping_str])
     num_labels = survey_df[country_grouping_str].nunique()
-    num_questions = question_mask.sum().item()
     assert isinstance(num_labels, int)
 
     # Compute the centroids for each country group
-    centroids = np.zeros((num_labels, num_questions), dtype=float)
+    centroids = np.zeros((num_labels, embedding_matrix.shape[1]), dtype=float)
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
         centroid = cluster_k.mean(axis=0)
