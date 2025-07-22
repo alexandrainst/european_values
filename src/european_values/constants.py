@@ -1,7 +1,7 @@
 """Constants used in the project."""
 
 COUNTRY_GROUPS = {
-    "EFTA": [
+    "EU": [
         # EU countries
         "EE",  # Estonia
         "CZ",  # Czech Republic
@@ -30,13 +30,13 @@ COUNTRY_GROUPS = {
         "CY",  # Cyprus
         "GR",  # Greece
         "RO",  # Romania
+    ],
+    "Europe without EU": [
         # EFTA countries
         "IS",  # Iceland
         "NO",  # Norway
         "CH",  # Switzerland
-    ],
-    "Europe without EFTA": [
-        # Non-EU countries
+        # Non-EU and non-EFTA countries
         "GB",  # United Kingdom
         "NIR",  # Northern Ireland
         "AD",  # Andorra
