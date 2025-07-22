@@ -28,7 +28,7 @@ plotting:
 
 optimisation:
   method: davies_bouldin
-  intra_dist_factor: 5.0
+  intra_dist_factor: 10.0
   sample_size_per_group: null  # If null, will use the full dataset
   max_iterations: 1000
   population_size: 10
