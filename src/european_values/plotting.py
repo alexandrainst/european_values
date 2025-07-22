@@ -85,7 +85,7 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             .mean()
             .tolist()
         )
-        focus_stddev_values = (
+        focus_std_values = (
             survey_df.query(f"{country_grouping_str} == @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .std()
@@ -97,21 +97,29 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             .mean()
             .tolist()
         )
+        non_focus_std_values = (
+            survey_df.query(f"{country_grouping_str} != @config.focus")
+            .loc[:, [q for q, _ in most_important_questions]]
+            .std()
+            .tolist()
+        )
         logger.info(
             "Most important questions based on UMAP feature importances:\n\t- "
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"({config.focus}: {focus_mean:.2%} ± {focus_stddev:.2%} (1σ), "
-                    f"non-{config.focus}: {non_focus_mean:.2%})"
+                    f"({config.focus}: {focus_mean:.2%} ± {focus_std:.2%} (1σ), "
+                    f"non-{config.focus}: {non_focus_mean:.2%} ± {non_focus_std:.2%} "
+                    "(1σ))"
                     for (
                         question,
                         importance,
-                    ), focus_mean, focus_stddev, non_focus_mean in zip(
+                    ), focus_mean, focus_std, non_focus_mean, non_focus_std in zip(
                         most_important_questions,
                         focus_mean_values,
-                        focus_stddev_values,
+                        focus_std_values,
                         non_focus_mean_values,
+                        non_focus_std_values,
                     )
                 ]
             )
