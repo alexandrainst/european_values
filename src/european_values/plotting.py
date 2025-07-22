@@ -79,13 +79,19 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
 
     # Get the average values for the most important questions in Europe, if available
     if config.focus in survey_df.country_group.unique():
-        europe_mean_values = (
+        focus_mean_values = (
             survey_df.query(f"{country_grouping_str} == @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .mean()
             .tolist()
         )
-        non_europe_mean_values = (
+        focus_stderr_values = (
+            survey_df.query(f"{country_grouping_str} == @config.focus")
+            .loc[:, [q for q, _ in most_important_questions]]
+            .sem()
+            .tolist()
+        )
+        non_focus_mean_values = (
             survey_df.query(f"{country_grouping_str} != @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .mean()
@@ -96,12 +102,16 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"({config.focus}: {europe_mean}, "
-                    f"non-{config.focus}: {non_europe_mean})"
-                    for (question, importance), europe_mean, non_europe_mean in zip(
+                    f"({config.focus}: {focus_mean} ± {1.96 * focus_stderr:.4f}, "
+                    f"non-{config.focus}: {non_focus_mean})"
+                    for (
+                        question,
+                        importance,
+                    ), focus_mean, focus_stderr, non_focus_mean in zip(
                         most_important_questions,
-                        europe_mean_values,
-                        non_europe_mean_values,
+                        focus_mean_values,
+                        focus_stderr_values,
+                        non_focus_mean_values,
                     )
                 ]
             )
