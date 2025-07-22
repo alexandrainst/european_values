@@ -347,10 +347,9 @@ def centroid_distance(
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
-    # TODO: Check if this is necessary to avoid bias towards fewer questions
     # Use PCA
-    # reducer = PCA(n_components=min_questions, random_state=seed)
-    # embedding_matrix = reducer.fit_transform(embedding_matrix)
+    reducer = PCA(n_components=min_questions, random_state=seed)
+    embedding_matrix = reducer.fit_transform(embedding_matrix)
 
     # Encode the country groups
     le = LabelEncoder()
