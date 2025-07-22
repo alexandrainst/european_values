@@ -85,10 +85,10 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             .mean()
             .tolist()
         )
-        focus_std_values = (
+        focus_stderr_values = (
             survey_df.query(f"{country_grouping_str} == @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
-            .std()
+            .sem()
             .tolist()
         )
         non_focus_mean_values = (
@@ -97,10 +97,10 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             .mean()
             .tolist()
         )
-        non_focus_std_values = (
+        non_focus_stderr_values = (
             survey_df.query(f"{country_grouping_str} != @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
-            .std()
+            .sem()
             .tolist()
         )
         logger.info(
@@ -108,18 +108,21 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"({config.focus}: {focus_mean:.2%} ± {focus_std:.2%} (1σ), "
-                    f"non-{config.focus}: {non_focus_mean:.2%} ± {non_focus_std:.2%} "
-                    "(1σ))"
+                    f"({config.focus}: {focus_mean} ± {1.96 * focus_stderr:.4f}, "
+                    f"non-{config.focus}: {non_focus_mean} ± "
+                    f"{1.96 * non_focus_stderr:.4f})"
                     for (
-                        question,
-                        importance,
-                    ), focus_mean, focus_std, non_focus_mean, non_focus_std in zip(
+                        (question, importance),
+                        focus_mean,
+                        focus_stderr,
+                        non_focus_mean,
+                        non_focus_stderr,
+                    ) in zip(
                         most_important_questions,
                         focus_mean_values,
-                        focus_std_values,
+                        focus_stderr_values,
                         non_focus_mean_values,
-                        non_focus_std_values,
+                        non_focus_stderr_values,
                     )
                 ]
             )
