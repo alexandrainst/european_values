@@ -76,6 +76,7 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
                 davies_bouldin_index,
                 min_questions=config.optimisation.min_questions,
                 seed=config.seed,
+                intra_dist_factor=config.optimisation.intra_dist_factor,
             )
         case "centroid_distance":
             logger.info("Optimising the survey using the centroid distance...")
@@ -204,6 +205,7 @@ def davies_bouldin_index(
     country_grouping_str: str,
     min_questions: int,
     seed: int,
+    intra_dist_factor: float,
 ) -> float:
     """Calculate the Davies-Bouldin index for the given questions.
 
@@ -223,6 +225,10 @@ def davies_bouldin_index(
             The minimum number of questions to select for the survey.
         seed:
             The random seed to use for reproducibility.
+        intra_dist_factor:
+            A factor to prioritise intra-cluster distances over centroid distances. A
+            factor of 1.0 means that the intra-cluster distances and centroid distances
+            are equally important.
 
     Returns:
         The Davies-Bouldin index of the survey with the given questions.
@@ -293,7 +299,7 @@ def davies_bouldin_index(
 
     # Compute the Davies-Bouldin index as the maximum of the ratio of combined intra-
     # cluster distances to centroid distances for each cluster
-    scores = np.max(intra_dists / centroid_distances, axis=-1)
+    scores = np.max(intra_dists * intra_dist_factor / centroid_distances, axis=-1)
     return float(np.mean(scores))
 
 
