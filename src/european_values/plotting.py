@@ -102,8 +102,8 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"({config.focus}: {focus_mean} ± {focus_stddev:.4f} (1σ), "
-                    f"non-{config.focus}: {non_focus_mean})"
+                    f"({config.focus}: {focus_mean:.2%} ± {focus_stddev:.2%} (1σ), "
+                    f"non-{config.focus}: {non_focus_mean:.2%})"
                     for (
                         question,
                         importance,
