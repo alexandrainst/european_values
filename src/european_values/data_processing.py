@@ -100,13 +100,17 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
             f"{df.shape}"
         )
 
-    # Impute missing values
-    logger.info("Imputing missing values...")
+    # Count the number of missing values in the question columns
     question_columns = [col for col in df.columns if col.startswith("question_")]
+    num_missing = df[question_columns].isna().sum().sum()
+    num_total = df[question_columns].size
+    pct_missing = num_missing / num_total
+
+    # Impute missing values
     embedding_matrix = np.empty(shape=(df.shape[0], len(question_columns)))
     for country_grouping in tqdm(
         iterable=unique_country_groupings,
-        desc="Imputing missing values",
+        desc=f"Imputing {num_missing:,} ({pct_missing:.2%}) missing values...",
         unit=country_grouping_str,
     ):
         country_grouping_df = df.query(f"{country_grouping_str} == @country_grouping")
