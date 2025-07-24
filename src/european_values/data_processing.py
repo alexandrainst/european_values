@@ -10,7 +10,7 @@ from omegaconf import DictConfig
 from sklearn.preprocessing import MinMaxScaler
 from tqdm.auto import tqdm
 
-from .utils import group_country
+from .utils import df_has_column_with_only_nans, group_country
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +106,9 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
     num_total = df[question_columns].size
     pct_missing = num_missing / num_total
 
+    # Initialise the imputer
+    sampler = RandomSampleImputer(random_state=4242, variables=question_columns)
+
     # Impute missing values
     embedding_matrix = np.empty(shape=(df.shape[0], len(question_columns)))
     for country_grouping in tqdm(
@@ -114,17 +117,97 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         unit=country_grouping_str,
     ):
         country_grouping_df = df.query(f"{country_grouping_str} == @country_grouping")
-        country_grouping_df = country_grouping_df[question_columns].copy()
-        assert isinstance(country_grouping_df, pd.DataFrame)
-        country_embedding = (
-            RandomSampleImputer(random_state=4242)
-            .fit_transform(X=country_grouping_df)
-            .values
-        )
-        assert isinstance(country_embedding, np.ndarray)
-        embedding_matrix[country_grouping_df.index, :] = country_embedding
 
-    # Normalize the data
+        # Get all combinations of metadata values, as we want to impute values
+        # conditioned on these demographic features
+        metadata_combinations = list(
+            {
+                (row.education, row.sex, row.age_interval)
+                for _, row in country_grouping_df.iterrows()
+            }
+        )
+
+        # Iterate over all combinations of metadata values
+        for education, sex, age_interval in tqdm(
+            iterable=metadata_combinations,
+            desc=f"Imputing values for {country_grouping!r} conditioned on "
+            "metadata values",
+            leave=False,
+            unit="metadata combination",
+        ):
+            # Slice the DataFrame to contain exactly the examples we want to impute
+            df_to_be_imputed = country_grouping_df.copy()
+            if pd.isna(education):
+                df_to_be_imputed = df_to_be_imputed.query("education.isna()")
+            else:
+                df_to_be_imputed = df_to_be_imputed.query("education == @education")
+            if pd.isna(sex):
+                df_to_be_imputed = df_to_be_imputed.query("sex.isna()")
+            else:
+                df_to_be_imputed = df_to_be_imputed.query("sex == @sex")
+            if pd.isna(age_interval):
+                df_to_be_imputed = df_to_be_imputed.query("age_interval.isna()")
+            else:
+                df_to_be_imputed = df_to_be_imputed.query(
+                    "age_interval == @age_interval"
+                )
+
+            assert not df_to_be_imputed.empty, (
+                f"DataFrame to be imputed for {country_grouping!r} with "
+                f"education={education}, sex={sex}, and "
+                f"age_interval={age_interval} is empty. This should not happen."
+            )
+
+            # If we do not have any rows to impute, we just use the original
+            # values
+            if df_to_be_imputed[question_columns].isna().sum().sum() == 0:
+                imputed_values = df_to_be_imputed[question_columns].values
+                embedding_matrix[df_to_be_imputed.index, :] = imputed_values
+                continue
+
+            # Slice the DataFrame to get the pool of values we can sample from to
+            # impute. We only slice if the metadata values are not NaN and if the
+            # resulting sliced DataFrame has more than one row.
+            imputation_values_df = country_grouping_df.copy()
+            if not pd.isna(education) and not df_has_column_with_only_nans(
+                df=imputation_values_df
+            ):
+                candidate_imputation_values_df = imputation_values_df.query(
+                    "education == @education"
+                )
+                if not df_has_column_with_only_nans(df=candidate_imputation_values_df):
+                    imputation_values_df = candidate_imputation_values_df
+            if not pd.isna(sex) and not df_has_column_with_only_nans(
+                df=imputation_values_df
+            ):
+                candidate_imputation_values_df = imputation_values_df.query(
+                    "sex == @sex"
+                )
+                if not df_has_column_with_only_nans(df=candidate_imputation_values_df):
+                    imputation_values_df = candidate_imputation_values_df
+            if not pd.isna(age_interval) and not df_has_column_with_only_nans(
+                df=imputation_values_df
+            ):
+                candidate_imputation_values_df = imputation_values_df.query(
+                    "age_interval == @age_interval"
+                )
+                if not df_has_column_with_only_nans(df=candidate_imputation_values_df):
+                    imputation_values_df = candidate_imputation_values_df
+
+            # Impute the missing values for each question column
+            sampler.fit(X=imputation_values_df)
+            imputed_values = sampler.transform(X=df_to_be_imputed)[
+                question_columns
+            ].values
+            embedding_matrix[df_to_be_imputed.index, :] = imputed_values
+
+    # Check if we have imputed all missing values
+    assert np.isnan(embedding_matrix).sum() == 0, (
+        f"Not all missing values have been imputed. Found "
+        f"{np.isnan(embedding_matrix).sum():,} missing values in the embedding matrix."
+    )
+
+    # Normalise the data
     logger.info("Normalising the data...")
     embedding_matrix = MinMaxScaler(feature_range=(0, 1)).fit_transform(
         X=embedding_matrix

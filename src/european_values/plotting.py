@@ -80,50 +80,35 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
     # Get the average values for the most important questions in the focus group, if
     # available
     if config.focus in survey_df[country_grouping_str].unique():
-        focus_mean_values = (
+        focus_weights = survey_df.query(
+            f"{country_grouping_str} == @config.focus"
+        ).weight.values
+        focus_mean_values = np.average(
             survey_df.query(f"{country_grouping_str} == @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
-            .mean()
-            .tolist()
+            .values,
+            weights=focus_weights,
         )
-        focus_stderr_values = (
-            survey_df.query(f"{country_grouping_str} == @config.focus")
-            .loc[:, [q for q, _ in most_important_questions]]
-            .sem()
-            .tolist()
-        )
-        non_focus_mean_values = (
+        non_focus_weights = survey_df.query(
+            f"{country_grouping_str} != @config.focus"
+        ).weight.values
+        non_focus_mean_values = np.average(
             survey_df.query(f"{country_grouping_str} != @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
-            .mean()
-            .tolist()
-        )
-        non_focus_stderr_values = (
-            survey_df.query(f"{country_grouping_str} != @config.focus")
-            .loc[:, [q for q, _ in most_important_questions]]
-            .sem()
-            .tolist()
+            .values,
+            weights=non_focus_weights,
         )
         logger.info(
             "Most important questions based on UMAP feature importances:\n\t- "
             + "\n\t- ".join(
                 [
                     f"{question}: {importance:.4f} "
-                    f"({config.focus}: {focus_mean:.2%} ± {1.96 * focus_stderr:.2%}, "
-                    f"non-{config.focus}: {non_focus_mean:.2%} ± "
-                    f"{1.96 * non_focus_stderr:.2%})"
-                    for (
-                        (question, importance),
-                        focus_mean,
-                        focus_stderr,
-                        non_focus_mean,
-                        non_focus_stderr,
-                    ) in zip(
+                    f"({config.focus}: {focus_mean:.2%}, "
+                    f"non-{config.focus}: {non_focus_mean:.2%})"
+                    for (question, importance), focus_mean, non_focus_mean in zip(
                         most_important_questions,
                         focus_mean_values,
-                        focus_stderr_values,
                         non_focus_mean_values,
-                        non_focus_stderr_values,
                     )
                 ]
             )
@@ -147,8 +132,10 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
         country_indices = survey_df.query(
             f"{country_grouping_str} == @country_grouping"
         ).index.tolist()
-        country_embedding_matrix[country_idx, :] = np.mean(
-            embedding_matrix[country_indices, :], axis=0
+        country_embedding_matrix[country_idx, :] = np.average(
+            embedding_matrix[country_indices, :],
+            weights=survey_df.loc[country_indices, "weight"].values,
+            axis=0,
         )
 
     logger.info("Creating scatter plot with matplotlib...")
@@ -166,6 +153,7 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
                 n_std=config.plotting.ellipse_std,
                 facecolor="none",
                 edgecolor=colour,
+                weights=survey_df.loc[country_indices, "weight"].values,
             )
         ax.text(
             x=country_embedding_matrix[country_idx, 0],
@@ -212,21 +200,24 @@ def confidence_ellipse(
     ax: Axes,
     n_std: float,
     facecolor: str,
+    weights: np.ndarray,
     **ellipse_kwargs,
 ) -> Patch:
     """Create a plot of the covariance confidence ellipse of x- and y-data.
 
     Args:
         x:
-            The x-data to plot.
+            The x-data to plot, of shape (n,).
         y:
-            The y-data to plot.
+            The y-data to plot, of shape (n,).
         ax:
             The matplotlib axes to plot on.
-        n_std (optional):
+        n_std:
             The number of standard deviations to determine the ellipse's radii.
-        facecolor (optional):
+        facecolor:
             The face color of the ellipse, or 'none' for no fill.
+        weights:
+            The sample weights for the data points, of shape (n,).
         **ellipse_kwargs:
             Additional keyword arguments to pass to the Ellipse constructor.
 
@@ -241,7 +232,7 @@ def confidence_ellipse(
         raise ValueError("x and y must be the same size")
 
     # Compute the Pearson correlation coefficient
-    cov = np.cov(x, y)
+    cov = np.cov(x, y, aweights=weights, ddof=0)
     pearson = cov[0, 1] / np.sqrt(cov[0, 0] * cov[1, 1])
 
     # Using a special case to obtain the eigenvalues of this two-dimensional dataset.
@@ -258,11 +249,11 @@ def confidence_ellipse(
     # Calculate the standard deviation of x from the squareroot of the variance and
     # multiplying with the given number of standard deviations.
     scale_x = np.sqrt(cov[0, 0]) * n_std
-    mean_x = np.mean(x).item()
+    mean_x = np.average(x, weights=weights).item()
 
     # Calculate the standard deviation of y
     scale_y = np.sqrt(cov[1, 1]) * n_std
-    mean_y = np.mean(y).item()
+    mean_y = np.average(y, weights=weights).item()
 
     transf = (
         transforms.Affine2D()

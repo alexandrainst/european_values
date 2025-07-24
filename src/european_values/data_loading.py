@@ -97,7 +97,13 @@ def load_evs_wvs_data() -> pd.DataFrame:
     # Rename columns
     logger.info("Renaming columns...")
     metadata_mapping = dict(
-        uniqid="respondent_id", cntry_AN="country_code", year="year"
+        uniqid="respondent_id",
+        cntry_AN="country_code",
+        year="year",
+        gwght="weight",
+        X001="sex",
+        X003R="age_interval",
+        X025R="education",
     )
     df = df.rename(columns=metadata_mapping | EVS_WVS_ANSWER_COLUMNS)
 

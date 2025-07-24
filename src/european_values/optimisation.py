@@ -64,14 +64,24 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
 
     match config.optimisation.method:
         case "silhouette":
-            logger.info("Optimising the survey using the silhouette score...")
+            logger.info(
+                "Optimising the survey using the silhouette score with "
+                f"at least {config.optimisation.min_questions:,} questions, and "
+                f"using a seed of {config.seed}..."
+            )
             func = partial(
                 negative_silhouette_score,
                 min_questions=config.optimisation.min_questions,
                 seed=config.seed,
             )
         case "davies_bouldin":
-            logger.info("Optimising the survey using the Davies-Bouldin index...")
+            logger.info(
+                "Optimising the survey using the Davies-Bouldin index with "
+                f"at least {config.optimisation.min_questions:,} questions, "
+                f"using a seed of {config.seed}, and "
+                "with an intra-cluster distance factor of "
+                f"{config.optimisation.intra_dist_factor}..."
+            )
             func = partial(
                 davies_bouldin_index,
                 min_questions=config.optimisation.min_questions,
@@ -79,7 +89,11 @@ def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame
                 intra_dist_factor=config.optimisation.intra_dist_factor,
             )
         case "centroid_distance":
-            logger.info("Optimising the survey using the centroid distance...")
+            logger.info(
+                "Optimising the survey using the centroid distance with "
+                f"at least {config.optimisation.min_questions:,} questions, and "
+                f"using a seed of {config.seed}..."
+            )
             func = partial(
                 centroid_distance,
                 min_questions=config.optimisation.min_questions,
@@ -193,7 +207,10 @@ def negative_silhouette_score(
     )
 
     # Aggregate the silhouette scores for the focus group (or all rows)
-    silhouette_score = np.mean(silhouette_coefficients[focus_rows])
+    silhouette_score = np.average(
+        silhouette_coefficients[focus_rows],
+        weights=survey_df.loc[focus_rows, "weight"].values,
+    )
 
     return -silhouette_score
 
@@ -269,12 +286,26 @@ def davies_bouldin_index(
     centroids = np.zeros((num_labels, num_questions), dtype=float)
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
-        centroid = cluster_k.mean(axis=0)
+        country_grouping = le.inverse_transform([k])[0]  # noqa: F841
+        centroid = np.average(
+            cluster_k,
+            axis=0,
+            weights=survey_df.query(
+                f"{country_grouping_str} == @country_grouping"
+            ).weight.values,
+        )
         centroids[k] = centroid
+        intra_distances = pairwise_distances(cluster_k, [centroid])
+        mean_intra_distance = np.average(
+            intra_distances.flatten(),
+            weights=survey_df.query(
+                f"{country_grouping_str} == @country_grouping"
+            ).weight.values,
+        )
         if focus is None:
-            intra_dists[k] = np.average(pairwise_distances(cluster_k, [centroid]))
+            intra_dists[k] = mean_intra_distance
         elif k == focus_label:
-            intra_dists[0] = np.average(pairwise_distances(cluster_k, [centroid]))
+            intra_dists[0] = mean_intra_distance
 
     # Compute the distances between centroids. If we are focusing on a specific
     # group, we only compute the distances between the centroid of that group and all
@@ -361,7 +392,14 @@ def centroid_distance(
     centroids = np.zeros((num_labels, embedding_matrix.shape[1]), dtype=float)
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
-        centroid = cluster_k.mean(axis=0)
+        country_grouping = le.inverse_transform([k])[0]  # noqa: F841
+        centroid = np.average(
+            cluster_k,
+            axis=0,
+            weights=survey_df.query(
+                f"{country_grouping_str} == @country_grouping"
+            ).weight.values,
+        )
         centroids[k] = centroid
 
     # Compute the distances between centroids
