@@ -87,6 +87,7 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             survey_df.query(f"{country_grouping_str} == @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .values,
+            axis=0,
             weights=focus_weights,
         )
         non_focus_weights = survey_df.query(
@@ -96,6 +97,7 @@ def create_scatter(survey_df: pd.DataFrame, config: DictConfig) -> None:
             survey_df.query(f"{country_grouping_str} != @config.focus")
             .loc[:, [q for q, _ in most_important_questions]]
             .values,
+            axis=0,
             weights=non_focus_weights,
         )
         logger.info(
