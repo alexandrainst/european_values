@@ -30,7 +30,7 @@ optimisation:
   method: davies_bouldin
   intra_dist_factor: 10.0
   sample_size_per_group: null  # If null, will use the full dataset
-  max_iterations: 1000
+  max_iterations: 100
   population_size: 10
   min_questions: 10
   max_questions: null  # If null, will use all questions
