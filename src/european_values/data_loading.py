@@ -32,7 +32,7 @@ def load_evs_trend_data() -> pd.DataFrame:
         S007_01="respondent_id",
         S009="country_code",
         S020="year",
-        weight="weight",
+        S017="weight",
         X001="sex",
         X003R="age_interval",
         X025R="education",

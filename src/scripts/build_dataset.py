@@ -24,18 +24,18 @@ def main(config: DictConfig) -> None:
         config:
             The Hydra config for your project.
     """
-    # Load and push the EVS/WVS data to the Hugging Face Hub
-    evs_wvs_df = load_evs_wvs_data()
-    evs_wvs_df = process_data(df=evs_wvs_df, config=config)
-    Dataset.from_pandas(evs_wvs_df, preserve_index=False).push_to_hub(
-        repo_id=config.repo_id, config_name="evs_wvs_data_2017_2022", private=True
-    )
-
     # Load and push the EVS trend data to the Hugging Face Hub
     evs_trend_df = load_evs_trend_data()
     evs_trend_df = process_data(df=evs_trend_df, config=config)
     Dataset.from_pandas(evs_trend_df, preserve_index=False).push_to_hub(
         repo_id=config.repo_id, config_name="evs_trend_data_1981_2017", private=True
+    )
+
+    # Load and push the EVS/WVS data to the Hugging Face Hub
+    evs_wvs_df = load_evs_wvs_data()
+    evs_wvs_df = process_data(df=evs_wvs_df, config=config)
+    Dataset.from_pandas(evs_wvs_df, preserve_index=False).push_to_hub(
+        repo_id=config.repo_id, config_name="evs_wvs_data_2017_2022", private=True
     )
 
 
