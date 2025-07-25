@@ -28,7 +28,15 @@ def load_evs_trend_data() -> pd.DataFrame:
 
     # Rename columns
     logger.info("Renaming columns...")
-    metadata_mapping = dict(S007_01="respondent_id", S009="country_code", S020="year")
+    metadata_mapping = dict(
+        S007_01="respondent_id",
+        S009="country_code",
+        S020="year",
+        weight="weight",
+        X001="sex",
+        X003R="age_interval",
+        X025R="education",
+    )
     df = df.rename(columns=metadata_mapping | EVS_TREND_ANSWER_COLUMNS)
 
     # Drop columns that are not needed
