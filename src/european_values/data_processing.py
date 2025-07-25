@@ -79,7 +79,11 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         assert isinstance(na_df, pd.Series)
         na_df = na_df[na_df]
         assert isinstance(na_df, pd.Series)
-        questions = na_df.index.tolist()
+        questions = [
+            question
+            for question in na_df.index.tolist()
+            if str(question).startswith("question_")
+        ]
         for question in questions:
             assert isinstance(question, str)
             questions_with_missing_answers[question].add(country_grouping)
