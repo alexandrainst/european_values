@@ -76,8 +76,8 @@ def load_evs_trend_data() -> pd.DataFrame:
     df = df.convert_dtypes()
 
     logger.info(
-        f"Data loaded and processed successfully. There are {len(df):,} rows and "
-        f"{len(df.columns):,} columns."
+        f"Data loaded successfully. There are {len(df):,} rows and {len(df.columns):,} "
+        "columns."
     )
 
     assert isinstance(df, pd.DataFrame)
@@ -152,8 +152,8 @@ def load_evs_wvs_data() -> pd.DataFrame:
     df = df.convert_dtypes()
 
     logger.info(
-        f"Data loaded and processed successfully. There are {len(df):,} rows and "
-        f"{len(df.columns):,} columns."
+        f"Data loaded successfully. There are {len(df):,} rows and {len(df.columns):,} "
+        "columns."
     )
 
     assert isinstance(df, pd.DataFrame)
