@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 
 import joblib
-import numpy as np
 import pandas as pd
 from sklearn.mixture import GaussianMixture
 
@@ -13,25 +12,19 @@ logger = logging.getLogger(__name__)
 
 def train_generative_model(
     survey_df: pd.DataFrame,
-    model_type: str,
-    n_cross_val: int,
-    n_jobs: int,
-    n_estimators: int,
+    max_components: int,
+    samples_per_country_val_test: int,
     seed: int,
-    bootstrap: bool,
-    compute_importances: bool,
 ) -> None:
     """Train a Gaussian Mixture Model on EU survey data.
 
-    Parameters are repurposed for GMM:
-    - n_cross_val * 20 = samples per country for val/test
-    - n_estimators = max n_components to try
+    Args:
+        survey_df: Survey data DataFrame
+        max_components: Maximum number of components to try in model selection
+        samples_per_country_val_test: Number of samples per country for
+        validation/test sets
+        seed: Random seed for reproducibility
     """
-    if model_type != "gaussian_mixture":
-        raise ValueError(
-            f"This script only supports 'gaussian_mixture', got '{model_type}'"
-        )
-
     # Filter for EU countries only
     logger.info("Filtering for EU countries only...")
     eu_df = survey_df[survey_df["country_group"] == "EU"].copy()
@@ -46,8 +39,6 @@ def train_generative_model(
 
     # Split data by country
     logger.info("Splitting data into train/val/test sets...")
-    samples_per_country = n_cross_val * 20  # 100 if n_cross_val=5
-
     train_dfs, val_dfs, test_dfs = [], [], []
     for country in eu_df["country_code"].unique():
         country_data = eu_df[eu_df["country_code"] == country].sample(
@@ -56,8 +47,8 @@ def train_generative_model(
         n = len(country_data)
 
         # Take samples for val and test (or less if not enough data)
-        n_val = min(samples_per_country, n // 5)
-        n_test = min(samples_per_country, n // 5)
+        n_val = min(samples_per_country_val_test, n // 5)
+        n_test = min(samples_per_country_val_test, n // 5)
 
         test_dfs.append(country_data.iloc[:n_test])
         val_dfs.append(country_data.iloc[n_test : n_test + n_val])
@@ -75,7 +66,7 @@ def train_generative_model(
     # Model selection on validation set
     logger.info("Selecting optimal number of components...")
     n_components_range = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]
-    n_components_range = [n for n in n_components_range if n <= n_estimators]
+    n_components_range = [n for n in n_components_range if n <= max_components]
 
     # Create GMM instance once
     gmm = GaussianMixture(random_state=seed)
@@ -107,24 +98,8 @@ def train_generative_model(
         f"Converged: {gmm.converged_}, Iterations: {gmm.n_iter_}"
     )
 
-    # Save results
-    save_results(bic_scores, best_n, test_bic, gmm, full_matrix, seed)
-
-
-def save_results(
-    bic_scores: dict,
-    best_n: int,
-    test_bic: float,
-    model: GaussianMixture,
-    full_matrix: np.ndarray,
-    seed: int,
-) -> None:
-    """Save model results."""
-    # Create directory
+    # Save model
     Path("data/processed/gmm_model").mkdir(parents=True, exist_ok=True)
-
-    # Save the complete model using joblib
     model_path = f"data/processed/gmm_model/gmm_n{best_n}_seed{seed}.pkl"
-    joblib.dump(model, model_path)
-
+    joblib.dump(gmm, model_path)
     logger.info(f"Model saved to {model_path}")
