@@ -103,4 +103,4 @@ def train_generative_model(
     model_dir.mkdir(exist_ok=True)
     model_path = model_dir / f"gmm_n{best_n}_seed{seed}.pkl"
     joblib.dump(gmm, model_path)
-    logger.info(f"Model saved to {model_path}")
+    logger.info(f"Model saved to {model_path.resolve()!r}")
