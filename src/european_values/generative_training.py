@@ -99,7 +99,8 @@ def train_generative_model(
     )
 
     # Save model
-    Path("data/processed/gmm_model").mkdir(parents=True, exist_ok=True)
-    model_path = f"data/processed/gmm_model/gmm_n{best_n}_seed{seed}.pkl"
+    model_dir = Path("models")
+    model_dir.mkdir(exist_ok=True)
+    model_path = model_dir / f"gmm_n{best_n}_seed{seed}.pkl"
     joblib.dump(gmm, model_path)
     logger.info(f"Model saved to {model_path}")
