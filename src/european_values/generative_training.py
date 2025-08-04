@@ -98,6 +98,16 @@ def train_generative_model(
         f"Converged: {gmm.converged_}, Iterations: {gmm.n_iter_}"
     )
 
+    logger.info("Testing score on training data...")
+    train_avg_score = gmm.score(full_matrix)
+    train_sample_scores = gmm.score_samples(full_matrix)
+    logger.info(f"Training data average log-likelihood: {train_avg_score:.4f}")
+    logger.info(
+        f"Training data log-likelihood range: "
+        f"[{train_sample_scores.min():.2f}, {train_sample_scores.max():.2f}]"
+    )
+    logger.info(f"Training data log-likelihood std: {train_sample_scores.std():.2f}")
+
     # Save model
     model_dir = Path("models")
     model_dir.mkdir(exist_ok=True)
