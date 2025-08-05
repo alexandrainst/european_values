@@ -16,21 +16,21 @@ logger = logging.getLogger("evaluate_llm")
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
     """Main evaluation function."""
-    # Load and process data
+    # Load data
     logger.info("Loading data...")
     df = load_evs_wvs_data()
-    df = process_data(df=df, config=config)
 
-    # Apply subset if specified
+    # Process data but SKIP normalization (let pipeline handle it)
+    df, _ = process_data(df=df, config=config, normalize=False)  # Fixed!
+
+    # Apply subset filtering
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
-        if "question" in subset_df.columns:
-            question_subset = subset_df.question.unique().tolist()
-        else:
-            question_subset = list(
-                {line.split(":")[0] for line in subset_df.index.tolist()}
-            )
-
+        question_subset = (
+            subset_df.question.unique().tolist()
+            if "question" in subset_df.columns
+            else list({line.split(":")[0] for line in subset_df.index.tolist()})
+        )
         question_cols_to_remove = [
             col
             for col in df.columns
@@ -44,7 +44,7 @@ def main(config: DictConfig) -> None:
     model_path = getattr(
         config.evaluation,
         "gmm_model_path",
-        "data/processed/gmm_models/gmm_n4_seed4242.pkl",
+        "data/processed/gmm_model/gmm_n4_seed4242.pkl",
     )
 
     # Run evaluation
@@ -57,20 +57,14 @@ def main(config: DictConfig) -> None:
     print(f"{'=' * 50}")
     print(f"Samples: {results['n_samples']:,}")
     print(f"Questions: {results['n_questions']}")
-    print(f"Average log-likelihood: {results['avg_log_likelihood']:.4f}")
+    print(f"Average probability: {results['avg_probability']:.4f}")
     print(
-        f"Log-likelihood range: "
-        f"[{results['sample_log_likelihoods'].min():.2f}, "
-        f"{results['sample_log_likelihoods'].max():.2f}]"
+        f"Probability range: [{results['sample_probabilities'].min():.4f}, "
+        f"{results['sample_probabilities'].max():.4f}]"
     )
-    print(f"Log-likelihood std: {results['sample_log_likelihoods'].std():.2f}")
-    print(
-        f"Probability range: "
-        f"[{results['probabilities'].min():.4f}, "
-        f"{results['probabilities'].max():.4f}]"
-    )
-    print(f"Probability mean: {results['probabilities'].mean():.4f}")
-    print(f"Probability std: {results['probabilities'].std():.4f}")
+
+    print(f"Probability mean: {results['sample_probabilities'].mean():.4f}")
+    print(f"Probability std: {results['sample_probabilities'].std():.4f}")
 
 
 if __name__ == "__main__":
