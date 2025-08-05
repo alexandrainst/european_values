@@ -25,10 +25,10 @@ def main(config: DictConfig) -> None:
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
         if "question" in subset_df.columns:
-            question_subset = subset_df.question.unique().tolist()
+            question_subset = ["question_" + q if not q.startswith("question_") else q for q in subset_df.question.unique().tolist()]
         else:
             question_subset = list(
-                {line.split(":")[0] for line in subset_df.index.tolist()}
+                {"question_" + line.split(":")[0] if not line.split(":")[0].startswith("question_") else line.split(":")[0] for line in subset_df.index.tolist()}
             )
 
         question_cols_to_remove = [
