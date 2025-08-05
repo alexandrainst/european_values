@@ -99,8 +99,7 @@ def train_generative_model(
     )
 
     logger.info("Testing score on training data...")
-    train_avg_score = gmm.score(full_matrix)
-    train_sample_scores = gmm.score_samples(full_matrix)
+    train_avg_prob = gmm.predict_proba(full_matrix).max(axis=1)
     logger.info(f"Training data average log-likelihood: {train_avg_score:.4f}")
     logger.info(
         f"Training data log-likelihood range: "
