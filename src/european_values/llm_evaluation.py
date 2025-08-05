@@ -17,7 +17,15 @@ def process_responses(responses: np.ndarray) -> np.ndarray:
     """Handle NaN values only - no normalization."""
     # Handle NaN values
     if np.isnan(responses).any():
-        responses = np.nan_to_num(responses, nan=np.nanmean(responses, axis=0))
+        col_means = np.nanmean(responses, axis=0)
+        # Find columns where the mean is NaN (i.e., all values are NaN)
+        nan_cols = np.isnan(col_means)
+        if np.any(nan_cols):
+            global_mean = np.nanmean(responses)
+            if np.isnan(global_mean):
+                global_mean = 0.0
+            col_means[nan_cols] = global_mean
+        responses = np.nan_to_num(responses, nan=col_means)
     return responses
 
 
