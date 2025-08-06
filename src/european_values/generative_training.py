@@ -22,7 +22,7 @@ def train_generative_model(
     """Train a Gaussian Mixture Model on EU survey data.
 
     Args:
-        survey_df: Survey data DataFrame (already processed and subset-filtered)
+        survey_df: A non-normalised dataframe containing the survey responses.
         max_components: Maximum number of components to try in model selection
         samples_per_country_val_test: Number of samples per country for
         validation/test sets
