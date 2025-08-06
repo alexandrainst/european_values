@@ -21,7 +21,7 @@ def main(config: DictConfig) -> None:
     df = load_evs_wvs_data()
 
     # Process data but SKIP normalization (let pipeline handle it)
-    df, _ = process_data(df=df, config=config, normalize=False)  # Fixed!
+    df, _ = process_data(df=df, config=config, normalize=False)
 
     # Apply subset filtering
     if config.subset_csv is not None:
