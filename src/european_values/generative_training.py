@@ -36,7 +36,7 @@ def train_generative_model(
         f"{eu_df['country_code'].nunique()} EU countries"
     )
 
-    # Get question columns - these are already processed and normalized
+    # Get question columns
     question_columns = [col for col in eu_df.columns if col.startswith("question_")]
     logger.info(f"Training with {len(question_columns)} questions")
 
