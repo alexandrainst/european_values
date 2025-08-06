@@ -57,7 +57,7 @@ def train_generative_model(
         val_dfs.append(country_data.iloc[n_test : n_test + n_val])
         train_dfs.append(country_data.iloc[n_test + n_val :])
 
-    # Get the processed data (already normalized from process_data)
+    # Set up the data as NumPy arrays
     train_matrix = pd.concat(train_dfs)[question_columns].values
     val_matrix = pd.concat(val_dfs)[question_columns].values
     test_matrix = pd.concat(test_dfs)[question_columns].values
