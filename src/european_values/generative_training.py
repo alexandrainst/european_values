@@ -75,7 +75,7 @@ def train_generative_model(
     bic_scores = {}
 
     for n_comp in n_components_range:
-        # Create pipeline with scaler + GMM (as requested)
+        # Create pipeline with scaler + GMM
         pipeline = make_pipeline(
             MinMaxScaler(feature_range=(0, 1)),
             GaussianMixture(n_components=n_comp, random_state=seed),
