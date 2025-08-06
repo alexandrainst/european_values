@@ -25,8 +25,9 @@ def process_data(
             The survey data.
         config:
             The Hydra config.
-        normalize:
+        normalize (optional):
             Whether to apply normalization. If False, scaler is fitted but not applied.
+            Defaults to True.
 
     Returns:
         The processed DataFrame and the fitted scaler.
