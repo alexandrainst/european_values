@@ -22,7 +22,7 @@ def main(config: DictConfig) -> None:
 
     # Process data but SKIP normalization (let pipeline handle it)
     logger.info("Processing the data WITHOUT normalization...")
-    df, _ = process_data(df=df, config=config, normalize=False)  # Fixed!
+    df, _ = process_data(df=df, config=config, normalize=False)
 
     # Apply subset filtering
     if config.subset_csv is not None:
