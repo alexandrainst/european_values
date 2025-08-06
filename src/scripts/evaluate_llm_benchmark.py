@@ -41,11 +41,7 @@ def main(config: DictConfig) -> None:
 
     # Set evaluation parameters
     region = getattr(config.evaluation, "region", "EU")
-    model_path = getattr(
-        config.evaluation,
-        "gmm_model_path",
-        "data/processed/gmm_model/gmm_n4_seed4242.pkl",
-    )
+    model_path = config.evaluation.gmm_model_path
 
     # Run evaluation
     logger.info(f"Evaluating {region} data...")
