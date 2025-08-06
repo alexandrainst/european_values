@@ -40,7 +40,7 @@ def main(config: DictConfig) -> None:
         logger.info(f"Using {len(question_subset)} questions from subset")
 
     # Set evaluation parameters
-    region = getattr(config.evaluation, "region", "EU")
+    region = config.evaluation.region
     model_path = config.evaluation.gmm_model_path
 
     # Run evaluation
