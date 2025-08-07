@@ -80,8 +80,7 @@ def train_generative_model(
     for n_comp in range(1, max_components + 1):
         gmm = GaussianMixture(
             n_components=n_comp, covariance_type=covariance_type, random_state=seed
-        )
-        gmm.fit(train_matrix)
+        ).fit(train_matrix)
         bic_score = gmm.bic(val_matrix)
         if bic_score < best_bic:
             patience_remaining = patience
