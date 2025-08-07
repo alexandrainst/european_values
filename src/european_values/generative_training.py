@@ -124,7 +124,7 @@ def train_generative_model(
 
     # Try weighted approach
     weighted_probs = (
-        np.sum(train_probabilities * gmm.weights_, axis=1) / gmm.n_components
+        np.sum(train_probabilities * np.expand_dims(gmm.weights_, axis=0), axis=1)
     )
     max_probs = train_probabilities.max(axis=1)
 
