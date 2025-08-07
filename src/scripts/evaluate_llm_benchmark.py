@@ -33,10 +33,6 @@ def main(config: DictConfig) -> None:
                 "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
             )
 
-    # Process data without normalization (let pipeline handle it)
-    logger.info("Processing the data WITHOUT normalization...")
-    df, _ = process_data(df=df, config=config, normalize=False)
-
     # Apply subset filtering
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
@@ -52,6 +48,10 @@ def main(config: DictConfig) -> None:
         ]
         df.drop(columns=question_cols_to_remove, inplace=True)
         logger.info(f"Using {len(question_subset)} questions from subset")
+
+    # Process data without normalization (let pipeline handle it)
+    logger.info("Processing the data WITHOUT normalization...")
+    df, _ = process_data(df=df, config=config, normalize=False)
 
     # Run evaluation
     gmm_pipeline = joblib.load(config.evaluation.gmm_model_path)

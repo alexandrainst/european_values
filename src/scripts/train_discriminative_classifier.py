@@ -42,10 +42,6 @@ def main(config: DictConfig) -> None:
                 "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
             )
 
-    logger.info("Processing the data...")
-    df, _ = process_data(df, config)
-    logger.info(f"Shape of the data after processing: {df.shape}")
-
     # Only use a subset of questions if specified
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
@@ -68,6 +64,10 @@ def main(config: DictConfig) -> None:
             f"specified subset CSV file {config.subset_csv}."
         )
         logger.info(f"Shape of the data after filtering: {df.shape}")
+
+    logger.info("Processing the data...")
+    df, _ = process_data(df, config)
+    logger.info(f"Shape of the data after processing: {df.shape}")
 
     train_model(
         survey_df=df,

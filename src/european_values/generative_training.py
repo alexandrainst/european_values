@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 def train_generative_model(
     eu_df: pd.DataFrame,
+    scaler: MinMaxScaler,
     max_components: int,
     samples_per_country_val_test: int,
     patience: int,
@@ -27,6 +28,9 @@ def train_generative_model(
         eu_df:
             A non-normalised dataframe containing the survey responses from EU
             countries.
+        scaler:
+            A data scaler that has been fitted on all of the data (not just the EU
+            data).
         max_components:
             Maximum number of components to try in model selection.
         samples_per_country_val_test:
@@ -60,10 +64,9 @@ def train_generative_model(
         train_dfs.append(country_data.iloc[n_test + n_val :])
 
     # Set up the data as NumPy arrays
-    train_matrix = pd.concat(train_dfs)[question_columns].values
-    val_matrix = pd.concat(val_dfs)[question_columns].values
-    test_matrix = pd.concat(test_dfs)[question_columns].values
-
+    train_matrix = scaler.transform(pd.concat(train_dfs)[question_columns].values)
+    val_matrix = scaler.transform(pd.concat(val_dfs)[question_columns].values)
+    test_matrix = scaler.transform(pd.concat(test_dfs)[question_columns].values)
     logger.info(
         f"Dataset sizes - Train: {len(train_matrix)}, "
         f"Val: {len(val_matrix)}, Test: {len(test_matrix)}"
@@ -75,23 +78,11 @@ def train_generative_model(
     best_n = 1
     patience_remaining = patience
     for n_comp in range(1, max_components + 1):
-        pipeline = Pipeline(
-            [
-                ("scaler", MinMaxScaler()),
-                (
-                    "gmm",
-                    GaussianMixture(
-                        n_components=n_comp,
-                        covariance_type=covariance_type,
-                        random_state=seed,
-                    ),
-                ),
-            ]
+        gmm = GaussianMixture(
+            n_components=n_comp, covariance_type=covariance_type, random_state=seed
         )
-        pipeline.fit(train_matrix)
-        bic_score = pipeline.named_steps["gmm"].bic(
-            pipeline.named_steps["scaler"].transform(val_matrix)
-        )
+        gmm.fit(train_matrix)
+        bic_score = gmm.bic(val_matrix)
         if bic_score < best_bic:
             patience_remaining = patience
             best_bic = bic_score
@@ -114,36 +105,25 @@ def train_generative_model(
 
     # Evaluate on test set
     logger.info("Evaluating on test set...")
-    pipeline = Pipeline(
-        [
-            ("scaler", MinMaxScaler()),
-            (
-                "gmm",
-                GaussianMixture(
-                    n_components=best_n,
-                    covariance_type=covariance_type,
-                    random_state=seed,
-                ),
-            ),
-        ]
+    gmm = GaussianMixture(
+        n_components=best_n, covariance_type=covariance_type, random_state=seed
     ).fit(train_matrix)
-    scaler = pipeline.named_steps["scaler"]
-    gmm = pipeline.named_steps["gmm"]
-    test_bic = gmm.bic(scaler.transform(test_matrix))
+    test_bic = gmm.bic(test_matrix)
     logger.info(f"Test BIC: {test_bic:.2f}")
 
     # Sanity check
     logger.info(
         f"Mean log likelihoods:\n"
-        f"- train: {pipeline.score(train_matrix):.4f}\n"
-        f"- val: {pipeline.score(val_matrix):.4f}\n"
-        f"- test: {pipeline.score(test_matrix):.4f}"
+        f"- train: {gmm.score(train_matrix):.4f}\n"
+        f"- val: {gmm.score(val_matrix):.4f}\n"
+        f"- test: {gmm.score(test_matrix):.4f}"
     )
 
     # Train final model on all data
     logger.info("Training final model on entire EU dataset...")
-    full_matrix = eu_df[question_columns].values
-    pipeline.fit(full_matrix)
+    full_matrix = scaler.transform(eu_df[question_columns].values)
+    gmm.fit(full_matrix)
+    pipeline = Pipeline([("scaler", scaler), ("gmm", gmm)])
 
     # Save the complete pipeline
     model_path = Path("models", "gmm.pkl")
