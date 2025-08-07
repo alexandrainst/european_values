@@ -47,3 +47,7 @@ discriminative_training:
 generative_training:
   max_components: 30
   samples_per_country_val_test: 100
+
+evaluation:
+  region: EU
+  gmm_model_path: data/processed/gmm_model/gmm_n4_seed4242.pkl

@@ -15,7 +15,9 @@ from .utils import df_has_column_with_only_nans, group_country
 logger = logging.getLogger(__name__)
 
 
-def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
+def process_data(
+    df: pd.DataFrame, config: DictConfig, normalize: bool = True
+) -> tuple[pd.DataFrame, MinMaxScaler]:
     """Process the survey data.
 
     Args:
@@ -23,9 +25,12 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
             The survey data.
         config:
             The Hydra config.
+        normalize (optional):
+            Whether to apply normalization. If False, scaler is fitted but not applied.
+            Defaults to True.
 
     Returns:
-        The processed DataFrame.
+        The processed DataFrame and the fitted scaler.
 
     Raises:
         ValueError:
@@ -211,13 +216,18 @@ def process_data(df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
         f"{np.isnan(embedding_matrix).sum():,} missing values in the embedding matrix."
     )
 
-    # Normalise the data
-    logger.info("Normalising the data...")
-    embedding_matrix = MinMaxScaler(feature_range=(0, 1)).fit_transform(
-        X=embedding_matrix
-    )
+    # Always fit the scaler (so we can save it), but only apply if requested
+    logger.info("Fitting scaler...")
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler.fit(embedding_matrix)  # Always fit
+
+    if normalize:
+        logger.info("Applying normalization...")
+        embedding_matrix = scaler.transform(embedding_matrix)
+    else:
+        logger.info("Skipping normalization (but scaler is fitted and available)...")
 
     # Update the survey DataFrame with the processed values
     df[question_columns] = embedding_matrix
 
-    return df
+    return df, scaler

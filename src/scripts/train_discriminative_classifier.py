@@ -43,7 +43,7 @@ def main(config: DictConfig) -> None:
             )
 
     logger.info("Processing the data...")
-    df = process_data(df=df, config=config)
+    df, scaler = process_data(df, config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     # Only use a subset of questions if specified
