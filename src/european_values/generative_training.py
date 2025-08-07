@@ -123,8 +123,8 @@ def train_generative_model(
     print(f"Training data - First 5 full probabilities:\n{train_probabilities[:5]}")
 
     # Try weighted approach
-    weighted_probs = (
-        np.sum(train_probabilities * np.expand_dims(gmm.weights_, axis=0), axis=1)
+    weighted_probs = np.sum(
+        train_probabilities * np.expand_dims(gmm.weights_, axis=0), axis=1
     )
     max_probs = train_probabilities.max(axis=1)
 
