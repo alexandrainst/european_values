@@ -17,16 +17,24 @@ logger = logging.getLogger("evaluate_llm")
 def main(config: DictConfig) -> None:
     """Main evaluation function."""
     # Load data - now supports both datasets like other scripts
-    if config.include_evs_wvs:
-        logger.info("Loading EVS/WVS data...")
-        df = load_evs_wvs_data()
-    else:
-        logger.info("Loading EVS trend data...")
-        df = load_evs_trend_data()
-
+    match (config.include_evs_trend, config.include_evs_wvs):
+        case (True, True):
+            logger.info("Loading EVS trend and EVS/WVS data...")
+            evs_trend_df = load_evs_trend_data()
+            evs_wvs_df = load_evs_wvs_data()
+            df = pd.concat([evs_trend_df, evs_wvs_df], ignore_index=True)
+        case (True, False):
+            logger.info("Loading only EVS trend data...")
+            df = load_evs_trend_data()
+        case (False, True):
+            logger.info("Loading only EVS/WVS data...")
+            df = load_evs_wvs_data()
+        case _:
+            raise ValueError(
+                "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
+            )
     # Process data but SKIP normalization (let pipeline handle it)
     df, _ = process_data(df=df, config=config, normalize=False)
-
     # Apply subset filtering
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
@@ -42,15 +50,12 @@ def main(config: DictConfig) -> None:
         ]
         df.drop(columns=question_cols_to_remove, inplace=True)
         logger.info(f"Using {len(question_subset)} questions from subset")
-
     # Set evaluation parameters
     region = config.evaluation.region
     model_path = config.evaluation.gmm_model_path
-
     # Run evaluation
     logger.info(f"Evaluating {region} data...")
     results = evaluate_survey_data(df, model_path, region)
-
     # Print results
     print(f"\n{'=' * 50}")
     print(f"EVALUATION RESULTS FOR {region}")
@@ -62,7 +67,6 @@ def main(config: DictConfig) -> None:
         f"Probability range: [{results['sample_probabilities'].min():.4f}, "
         f"{results['sample_probabilities'].max():.4f}]"
     )
-
     print(f"Probability mean: {results['sample_probabilities'].mean():.4f}")
     print(f"Probability std: {results['sample_probabilities'].std():.4f}")
 

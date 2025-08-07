@@ -18,18 +18,26 @@ logger = logging.getLogger("train_generative_model")
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
     """Main function."""
-    # Load data
-    if config.include_evs_wvs:
-        logger.info("Loading EVS/WVS data...")
-        df = load_evs_wvs_data()
-    else:
-        logger.info("Loading EVS trend data...")
-        df = load_evs_trend_data()
-
+    # Load data - now supports both datasets like other scripts
+    match (config.include_evs_trend, config.include_evs_wvs):
+        case (True, True):
+            logger.info("Loading EVS trend and EVS/WVS data...")
+            evs_trend_df = load_evs_trend_data()
+            evs_wvs_df = load_evs_wvs_data()
+            df = pd.concat([evs_trend_df, evs_wvs_df], ignore_index=True)
+        case (True, False):
+            logger.info("Loading only EVS trend data...")
+            df = load_evs_trend_data()
+        case (False, True):
+            logger.info("Loading only EVS/WVS data...")
+            df = load_evs_wvs_data()
+        case _:
+            raise ValueError(
+                "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
+            )
     # Process data but SKIP normalization (let pipeline handle it)
     logger.info("Processing the data WITHOUT normalization...")
     df, _ = process_data(df=df, config=config, normalize=False)  # Fixed syntax
-
     # Apply subset filtering
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
@@ -45,7 +53,6 @@ def main(config: DictConfig) -> None:
         ]
         df.drop(columns=question_cols_to_remove, inplace=True)
         logger.info(f"Using {len(question_subset)} questions from subset")
-
     # Train the model
     train_generative_model(
         survey_df=df,
