@@ -11,6 +11,7 @@ from european_values.data_processing import process_data
 from european_values.generative_training import (
     train_generative_model,  # <-- This was missing!
 )
+from european_values.utils import group_country
 
 logger = logging.getLogger("train_generative_model")
 
@@ -18,7 +19,6 @@ logger = logging.getLogger("train_generative_model")
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
     """Main function."""
-    # Load data - now supports both datasets like other scripts
     match (config.include_evs_trend, config.include_evs_wvs):
         case (True, True):
             logger.info("Loading EVS trend and EVS/WVS data...")
@@ -35,9 +35,19 @@ def main(config: DictConfig) -> None:
             raise ValueError(
                 "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
             )
+
+    # Filter for EU countries only
+    logger.info("Filtering for EU countries only...")
+    df["country_group"] = df.country_code.apply(group_country)
+    df = df.query("country_group == 'EU'").reset_index(drop=True)
+    logger.info(
+        f"Found {len(df):,} samples from {df['country_code'].nunique():,} EU countries"
+    )
+
     # Process data but SKIP normalization (let pipeline handle it)
     logger.info("Processing the data WITHOUT normalization...")
-    df, _ = process_data(df=df, config=config, normalize=False)  # Fixed syntax
+    df, _ = process_data(df=df, config=config, normalize=False)
+
     # Apply subset filtering
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
@@ -53,11 +63,16 @@ def main(config: DictConfig) -> None:
         ]
         df.drop(columns=question_cols_to_remove, inplace=True)
         logger.info(f"Using {len(question_subset)} questions from subset")
+
     # Train the model
     train_generative_model(
-        survey_df=df,
+        eu_df=df,
         max_components=config.generative_training.max_components,
-        samples_per_country_val_test=config.generative_training.samples_per_country_val_test,
+        samples_per_country_val_test=(
+            config.generative_training.samples_per_country_val_test
+        ),
+        patience=config.generative_training.patience,
+        covariance_type=config.generative_training.covariance_type,
         seed=config.seed,
     )
 

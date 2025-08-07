@@ -93,6 +93,7 @@ multirun/
 # Models
 models/*
 !models/.gitkeep
+!models/gmm.pkl
 
 # Dotenv file with name and email
 .name_and_email

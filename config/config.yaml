@@ -45,9 +45,10 @@ discriminative_training:
   compute_importances: true
 
 generative_training:
-  max_components: 30
+  max_components: 100
   samples_per_country_val_test: 100
+  patience: 3
+  covariance_type: full  # Can be 'full', 'tied', 'diag', or 'spherical'
 
 evaluation:
-  region: EU
-  gmm_model_path: data/processed/gmm_model/gmm_n4_seed4242.pkl
+  gmm_model_path: models/gmm.pkl

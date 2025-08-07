@@ -3,12 +3,12 @@
 import logging
 
 import hydra
+import joblib
 import pandas as pd
 from omegaconf import DictConfig
 
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
-from european_values.llm_evaluation import evaluate_survey_data
 
 logger = logging.getLogger("evaluate_llm")
 
@@ -16,7 +16,6 @@ logger = logging.getLogger("evaluate_llm")
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
     """Main evaluation function."""
-    # Load data - now supports both datasets like other scripts
     match (config.include_evs_trend, config.include_evs_wvs):
         case (True, True):
             logger.info("Loading EVS trend and EVS/WVS data...")
@@ -33,8 +32,11 @@ def main(config: DictConfig) -> None:
             raise ValueError(
                 "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
             )
-    # Process data but SKIP normalization (let pipeline handle it)
+
+    # Process data without normalization (let pipeline handle it)
+    logger.info("Processing the data WITHOUT normalization...")
     df, _ = process_data(df=df, config=config, normalize=False)
+
     # Apply subset filtering
     if config.subset_csv is not None:
         subset_df = pd.read_csv(config.subset_csv)
@@ -50,25 +52,17 @@ def main(config: DictConfig) -> None:
         ]
         df.drop(columns=question_cols_to_remove, inplace=True)
         logger.info(f"Using {len(question_subset)} questions from subset")
-    # Set evaluation parameters
-    region = config.evaluation.region
-    model_path = config.evaluation.gmm_model_path
+
     # Run evaluation
-    logger.info(f"Evaluating {region} data...")
-    results = evaluate_survey_data(df, model_path, region)
-    # Print results
-    print(f"\n{'=' * 50}")
-    print(f"EVALUATION RESULTS FOR {region}")
-    print(f"{'=' * 50}")
-    print(f"Samples: {results['n_samples']:,}")
-    print(f"Questions: {results['n_questions']}")
-    print(f"Average probability: {results['avg_probability']:.4f}")
-    print(
-        f"Probability range: [{results['sample_probabilities'].min():.4f}, "
-        f"{results['sample_probabilities'].max():.4f}]"
-    )
-    print(f"Probability mean: {results['sample_probabilities'].mean():.4f}")
-    print(f"Probability std: {results['sample_probabilities'].std():.4f}")
+    gmm_pipeline = joblib.load(config.evaluation.gmm_model_path)
+    question_cols = [col for col in df.columns if col.startswith("question_")]
+    for country_group in df.country_group.unique():
+        group_df = df.query("country_group == @country_group")
+        responses = group_df[question_cols].values
+        mean_log_likelihood = gmm_pipeline.score(responses)
+        logger.info(
+            f"Average log-likelihood for {country_group}: {mean_log_likelihood:.4f}"
+        )
 
 
 if __name__ == "__main__":
