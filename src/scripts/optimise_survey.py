@@ -44,7 +44,7 @@ def main(config: DictConfig) -> None:
             )
 
     logger.info("Processing the data...")
-    df = process_data(df=df, config=config)
+    df, scaler = process_data(df, config)
     logger.info(f"Shape of the data after processing: {df.shape}")
 
     df = optimise_survey(survey_df=df, config=config)
