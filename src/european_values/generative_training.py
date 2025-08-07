@@ -73,7 +73,6 @@ def train_generative_model(
     n_components_range = [n for n in n_components_range if n <= max_components]
 
     bic_scores = {}
-
     for n_comp in n_components_range:
         # Create pipeline with scaler + GMM
         pipeline = make_pipeline(
