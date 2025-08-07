@@ -57,7 +57,7 @@ def main(config: DictConfig) -> None:
 
     # Train the model
     train_generative_model(
-        eu_df=df,
+        eu_df=df.query("country_group == 'EU'"),
         scaler=scaler,
         max_components=config.generative_training.max_components,
         samples_per_country_val_test=(
