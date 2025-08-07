@@ -4,6 +4,7 @@ import logging
 
 import hydra
 import joblib
+import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 
@@ -54,15 +55,13 @@ def main(config: DictConfig) -> None:
     df, _ = process_data(df=df, config=config, normalize=False)
 
     # Run evaluation
-    gmm_pipeline = joblib.load(config.evaluation.gmm_model_path)
+    pipeline = joblib.load(config.evaluation.model_path)
     question_cols = [col for col in df.columns if col.startswith("question_")]
     for country_group in df.country_group.unique():
         group_df = df.query("country_group == @country_group")
         responses = group_df[question_cols].values
-        mean_log_likelihood = gmm_pipeline.score(responses)
-        logger.info(
-            f"Average log-likelihood for {country_group}: {mean_log_likelihood:.4f}"
-        )
+        mean_probability = np.exp(pipeline.score(responses))
+        logger.info(f"Average probability for {country_group}: {mean_probability:.4f}")
 
 
 if __name__ == "__main__":

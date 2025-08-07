@@ -8,9 +8,7 @@ from omegaconf import DictConfig
 
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
-from european_values.generative_training import (
-    train_generative_model,  # <-- This was missing!
-)
+from european_values.generative_training import train_generative_model
 
 logger = logging.getLogger("train_generative_model")
 
@@ -59,12 +57,7 @@ def main(config: DictConfig) -> None:
     train_generative_model(
         eu_df=df.query("country_group == 'EU'"),
         scaler=scaler,
-        max_components=config.generative_training.max_components,
-        samples_per_country_val_test=(
-            config.generative_training.samples_per_country_val_test
-        ),
-        patience=config.generative_training.patience,
-        covariance_type=config.generative_training.covariance_type,
+        test_samples_per_country=config.generative_training.test_samples_per_country,
         seed=config.seed,
     )
 
