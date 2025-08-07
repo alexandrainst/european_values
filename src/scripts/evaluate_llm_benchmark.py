@@ -6,7 +6,7 @@ import hydra
 import pandas as pd
 from omegaconf import DictConfig
 
-from european_values.data_loading import load_evs_wvs_data
+from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
 from european_values.llm_evaluation import evaluate_survey_data
 
@@ -16,9 +16,13 @@ logger = logging.getLogger("evaluate_llm")
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
 def main(config: DictConfig) -> None:
     """Main evaluation function."""
-    # Load data
-    logger.info("Loading data...")
-    df = load_evs_wvs_data()
+    # Load data - now supports both datasets like other scripts
+    if config.include_evs_wvs:
+        logger.info("Loading EVS/WVS data...")
+        df = load_evs_wvs_data()
+    else:
+        logger.info("Loading EVS trend data...")
+        df = load_evs_trend_data()
 
     # Process data but SKIP normalization (let pipeline handle it)
     df, _ = process_data(df=df, config=config, normalize=False)
