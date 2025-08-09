@@ -4,6 +4,7 @@ import logging
 
 import hydra
 import joblib
+import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 
@@ -66,6 +67,8 @@ def main(config: DictConfig) -> None:
             f"\t- Mean: {log_likelihoods.mean():.2f}\n"
             f"\t- Std: {log_likelihoods.std():.2f}\n"
             f"\t- Min: {log_likelihoods.min():.2f}\n"
+            f"\t- 10% quantile: {np.quantile(log_likelihoods, q=0.1):.2f}\n"
+            f"\t- 90% quantile: {np.quantile(log_likelihoods, q=0.9):.2f}\n"
             f"\t- Max: {log_likelihoods.max():.2f}"
         )
 
