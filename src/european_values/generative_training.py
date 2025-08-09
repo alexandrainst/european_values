@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 
 import joblib
-import numpy as np
 import pandas as pd
 from sklearn.neighbors import KernelDensity
 from sklearn.pipeline import Pipeline
@@ -14,7 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 def train_generative_model(
-    eu_df: pd.DataFrame, scaler: MinMaxScaler, test_samples_per_country: int, seed: int
+    eu_df: pd.DataFrame,
+    scaler: MinMaxScaler,
+    test_samples_per_country: int,
+    bandwidth: float,
+    seed: int,
 ) -> None:
     """Train a generative model on EU survey data.
 
@@ -25,6 +28,10 @@ def train_generative_model(
         scaler:
             A data scaler that has been fitted on all of the data (not just the EU
             data).
+        bandwidth:
+            Bandwidth for the Kernel Density Estimation. It can be seen as a
+            regularisation parameter: a smaller value will lead to more variance in the
+            model, while a larger value will lead to more bias.
         test_samples_per_country:
             Number of samples per country for the test set.
         seed:
@@ -56,17 +63,15 @@ def train_generative_model(
 
     # Initialise the model
     logger.info("Training the model on the training data...")
-    model = KernelDensity()
+    model = KernelDensity(bandwidth=bandwidth, kernel="gaussian", algorithm="auto")
     model.fit(train_matrix)
 
     # Evaluate the model
     logger.info("Evaluating the model on the training and test data...")
-    train_probability = np.exp(model.score(train_matrix))
-    test_probability = np.exp(model.score(test_matrix))
+    train_logprobs = model.score(train_matrix)
+    test_logprobs = model.score(test_matrix)
     logger.info(
-        f"Mean probabilities:\n"
-        f"- train: {train_probability:.4f}\n"
-        f"- test: {test_probability:.4f}"
+        f"Mean log-probs:\n- train: {train_logprobs:,.0f}\n- test: {test_logprobs:,.0f}"
     )
 
     # Train final model on all data

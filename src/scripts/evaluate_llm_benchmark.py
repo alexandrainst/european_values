@@ -4,7 +4,6 @@ import logging
 
 import hydra
 import joblib
-import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 
@@ -60,8 +59,8 @@ def main(config: DictConfig) -> None:
     for country_group in df.country_group.unique():
         group_df = df.query("country_group == @country_group")
         responses = group_df[question_cols].values
-        mean_probability = np.exp(pipeline.score(responses))
-        logger.info(f"Average probability for {country_group}: {mean_probability:.4f}")
+        mean_logprobs = pipeline.score(responses)
+        logger.info(f"Mean log-probs for {country_group}: {mean_logprobs:.4f}")
 
 
 if __name__ == "__main__":

@@ -58,6 +58,7 @@ def main(config: DictConfig) -> None:
         eu_df=df.query("country_group == 'EU'"),
         scaler=scaler,
         test_samples_per_country=config.generative_training.test_samples_per_country,
+        bandwidth=config.generative_training.bandwidth,
         seed=config.seed,
     )
 
