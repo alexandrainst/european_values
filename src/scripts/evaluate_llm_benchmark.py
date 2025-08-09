@@ -59,8 +59,13 @@ def main(config: DictConfig) -> None:
     for country_group in df.country_group.unique():
         group_df = df.query("country_group == @country_group")
         responses = group_df[question_cols].values
-        mean_logprobs = pipeline.score(responses)
-        logger.info(f"Mean log-probs for {country_group}: {mean_logprobs:.4f}")
+        log_likelihoods = pipeline.score_samples(responses)
+        mean_log_likelihoods = log_likelihoods.mean()
+        std_log_likelihoods = log_likelihoods.std()
+        logger.info(
+            f"Mean log-likelihoods for {country_group}: {mean_log_likelihoods:.4f} "
+            f"(std: {std_log_likelihoods:.4f})"
+        )
 
 
 if __name__ == "__main__":

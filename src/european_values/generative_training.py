@@ -39,14 +39,14 @@ def train_generative_model(
     """
     # Get question columns
     question_columns = [col for col in eu_df.columns if col.startswith("question_")]
-    logger.info(f"Training with {len(question_columns)} questions")
+    logger.info(f"Training with {len(question_columns):,} questions")
 
     # Split data by country
     logger.info("Splitting data into train/test sets...")
     train_dfs: list[pd.DataFrame] = []
     test_dfs: list[pd.DataFrame] = []
     for country in eu_df["country_code"].unique():
-        country_data = eu_df[eu_df["country_code"] == country].sample(
+        country_data = eu_df.query("country_code == @country").sample(
             frac=1, random_state=seed
         )
         n_test = min(test_samples_per_country, len(country_data) // 5)
@@ -68,10 +68,18 @@ def train_generative_model(
 
     # Evaluate the model
     logger.info("Evaluating the model on the training and test data...")
-    train_logprobs = model.score(train_matrix)
-    test_logprobs = model.score(test_matrix)
+    train_log_likelihoods = model.score_samples(train_matrix)
+    train_mean_log_likelihoods = train_log_likelihoods.mean()
+    train_std_log_likelihoods = train_log_likelihoods.std()
+    test_log_likelihoods = model.score_samples(test_matrix)
+    test_mean_log_likelihoods = test_log_likelihoods.mean()
+    test_std_log_likelihoods = test_log_likelihoods.std()
     logger.info(
-        f"Mean log-probs:\n- train: {train_logprobs:,.0f}\n- test: {test_logprobs:,.0f}"
+        f"Mean log-likelihoods:\n"
+        f"\t- train: {train_mean_log_likelihoods:.4f} "
+        f"(std: {train_std_log_likelihoods:.4f})\n"
+        f"\t- test: {test_mean_log_likelihoods:.4f} "
+        f"(std: {test_std_log_likelihoods:.4f})"
     )
 
     # Train final model on all data
