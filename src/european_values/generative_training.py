@@ -5,6 +5,7 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
@@ -62,9 +63,19 @@ def train_generative_model(
     )
 
     # Initialise the model
+    grid = GridSearchCV(
+        estimator=KernelDensity(),
+        param_grid=dict(
+            bandwidth=[0.1, 0.2, 0.3, 0.4, 0.5, 1.0, "scott", "silverman"],
+            leaf_size=[10, 20, 30, 40, 50],
+        ),
+        n_jobs=-1,
+    )
+    # Fit the model
     logger.info("Training the model on the training data...")
-    model = KernelDensity(bandwidth=bandwidth, kernel="gaussian", algorithm="auto")
-    model.fit(train_matrix)
+    grid.fit(train_matrix)
+    model = grid.best_estimator_
+    logger.info(f"Best model found with the parameters {grid.best_params_}.")
 
     # Evaluate the model
     logger.info("Evaluating the model on the training and test data...")

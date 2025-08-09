@@ -54,17 +54,19 @@ def main(config: DictConfig) -> None:
     df, _ = process_data(df=df, config=config, normalize=False)
 
     # Run evaluation
+    logger.info("Running evaluation...")
     pipeline = joblib.load(config.evaluation.model_path)
     question_cols = [col for col in df.columns if col.startswith("question_")]
     for country_group in df.country_group.unique():
         group_df = df.query("country_group == @country_group")
         responses = group_df[question_cols].values
         log_likelihoods = pipeline.score_samples(responses)
-        mean_log_likelihoods = log_likelihoods.mean()
-        std_log_likelihoods = log_likelihoods.std()
         logger.info(
-            f"Mean log-likelihoods for {country_group}: {mean_log_likelihoods:.4f} "
-            f"(std: {std_log_likelihoods:.4f})"
+            f"Log-likelihoods for {country_group}:\n"
+            f"\t- Mean: {log_likelihoods.mean():.2f}\n"
+            f"\t- Std: {log_likelihoods.std():.2f}\n"
+            f"\t- Min: {log_likelihoods.min():.2f}\n"
+            f"\t- Max: {log_likelihoods.max():.2f}"
         )
 
 
