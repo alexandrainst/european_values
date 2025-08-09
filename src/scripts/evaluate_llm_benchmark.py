@@ -76,7 +76,7 @@ def main(config: DictConfig) -> None:
             f"\t- 10% quantile: {np.quantile(log_likelihoods, q=0.1):.2f}\n"
             f"\t- 90% quantile: {np.quantile(log_likelihoods, q=0.9):.2f}\n"
             f"\t- Max: {log_likelihoods.max():.2f}\n"
-            f"\t- Mean normalised score: {normalised_scores.mean():.2f} "
+            f"\t- Mean normalised score: {normalised_scores.mean():.2%} "
         )
 
 
