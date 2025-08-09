@@ -62,6 +62,12 @@ def main(config: DictConfig) -> None:
         group_df = df.query("country_group == @country_group")
         responses = group_df[question_cols].values
         log_likelihoods = pipeline.score_samples(responses)
+
+        # We normalise so that anything below -200 is 0% and anything above 50 is 100%,
+        # with a linear scale in between.
+        normalised_scores = (log_likelihoods + 200) / 250
+        normalised_scores = np.clip(normalised_scores, 0, 1)
+
         logger.info(
             f"Log-likelihoods for {country_group}:\n"
             f"\t- Mean: {log_likelihoods.mean():.2f}\n"
@@ -69,7 +75,8 @@ def main(config: DictConfig) -> None:
             f"\t- Min: {log_likelihoods.min():.2f}\n"
             f"\t- 10% quantile: {np.quantile(log_likelihoods, q=0.1):.2f}\n"
             f"\t- 90% quantile: {np.quantile(log_likelihoods, q=0.9):.2f}\n"
-            f"\t- Max: {log_likelihoods.max():.2f}"
+            f"\t- Max: {log_likelihoods.max():.2f}\n"
+            f"\t- Mean normalised score: {normalised_scores.mean():.2f} "
         )
 
 
