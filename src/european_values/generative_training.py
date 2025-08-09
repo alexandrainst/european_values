@@ -80,17 +80,24 @@ def train_generative_model(
     # Evaluate the model
     logger.info("Evaluating the model on the training and test data...")
     train_log_likelihoods = model.score_samples(train_matrix)
-    train_mean_log_likelihoods = train_log_likelihoods.mean()
-    train_std_log_likelihoods = train_log_likelihoods.std()
-    test_log_likelihoods = model.score_samples(test_matrix)
-    test_mean_log_likelihoods = test_log_likelihoods.mean()
-    test_std_log_likelihoods = test_log_likelihoods.std()
     logger.info(
-        f"Mean log-likelihoods:\n"
-        f"\t- train: {train_mean_log_likelihoods:.4f} "
-        f"(std: {train_std_log_likelihoods:.4f})\n"
-        f"\t- test: {test_mean_log_likelihoods:.4f} "
-        f"(std: {test_std_log_likelihoods:.4f})"
+        f"Log-likelihoods for train:\n"
+        f"\t- Mean: {train_log_likelihoods.mean():.4f} "
+        f"\t- Std: {train_log_likelihoods.std():.4f}\n"
+        f"\t- Min: {train_log_likelihoods.min():.4f}\n"
+        f"\t- 10% quantile: {pd.Series(train_log_likelihoods).quantile(q=0.1):.4f}\n"
+        f"\t- 90% quantile: {pd.Series(train_log_likelihoods).quantile(q=0.9):.4f}\n"
+        f"\t- Max: {train_log_likelihoods.max():.4f}"
+    )
+    test_log_likelihoods = model.score_samples(test_matrix)
+    logger.info(
+        f"Log-likelihoods for test:\n"
+        f"\t- Mean: {test_log_likelihoods.mean():.4f} "
+        f"\t- Std: {test_log_likelihoods.std():.4f}\n"
+        f"\t- Min: {test_log_likelihoods.min():.4f}\n"
+        f"\t- 10% quantile: {pd.Series(test_log_likelihoods).quantile(q=0.1):.4f}\n"
+        f"\t- 90% quantile: {pd.Series(test_log_likelihoods).quantile(q=0.9):.4f}\n"
+        f"\t- Max: {test_log_likelihoods.max():.4f}"
     )
 
     # Train final model on all data
