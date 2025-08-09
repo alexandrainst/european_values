@@ -63,9 +63,9 @@ def main(config: DictConfig) -> None:
         responses = group_df[question_cols].values
         log_likelihoods = pipeline.score_samples(responses)
 
-        # We normalise so that anything below -200 is 0% and anything above 50 is 100%,
+        # We normalise so that anything below -100 is 0% and anything above 50 is 100%,
         # with a linear scale in between.
-        normalised_scores = (log_likelihoods + 200) / 250
+        normalised_scores = (log_likelihoods + 100) / 150
         normalised_scores = np.clip(normalised_scores, 0, 1)
 
         logger.info(
