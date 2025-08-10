@@ -46,7 +46,6 @@ discriminative_training:
 
 generative_training:
   test_samples_per_country: 100
-  bandwidth: 0.32
 
 evaluation:
   model_path: models/model.pkl
