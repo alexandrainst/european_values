@@ -1,0 +1,80 @@
+2025-08-09 22:25:19 ⋅ Log-likelihoods for Europe without EU:
+	- Mean: -31.16
+	- Std: 66.19
+	- Min: -424.91
+	- 10% quantile: -118.76
+	- 90% quantile: 38.79
+	- Max: 50.69
+	- Mean normalised score: 61.43%
+2025-08-09 22:27:36 ⋅ Log-likelihoods for EU:
+	- Mean: 62.64
+	- Std: 0.01
+	- Min: 62.64
+	- 10% quantile: 62.64
+	- 90% quantile: 62.64
+	- Max: 63.33
+	- Mean normalised score: 100.00%
+2025-08-09 22:28:26 ⋅ Log-likelihoods for Latin America:
+	- Mean: -43.17
+	- Std: 81.28
+	- Min: -525.21
+	- 10% quantile: -151.25
+	- 90% quantile: 38.85
+	- Max: 40.68
+	- Mean normalised score: 55.76%
+2025-08-09 22:28:34 ⋅ Log-likelihoods for Oceania:
+	- Mean: -15.95
+	- Std: 65.20
+	- Min: -351.48
+	- 10% quantile: -111.50
+	- 90% quantile: 38.83
+	- Max: 40.78
+	- Mean normalised score: 72.53%
+2025-08-09 22:29:36 ⋅ Log-likelihoods for East Asia:
+	- Mean: -59.30
+	- Std: 98.99
+	- Min: -563.38
+	- 10% quantile: -197.64
+	- 90% quantile: 38.52
+	- Max: 46.91
+	- Mean normalised score: 52.68%
+2025-08-09 22:29:53 ⋅ Log-likelihoods for Anglo-America:
+	- Mean: -24.27
+	- Std: 71.11
+	- Min: -426.40
+	- 10% quantile: -124.85
+	- 90% quantile: 38.60
+	- Max: 40.80
+	- Mean normalised score: 68.57%
+2025-08-09 22:30:03 ⋅ Log-likelihoods for North Africa:
+	- Mean: -75.59
+	- Std: 97.61
+	- Min: -395.50
+	- 10% quantile: -201.77
+	- 90% quantile: 38.48
+	- Max: 40.78
+	- Mean normalised score: 40.50%
+2025-08-09 22:30:15 ⋅ Log-likelihoods for Sub-Saharan Africa:
+	- Mean: -70.64
+	- Std: 105.96
+	- Min: -454.15
+	- 10% quantile: -218.66
+	- 90% quantile: 38.28
+	- Max: 40.51
+	- Mean normalised score: 47.03%
+2025-08-09 22:30:31 ⋅ Log-likelihoods for Middle East:
+	- Mean: -91.37
+	- Std: 108.05
+	- Min: -504.32
+	- 10% quantile: -224.41
+	- 90% quantile: 38.38
+	- Max: 40.57
+	- Mean normalised score: 37.83%
+2025-08-09 22:30:42 ⋅ Log-likelihoods for Central Asia:
+	- Mean: -61.30
+	- Std: 90.30
+	- Min: -420.87
+	- 10% quantile: -182.53
+	- 90% quantile: 38.43
+	- Max: 40.33
+	- Mean normalised score: 46.93%
