@@ -17,7 +17,6 @@ def train_generative_model(
     eu_df: pd.DataFrame,
     scaler: MinMaxScaler,
     test_samples_per_country: int,
-    bandwidth: float,
     seed: int,
 ) -> None:
     """Train a generative model on EU survey data.
@@ -29,10 +28,6 @@ def train_generative_model(
         scaler:
             A data scaler that has been fitted on all of the data (not just the EU
             data).
-        bandwidth:
-            Bandwidth for the Kernel Density Estimation. It can be seen as a
-            regularisation parameter: a smaller value will lead to more variance in the
-            model, while a larger value will lead to more bias.
         test_samples_per_country:
             Number of samples per country for the test set.
         seed:
