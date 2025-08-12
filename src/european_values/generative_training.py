@@ -14,10 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def train_generative_model(
-    eu_df: pd.DataFrame,
-    scaler: MinMaxScaler,
-    test_samples_per_country: int,
-    seed: int,
+    eu_df: pd.DataFrame, scaler: MinMaxScaler, test_samples_per_country: int, seed: int
 ) -> None:
     """Train a generative model on EU survey data.
 
