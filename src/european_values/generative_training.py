@@ -63,6 +63,7 @@ def train_generative_model(
         ),
         n_jobs=-1,
     )
+
     # Fit the model
     logger.info("Training the model on the training data...")
     grid.fit(train_matrix)
