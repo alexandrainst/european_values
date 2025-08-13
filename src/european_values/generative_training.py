@@ -74,7 +74,7 @@ def train_generative_model(
     train_log_likelihoods = model.score_samples(train_matrix)
     logger.info(
         f"Log-likelihoods for train:\n"
-        f"\t- Mean: {train_log_likelihoods.mean():.4f} "
+        f"\t- Mean: {train_log_likelihoods.mean():.4f}\n"
         f"\t- Std: {train_log_likelihoods.std():.4f}\n"
         f"\t- Min: {train_log_likelihoods.min():.4f}\n"
         f"\t- 10% quantile: {pd.Series(train_log_likelihoods).quantile(q=0.1):.4f}\n"
@@ -84,7 +84,7 @@ def train_generative_model(
     test_log_likelihoods = model.score_samples(test_matrix)
     logger.info(
         f"Log-likelihoods for test:\n"
-        f"\t- Mean: {test_log_likelihoods.mean():.4f} "
+        f"\t- Mean: {test_log_likelihoods.mean():.4f}\n"
         f"\t- Std: {test_log_likelihoods.std():.4f}\n"
         f"\t- Min: {test_log_likelihoods.min():.4f}\n"
         f"\t- 10% quantile: {pd.Series(test_log_likelihoods).quantile(q=0.1):.4f}\n"
