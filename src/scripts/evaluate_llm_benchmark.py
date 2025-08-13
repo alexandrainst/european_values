@@ -15,12 +15,12 @@ from european_values.data_processing import process_data
 logger = logging.getLogger("evaluate_llm")
 
 
-def sigmoid_transform(log_likelihoods, alpha=0.08, center=-50.0):
+def sigmoid_transform(log_likelihoods, alpha=0.05, center=-50.0):
     """Apply sigmoid transformation to log-likelihood values.
 
     Args:
         log_likelihoods: Array of log-likelihood values
-        alpha: Scaling parameter for sigmoid steepness (default 0.08)
+        alpha: Scaling parameter for sigmoid steepness (default 0.05)
         center: Center point of the sigmoid (default -50.0)
 
     Returns:
