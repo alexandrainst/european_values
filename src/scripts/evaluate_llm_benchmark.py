@@ -7,11 +7,26 @@ import joblib
 import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
+from sklearn.preprocessing import FunctionTransformer
 
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
 
 logger = logging.getLogger("evaluate_llm")
+
+
+def sigmoid_transform(log_likelihoods, alpha=0.08, center=-50.0):
+    """Apply sigmoid transformation to log-likelihood values.
+
+    Args:
+        log_likelihoods: Array of log-likelihood values
+        alpha: Scaling parameter for sigmoid steepness (default 0.08)
+        center: Center point of the sigmoid (default -50.0)
+
+    Returns:
+        Transformed values between 0 and 1
+    """
+    return 1 / (1 + np.exp(-alpha * (log_likelihoods - center)))
 
 
 @hydra.main(config_path="../../config", config_name="config", version_base=None)
@@ -63,10 +78,13 @@ def main(config: DictConfig) -> None:
         responses = group_df[question_cols].values
         log_likelihoods = pipeline.score_samples(responses)
 
-        # We normalise so that anything below -100 is 0% and anything above 0 is 100%,
-        # with a linear scale in between.
-        normalised_scores = (log_likelihoods + 100) / 100
-        normalised_scores = np.clip(normalised_scores, 0, 1)
+        # Apply sigmoid transformation using FunctionTransformer
+        # Ensures EU countries (around -31 mean) stay above 99%
+        sigmoid_transformer = FunctionTransformer(
+            func=sigmoid_transform,
+            validate=False
+        )
+        normalised_scores = sigmoid_transformer.transform(log_likelihoods.reshape(-1, 1)).flatten()
 
         logger.info(
             f"Log-likelihoods for {country_group}:\n"
