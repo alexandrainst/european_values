@@ -14,7 +14,7 @@ focus: null
 seed: 4242
 
 # Using a subset of the questions
-subset_csv: null
+subset_csv: data/processed/optimisation-davies-bouldin-penalty10/davies-bouldin-penalty10-eufocus-1000it.csv
 top_num_questions_in_subset: null
 
 plotting:
