@@ -48,4 +48,4 @@ generative_training:
   test_samples_per_country: 100
 
 evaluation:
-  model_path: models/model.pkl
+  model_path: models/pipeline.joblib

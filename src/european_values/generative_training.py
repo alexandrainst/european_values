@@ -123,10 +123,10 @@ def train_generative_model(
     pipeline = Pipeline([("scaler", scaler), ("model", model), ("scorer", scorer)])
 
     # Save the complete pipeline
-    model_path = Path("models", "model.pkl")
+    model_path = Path("models", "pipeline.joblib")
     model_path.parent.mkdir(exist_ok=True)
-    joblib.dump(pipeline, model_path)
-    logger.info(f"Pipeline saved to {model_path.resolve()}")
+    joblib.dump(value=pipeline, filename=model_path.as_posix())
+    logger.info(f"Pipeline saved to {model_path.as_posix()}")
 
 
 class SigmoidTransformer:
