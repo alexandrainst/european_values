@@ -122,8 +122,8 @@ def train_generative_model(
     model.fit(full_matrix)
     pipeline = Pipeline([("scaler", scaler), ("model", model), ("scorer", scorer)])
 
-    # Save the complete pipeline
-    model_path = Path("models", "pipeline.joblib")
+    # Save the complete pipeline as an ONNX model
+    model_path = Path("models", "pipeline.onnx")
     model_path.parent.mkdir(exist_ok=True)
     joblib.dump(value=pipeline, filename=model_path.as_posix())
     logger.info(f"Pipeline saved to {model_path.as_posix()}")
