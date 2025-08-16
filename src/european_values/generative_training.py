@@ -10,7 +10,6 @@ import pandas as pd
 import scipy.optimize as opt
 from scipy.special import expit as sigmoid
 from scipy.special import logit as inverse_sigmoid
-from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 from sklearn.pipeline import Pipeline, check_is_fitted
 from sklearn.preprocessing import MinMaxScaler
@@ -63,20 +62,10 @@ def train_generative_model(
         f"and {len(test_matrix):,} test samples."
     )
 
-    # Initialise the model
-    grid = GridSearchCV(
-        estimator=KernelDensity(),
-        param_grid=dict(
-            bandwidth=[0.1, 0.2, 0.3, 0.4, 0.5], leaf_size=[10, 20, 30, 40, 50]
-        ),
-        n_jobs=-1,
-    )
-
-    # Fit the model
+    # Fit the model. We select a small bandwidth to ensure that the model fits the data
+    # well (lower bandwidth means more sensitivity to the data, i.e., higher variance)
     logger.info("Training the model on the training data...")
-    grid.fit(train_matrix)
-    model: KernelDensity = grid.best_estimator_
-    logger.info(f"Best model found with the parameters {grid.best_params_}.")
+    model = KernelDensity(bandwidth=0.1).fit(train_matrix)
 
     # Set the `transform` method of the model to the score_samples method, as this will
     # allow us to use the scaler, model and scorer in the same pipeline
@@ -95,7 +84,6 @@ def train_generative_model(
     logger.info("Fitting the sigmoid transform on the validation data...")
     scorer = SigmoidTransformer().fit(val_log_likelihoods)
 
-    # Evaluate the model
     logger.info("Evaluating the model on the training, validation and test data...")
     logger.info(
         f"Log-likelihoods for train:\n"
@@ -154,14 +142,15 @@ class SigmoidTransformer:
         Returns:
             The fitted transformer.
         """
-        # We choose the alpha parameter such that the range is shrunk down to a length
-        # of 10, as that gives a smooth sigmoid curve that is not too flat
-        lower, upper = np.quantile(X, q=[0.05, 0.95])
-        self.alpha_ = 10 / (upper.item() - lower.item())
+        # We choose the alpha parameter to fit the range of the log-likelihoods. An
+        # alpha of 0.1 has an effective range of 100, and scales inversely with the
+        # range of the data: with alpha being 0.05 we get an effective range of 200,
+        lower, upper = np.quantile(X, q=[0.01, 0.99])
+        self.alpha_ = 0.1 / ((upper - lower) / 100)
 
         # Optimise the center of the sigmoid function to fit the target value
         result: opt.OptimizeResult = opt.minimize(
-            fun=partial(self._loss, array=X, target=0.99, alpha=self.alpha_),
+            fun=partial(self._loss, array=X, target=0.9, alpha=self.alpha_),
             x0=np.array([0.0]),
         )
         self.center_ = result.x[0]
