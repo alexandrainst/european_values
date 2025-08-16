@@ -47,7 +47,10 @@ def main(config: DictConfig) -> None:
             if col.startswith("question_") and col not in question_subset
         ]
         df.drop(columns=question_cols_to_remove, inplace=True)
-        logger.info(f"Using {len(question_subset)} questions from subset")
+        logger.info(
+            f"Using {len(question_subset)} questions from the subset "
+            f"{config.subset_csv!r}."
+        )
 
     # Process data but SKIP normalization (let pipeline handle it)
     logger.info("Processing the data WITHOUT normalization...")
