@@ -9,6 +9,7 @@ Usage:
 
 import io
 import logging
+from pathlib import Path
 
 import click
 import huggingface_hub as hf_hub
@@ -44,11 +45,12 @@ values.
 ### Example
 
 ```python
-import joblib
+import cloudpickle
 from huggingface_hub import snapshot_download
 
 pipeline_dir = snapshot_download(repo_id="EuroEval/european-values-pipeline")
-pipeline = joblib.load(f"{pipeline_dir}/pipeline.joblib")
+with open(f"{pipeline_dir}/pipeline.pkl", "rb") as f:
+    pipeline = cloudpickle.load(f)
 survey_response = [1, 5, 2, ..., 4]  # Example survey response to 53 questions
 score = pipeline.transform([survey_response])[0].item()
 print(f'European values score: {score:.2%}')
@@ -190,7 +192,7 @@ def main(pipeline: str, repo_id: str, public: bool) -> None:
     logger.info(f"Uploading the pipeline to the repository {repo_id!r}...")
     api.upload_file(
         path_or_fileobj=pipeline,
-        path_in_repo="pipeline.joblib",
+        path_in_repo=Path(pipeline).name,
         repo_id=repo_id,
         repo_type="model",
         commit_message="Upload trained pipeline",

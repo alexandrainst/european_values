@@ -1,18 +1,15 @@
 """Training generative on the dataset."""
 
 import logging
-from functools import partial
 from pathlib import Path
 
-import joblib
-import numpy as np
+import cloudpickle
 import pandas as pd
-import scipy.optimize as opt
-from scipy.special import expit as sigmoid
-from scipy.special import logit as inverse_sigmoid
 from sklearn.neighbors import KernelDensity
-from sklearn.pipeline import Pipeline, check_is_fitted
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
+
+from . import sigmoid_transformer
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +69,7 @@ def train_generative_model(
     model.transform = model.score_samples.__get__(model)
 
     # logger.info("Computing the log-likelihoods for the training data...")
+    logger.info("Computing the log-likelihoods for the training data...")
     train_log_likelihoods = model.transform(train_matrix)
 
     logger.info("Computing the log-likelihoods for the validation data...")
@@ -82,7 +80,7 @@ def train_generative_model(
 
     # Fit the log-likelihood transform
     logger.info("Fitting the sigmoid transform on the validation data...")
-    scorer = SigmoidTransformer().fit(val_log_likelihoods)
+    scorer = sigmoid_transformer.SigmoidTransformer().fit(val_log_likelihoods)
 
     logger.info("Evaluating the model on the training, validation and test data...")
     logger.info(
@@ -122,80 +120,10 @@ def train_generative_model(
     model.fit(full_matrix)
     pipeline = Pipeline([("scaler", scaler), ("model", model), ("scorer", scorer)])
 
-    # Save the complete pipeline as an ONNX model
-    model_path = Path("models", "pipeline.onnx")
+    # Save the complete pipeline
+    model_path = Path("models", "pipeline.pkl")
     model_path.parent.mkdir(exist_ok=True)
-    joblib.dump(value=pipeline, filename=model_path.as_posix())
+    cloudpickle.register_pickle_by_value(module=sigmoid_transformer)
+    with model_path.open("wb") as f:
+        cloudpickle.dump(obj=pipeline, file=f)
     logger.info(f"Pipeline saved to {model_path.as_posix()}")
-
-
-class SigmoidTransformer:
-    """Transformer to apply a sigmoid function to log-likelihoods."""
-
-    def fit(self, X: np.ndarray) -> "SigmoidTransformer":
-        """Fit the transformer to the data.
-
-        Args:
-            X:
-                The input array of log-likelihoods.
-
-        Returns:
-            The fitted transformer.
-        """
-        # We choose the alpha parameter to fit the range of the log-likelihoods. An
-        # alpha of 0.1 has an effective range of 100, and scales inversely with the
-        # range of the data: with alpha being 0.05 we get an effective range of 200,
-        lower, upper = np.quantile(X, q=[0.01, 0.99])
-        self.alpha_ = 0.1 / ((upper - lower) / 100)
-
-        # Optimise the center of the sigmoid function to fit the target value
-        result: opt.OptimizeResult = opt.minimize(
-            fun=partial(self._loss, array=X, target=0.9, alpha=self.alpha_),
-            x0=np.array([0.0]),
-        )
-        self.center_ = result.x[0]
-        logger.info(
-            f"Fitted sigmoid transformer with alpha={self.alpha_:.2f} and "
-            f"center={self.center_:.2f}."
-        )
-        return self
-
-    def transform(self, X: np.ndarray) -> np.ndarray:
-        """Transform the input data using the fitted sigmoid function.
-
-        Args:
-            X:
-                The input array of log-likelihoods.
-
-        Returns:
-            The transformed values between 0 and 1.
-        """
-        check_is_fitted(estimator=self, attributes=["alpha_", "center_"])
-        return sigmoid(self.alpha_ * (X - self.center_))
-
-    @staticmethod
-    def _loss(
-        center: np.ndarray, array: np.ndarray, target: float, alpha: float
-    ) -> float:
-        """Calculate the loss for the sigmoid transformation.
-
-        The loss aims to get the sigmoid values of the array as close to a given target
-        value as possible.
-
-        Args:
-            center:
-                The center of the sigmoid curve.
-            array:
-                The input array of log-likelihoods.
-            target:
-                The target value for the sigmoid transformation.
-            alpha:
-                The steepness of the sigmoid curve.
-
-        Returns:
-            The l2 loss between the transformed values and the target sigmoid values.
-        """
-        target = inverse_sigmoid(target)
-        errors = (alpha * (array - center) - target) ** 2
-        l2_loss = np.mean(errors).item()
-        return l2_loss
