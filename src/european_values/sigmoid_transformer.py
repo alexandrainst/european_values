@@ -8,6 +8,7 @@ import scipy.optimize as opt
 from numpy import mean, quantile, zeros
 from scipy.special import expit as sigmoid
 from scipy.special import logit as inverse_sigmoid
+from sklearn.base import TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
 if t.TYPE_CHECKING:
@@ -16,7 +17,7 @@ if t.TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class SigmoidTransformer:
+class SigmoidTransformer(TransformerMixin):
     """Transformer to apply a sigmoid function to log-likelihoods."""
 
     def fit(self, X: "ndarray") -> "SigmoidTransformer":
