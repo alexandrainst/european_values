@@ -14,8 +14,7 @@ focus: null
 seed: 4242
 
 # Using a subset of the questions
-subset_csv: null
-top_num_questions_in_subset: null
+subset_csv: data/processed/optimisation-davies-bouldin-penalty10/davies-bouldin-penalty10-eufocus-1000it.csv
 
 plotting:
   umap_neighbours: 100
@@ -48,4 +47,4 @@ generative_training:
   test_samples_per_country: 100
 
 evaluation:
-  model_path: models/model.pkl
+  model_path: models/pipeline.pkl

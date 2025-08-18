@@ -10,6 +10,7 @@ from omegaconf import DictConfig
 
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
+from european_values.utils import apply_subset_filtering
 
 logger = logging.getLogger("evaluate_llm")
 
@@ -34,21 +35,7 @@ def main(config: DictConfig) -> None:
                 "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
             )
 
-    # Apply subset filtering
-    if config.subset_csv is not None:
-        subset_df = pd.read_csv(config.subset_csv)
-        question_subset = (
-            subset_df.question.unique().tolist()
-            if "question" in subset_df.columns
-            else list({line.split(":")[0] for line in subset_df.index.tolist()})
-        )
-        question_cols_to_remove = [
-            col
-            for col in df.columns
-            if col.startswith("question_") and col not in question_subset
-        ]
-        df.drop(columns=question_cols_to_remove, inplace=True)
-        logger.info(f"Using {len(question_subset)} questions from subset")
+    df = apply_subset_filtering(df=df, subset_csv_path=config.subset_csv)
 
     # Process data without normalization (let pipeline handle it)
     logger.info("Processing the data WITHOUT normalization...")
@@ -61,22 +48,15 @@ def main(config: DictConfig) -> None:
     for country_group in df.country_group.unique():
         group_df = df.query("country_group == @country_group")
         responses = group_df[question_cols].values
-        log_likelihoods = pipeline.score_samples(responses)
-
-        # We normalise so that anything below -100 is 0% and anything above 0 is 100%,
-        # with a linear scale in between.
-        normalised_scores = (log_likelihoods + 100) / 100
-        normalised_scores = np.clip(normalised_scores, 0, 1)
-
+        scores = pipeline.transform(responses)
         logger.info(
-            f"Log-likelihoods for {country_group}:\n"
-            f"\t- Mean: {log_likelihoods.mean():.2f}\n"
-            f"\t- Std: {log_likelihoods.std():.2f}\n"
-            f"\t- Min: {log_likelihoods.min():.2f}\n"
-            f"\t- 10% quantile: {np.quantile(log_likelihoods, q=0.1):.2f}\n"
-            f"\t- 90% quantile: {np.quantile(log_likelihoods, q=0.9):.2f}\n"
-            f"\t- Max: {log_likelihoods.max():.2f}\n"
-            f"\t- Mean normalised score: {normalised_scores.mean():.2%} "
+            f"Scores for {country_group}:\n"
+            f"\t- Mean: {scores.mean():.0%}\n"
+            f"\t- Std: {scores.std():.0%}\n"
+            f"\t- Min: {scores.min():.0%}\n"
+            f"\t- 10% quantile: {np.quantile(scores, q=0.1):.0%}\n"
+            f"\t- 90% quantile: {np.quantile(scores, q=0.9):.0%}\n"
+            f"\t- Max: {scores.max():.0%}\n"
         )
 
 
