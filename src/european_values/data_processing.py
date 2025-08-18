@@ -218,7 +218,7 @@ def process_data(
 
     # Always fit the scaler (so we can save it), but only apply if requested
     logger.info("Fitting scaler...")
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = MinMaxScaler(feature_range=(0, 1), clip=True)
     scaler.fit(embedding_matrix)
 
     if normalize:
