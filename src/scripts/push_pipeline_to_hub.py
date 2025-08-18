@@ -3,7 +3,7 @@
 Usage:
     uv run src/scripts/push_pipeline_to_hub.py \
         --pipeline <path_to_pipeline> \
-        --repo_id <repo_id> \
+        [--repo_id <repo_id>] \
         [--public]
 """
 
@@ -162,7 +162,8 @@ If you use this pipeline in your research, please cite the following paper:
 @click.option(
     "--repo-id",
     type=str,
-    required=True,
+    default="EuroEval/european-values-pipeline",
+    show_default=True,
     help="Hugging Face Hub repository ID to push the pipeline to.",
 )
 @click.option(
