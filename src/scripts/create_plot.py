@@ -13,6 +13,7 @@ from omegaconf import DictConfig
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
 from european_values.plotting import create_scatter
+from european_values.utils import apply_subset_filtering
 
 logger = logging.getLogger("create_plot")
 
@@ -42,28 +43,7 @@ def main(config: DictConfig) -> None:
                 "At least one of `include_evs_trend` or `include_evs_wvs` must be True."
             )
 
-    # Only use a subset of questions if specified
-    if config.subset_csv is not None:
-        subset_df = pd.read_csv(config.subset_csv)
-        if "question" in subset_df.columns:
-            question_subset = subset_df.question.unique().tolist()
-            if config.top_num_questions_in_subset is not None:
-                question_subset = question_subset[: config.top_num_questions_in_subset]
-        else:
-            question_subset = list(
-                {line.split(":")[0] for line in subset_df.index.tolist()}
-            )
-        question_columns_to_remove = [
-            col
-            for col in df.columns
-            if col.startswith("question_") and col not in question_subset
-        ]
-        df.drop(columns=question_columns_to_remove, inplace=True)
-        logger.info(
-            f"Removed {len(question_columns_to_remove):,} questions not in the "
-            f"specified subset CSV file {config.subset_csv}."
-        )
-        logger.info(f"Shape of the data after filtering: {df.shape}")
+    df = apply_subset_filtering(df=df, subset_csv_path=config.subset_csv)
 
     logger.info("Processing the data...")
     df, _ = process_data(df, config)
