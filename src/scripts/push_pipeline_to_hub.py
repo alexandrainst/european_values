@@ -2,7 +2,7 @@
 
 Usage:
     uv run src/scripts/push_pipeline_to_hub.py \
-        --pipeline <path_to_pipeline> \
+        [--pipeline <path_to_pipeline>] \
         [--repo_id <repo_id>] \
         [--public]
 """
@@ -156,7 +156,8 @@ If you use this pipeline in your research, please cite the following paper:
 @click.option(
     "--pipeline",
     type=click.Path(exists=True, dir_okay=False, path_type=str),
-    required=True,
+    default="models/pipeline.pkl",
+    show_default=True,
     help="Path to the trained scikit-learn pipeline.",
 )
 @click.option(
