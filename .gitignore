@@ -109,3 +109,6 @@ site/
 
 # Plots
 gfx/umap_projection*.png
+
+# Gradio app
+.gradio/

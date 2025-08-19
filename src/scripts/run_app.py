@@ -2,6 +2,8 @@
 
 import logging
 
+import click
+
 from european_values.app import create_app
 
 logging.basicConfig(
@@ -9,10 +11,14 @@ logging.basicConfig(
 )
 
 
-def main() -> None:
+@click.command()
+@click.option(
+    "--share", is_flag=True, help="Share the app publicly via Gradio's share link."
+)
+def main(share: bool) -> None:
     """Run the Gradio app."""
     app = create_app()
-    app.launch()
+    app.launch(share=share)
 
 
 if __name__ == "__main__":
