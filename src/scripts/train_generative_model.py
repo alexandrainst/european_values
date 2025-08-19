@@ -44,6 +44,11 @@ def main(config: DictConfig) -> None:
         scaler=scaler,
         test_samples_per_country=config.generative_training.test_samples_per_country,
         seed=config.seed,
+        n_components_max=config.generative_training.n_components_max,
+        selection_criterion=config.generative_training.selection_criterion,
+        covariance_type=config.generative_training.covariance_type,
+        n_init=config.generative_training.n_init,
+        reg_covar=config.generative_training.reg_covar,
     )
 
 

@@ -45,6 +45,11 @@ discriminative_training:
 
 generative_training:
   test_samples_per_country: 100
+  n_components_max: 50
+  selection_criterion: bic  # 'bic' or 'aic'
+  covariance_type: diag  # 'full', 'tied', 'diag', 'spherical' - using 'diag' for stability
+  n_init: 5  # Number of GMM initializations
+  reg_covar: 1e-5  # Regularization for covariance matrices (increased for extra stability)
 
 evaluation:
   model_path: models/pipeline.pkl
