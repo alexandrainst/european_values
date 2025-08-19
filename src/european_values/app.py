@@ -1,7 +1,6 @@
 """A simple Gradio app to check the user's adherence to European values."""
 
 import logging
-from functools import partial
 from pathlib import Path
 
 import cloudpickle
@@ -77,7 +76,9 @@ def create_app() -> gr.Blocks:
         The constructed Gradio Blocks object, ready to be launched.
     """
     logger.info("Loading the survey questions...")
-    dataset = load_dataset("EuropeanValuesProject/za7505", name="en-raw", split="train")
+    dataset = load_dataset(
+        "EuropeanValuesProject/za7505", name="en-clean", split="train"
+    )
     assert isinstance(dataset, Dataset)
     df = dataset.to_pandas()
     assert isinstance(df, pd.DataFrame)
@@ -108,7 +109,7 @@ def create_app() -> gr.Blocks:
     with Path(pipeline_dir, "pipeline.pkl").open("rb") as f:
         pipeline = cloudpickle.load(f)
 
-    with gr.Blocks(theme="soft", title="European Values Quiz") as demo:
+    with gr.Blocks(title="European Values Quiz") as demo:
         gr.Markdown(
             """
             # Are your values European?
@@ -116,8 +117,7 @@ def create_app() -> gr.Blocks:
             Test yourself to see if your values align with answers from tens of
             thousands of people from the EU.
 
-            Please answer each question to the best of your ability. Your progress is
-            shown below.
+            Please answer each question to the best of your ability.
             """
         )
 
@@ -126,9 +126,6 @@ def create_app() -> gr.Blocks:
 
         # This keeps track of all the answers the user has given
         state_answers = gr.State(value=[])
-
-        # Progress bar, which is updated as the user answers questions
-        progress_bar = gr.Progress()
 
         # Main group containing a single question and the answer choices
         with gr.Group() as quiz_group:
@@ -170,10 +167,7 @@ def create_app() -> gr.Blocks:
             return pipeline.transform([new_answers_list])[0].item()
 
         def process_answer(
-            current_index: int,
-            answers_list: list[int],
-            current_answer: str,
-            progress_bar: gr.Progress,
+            current_index: int, answers_list: list[int], current_answer: str
         ) -> tuple:
             """Process the user's answer and return updates for the Gradio UI.
 
@@ -184,8 +178,6 @@ def create_app() -> gr.Blocks:
                     The list of all the previous answers given by the user.
                 current_answer:
                     The answer that the user has given to the current question.
-                progress_bar:
-                    The Gradio progress bar displayed to the user.
 
             Returns:
                 A tuple, consisting of the following:
@@ -217,7 +209,6 @@ def create_app() -> gr.Blocks:
             next_index = current_index + 1
 
             if next_index >= len(question_ids):
-                progress_bar(1.0)
                 final_score = get_score(answers_list=answers_list)
                 return (
                     next_index,
@@ -229,12 +220,14 @@ def create_app() -> gr.Blocks:
                     f"### Your final score is: {final_score:.2%}",
                 )
             else:
-                progress_bar(next_index / len(question_ids))
                 next_question_data = df.iloc[next_index]
                 return (
                     next_index,
                     answers_list,
-                    f"### Question {1 + next_index}\n\n{next_question_data.question}",
+                    (
+                        f"### Question {1 + next_index}/{len(question_ids)}\n\n"
+                        f"{next_question_data.question}"
+                    ),
                     gr.update(
                         choices=[
                             choice
@@ -253,7 +246,7 @@ def create_app() -> gr.Blocks:
             """Prepare the initial state of the survey UI when the demo loads."""
             first_question_data = df.iloc[0]
             return (
-                f"### Question 1\n\n{first_question_data.question}",
+                f"### Question 1/{len(question_ids)}\n\n{first_question_data.question}",
                 gr.update(
                     choices=[
                         choice
@@ -269,7 +262,7 @@ def create_app() -> gr.Blocks:
 
         # Process answer when an answer is selected
         answer_radio.input(
-            fn=partial(process_answer, progress_bar=progress_bar),
+            fn=process_answer,
             inputs=[state_question_index, state_answers, answer_radio],
             outputs=[
                 state_question_index,
