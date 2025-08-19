@@ -5,6 +5,7 @@ from pathlib import Path
 
 import cloudpickle
 import pandas as pd
+import scipy.special
 from sklearn.neighbors import KernelDensity
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
@@ -124,6 +125,7 @@ def train_generative_model(
     model_path = Path("models", "pipeline.pkl")
     model_path.parent.mkdir(exist_ok=True)
     cloudpickle.register_pickle_by_value(module=sigmoid_transformer)
+    cloudpickle.register_pickle_by_value(module=scipy.special)
     with model_path.open("wb") as f:
         cloudpickle.dump(obj=pipeline, file=f)
     logger.info(f"Pipeline saved to {model_path.as_posix()}")
