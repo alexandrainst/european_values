@@ -6,19 +6,32 @@ from pathlib import Path
 import cloudpickle
 import pandas as pd
 import scipy.special
-from sklearn.neighbors import KernelDensity
+from sklearn.mixture import GaussianMixture
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 
 from . import sigmoid_transformer
+from .gmm_component_selection import (
+    evaluate_gmm_components,
+    plot_component_selection,
+    save_evaluation_results,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def train_generative_model(
-    eu_df: pd.DataFrame, scaler: MinMaxScaler, test_samples_per_country: int, seed: int
+    eu_df: pd.DataFrame,
+    scaler: MinMaxScaler,
+    test_samples_per_country: int,
+    seed: int,
+    n_components_max: int = 50,
+    selection_criterion: str = "bic",
+    covariance_type: str = "full",
+    n_init: int = 5,
+    reg_covar: float = 1e-6,
 ) -> None:
-    """Train a generative model on EU survey data.
+    """Train a generative model on EU survey data using Gaussian Mixture Model.
 
     Args:
         eu_df:
@@ -31,6 +44,16 @@ def train_generative_model(
             Number of samples per country for the test set.
         seed:
             Random seed for reproducibility.
+        n_components_max:
+            Maximum number of GMM components to evaluate.
+        selection_criterion:
+            Criterion for selecting optimal components ('bic' or 'aic').
+        covariance_type:
+            Type of covariance matrix for GMM.
+        n_init:
+            Number of initializations for GMM.
+        reg_covar:
+            Regularization added to diagonal of covariance matrices.
     """
     # Get question columns
     question_columns = [col for col in eu_df.columns if col.startswith("question_")]
@@ -60,22 +83,46 @@ def train_generative_model(
         f"and {len(test_matrix):,} test samples."
     )
 
-    # Fit the model. We select a small bandwidth to ensure that the model fits the data
-    # well (lower bandwidth means more sensitivity to the data, i.e., higher variance)
-    logger.info("Training the model on the training data...")
-    model = KernelDensity(bandwidth=0.1).fit(train_matrix)
-
+    # First, find optimal number of components using validation data
+    logger.info("Evaluating optimal number of GMM components...")
+    optimal_n_components, evaluation_results = evaluate_gmm_components(
+        X_train=train_matrix,
+        X_val=val_matrix,
+        max_components=n_components_max,
+        criterion=selection_criterion,
+        covariance_type=covariance_type,
+        random_state=seed,
+        n_init=n_init,
+        reg_covar=reg_covar,
+    )
+    
+    # Save and plot evaluation results
+    save_evaluation_results(evaluation_results)
+    plot_component_selection(evaluation_results)
+    
+    # Train the GMM with optimal number of components
+    logger.info(f"Training GMM with {optimal_n_components} components on training data...")
+    model = GaussianMixture(
+        n_components=optimal_n_components,
+        covariance_type=covariance_type,
+        random_state=seed,
+        n_init=n_init,
+        max_iter=200,
+        init_params='k-means++',
+        reg_covar=reg_covar,
+    )
+    model.fit(train_matrix)
+    
     # Set the `transform` method of the model to the score_samples method, as this will
     # allow us to use the scaler, model and scorer in the same pipeline
     model.transform = model.score_samples.__get__(model)
-
-    # logger.info("Computing the log-likelihoods for the training data...")
+    
     logger.info("Computing the log-likelihoods for the training data...")
     train_log_likelihoods = model.transform(train_matrix)
-
+    
     logger.info("Computing the log-likelihoods for the validation data...")
     val_log_likelihoods = model.transform(val_matrix)
-
+    
     logger.info("Computing the log-likelihoods for the test data...")
     test_log_likelihoods = model.transform(test_matrix)
 
@@ -115,8 +162,8 @@ def train_generative_model(
         f"Mean score for test: {scorer.transform(test_log_likelihoods).mean():.0%}"
     )
 
-    # Train final model on all data
-    logger.info("Training final model on entire EU dataset...")
+    # Train final model on all data with optimal number of components
+    logger.info(f"Training final GMM with {optimal_n_components} components on entire EU dataset...")
     full_matrix = scaler.transform(eu_df[question_columns].values)
     model.fit(full_matrix)
     pipeline = Pipeline([("scaler", scaler), ("model", model), ("scorer", scorer)])
