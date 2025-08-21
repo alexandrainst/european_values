@@ -105,7 +105,9 @@ def create_app() -> gr.Blocks:
     assert isinstance(df, pd.DataFrame)
 
     logger.info("Loading the pipeline used for scoring...")
-    pipeline_dir = snapshot_download(repo_id="EuroEval/european-values-pipeline")
+    pipeline_dir = snapshot_download(
+        repo_id="EuroEval/european-values-pipeline", force_download=True
+    )
     with Path(pipeline_dir, "pipeline.pkl").open("rb") as f:
         pipeline = cloudpickle.load(f)
 
