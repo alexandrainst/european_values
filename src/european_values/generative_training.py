@@ -60,10 +60,9 @@ def train_generative_model(
         f"and {len(test_matrix):,} test samples."
     )
 
-    # Fit the model. We select a small bandwidth to ensure that the model fits the data
-    # well (lower bandwidth means more sensitivity to the data, i.e., higher variance)
+    # Fit the model. Bandwidth has been optimised to make the model not be too sensitive
     logger.info("Training the model on the training data...")
-    model = KernelDensity(bandwidth=0.1).fit(train_matrix)
+    model = KernelDensity(bandwidth=0.5).fit(train_matrix)
 
     # Set the `transform` method of the model to the score_samples method, as this will
     # allow us to use the scaler, model and scorer in the same pipeline
