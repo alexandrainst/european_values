@@ -100,7 +100,13 @@ def load_evs_wvs_data() -> pd.DataFrame:
     """
     logger.info("Loading EVS/WVS data from 2017-2022...")
     df = load_zipped_data(data_path="data/raw/evs-wvs-2017-2022.zip")
-    logger.info(f"Loaded {len(df):,} rows of data.")
+    raw_question_columns = [
+        col for col in df.columns if re.match(r"[A-Z]\d{3}(_[A-Z0-9]+)?", col)
+    ]
+    logger.info(
+        f"Loaded {len(df):,} rows of data, with {len(raw_question_columns):,} "
+        "question columns."
+    )
 
     # Rename columns
     logger.info("Renaming columns...")
@@ -158,10 +164,11 @@ def load_evs_wvs_data() -> pd.DataFrame:
     # Set datatypes
     logger.info("Setting datatypes...")
     df = df.convert_dtypes()
+    num_questions = len([col for col in df.columns if col.startswith("question_")])
 
     logger.info(
         f"Data loaded successfully. There are {len(df):,} rows and {len(df.columns):,} "
-        "columns."
+        f"columns, where {num_questions:,} are question columns."
     )
 
     assert isinstance(df, pd.DataFrame)
