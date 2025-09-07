@@ -100,13 +100,16 @@ def process_data(
                 for question, groupings in questions_with_missing_answers.items()
             ]
         )
+        num_questions_after_removal = len(
+            [col for col in df.columns if col.startswith("question_")]
+        )
         logger.info(
             f"Removed {len(questions_with_missing_answers)} questions where at least "
             f"one country group has not answered:\n\t- {questions_removed_str}"
         )
         logger.info(
             f"Shape of the data after removing questions with missing answers: "
-            f"{df.shape}"
+            f"{df.shape}, where {num_questions_after_removal:,} are question columns."
         )
 
     # Count the number of missing values in the question columns

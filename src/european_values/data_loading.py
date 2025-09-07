@@ -127,6 +127,11 @@ def load_evs_wvs_data() -> pd.DataFrame:
         EVS_WVS_ANSWER_COLUMNS.values()
     )
     df = df[columns_to_keep]
+    num_questions = len([col for col in df.columns if col.startswith("question_")])
+    logger.info(
+        f"There are now {len(df):,} rows and {len(df.columns):,} columns, where "
+        f"{num_questions:,} are question columns."
+    )
 
     # Non-answers are coded by negative values; we convert them to None
     logger.info("Converting non-answers to None...")
