@@ -103,7 +103,6 @@ COUNTRY_GROUPS = {
         "PK",  # Pakistan
         "IR",  # Iran
         "IQ",  # Iraq
-        "TR",  # Turkey
         "JO",  # Jordan
     ],
     "North Africa": [
