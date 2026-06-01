@@ -2,120 +2,118 @@
 
 COUNTRY_GROUPS = {
     "EU": [
-        # EU countries
-        "EE",  # Estonia
+        "AT",  # Austria
+        "BE",  # Belgium
+        "BG",  # Bulgaria
+        "HR",  # Croatia
+        "CY",  # Cyprus
         "CZ",  # Czech Republic
-        "LV",  # Latvia
-        "HU",  # Hungary
-        "NL",  # Netherlands
+        "DK",  # Denmark
+        "EE",  # Estonia
+        "FI",  # Finland
         "FR",  # France
         "DE",  # Germany
-        "LU",  # Luxembourg
-        "SI",  # Slovenia
-        "SK",  # Slovakia
-        "BE",  # Belgium
-        "ES",  # Spain
-        "AT",  # Austria
-        "HR",  # Croatia
-        "IT",  # Italy
-        "PT",  # Portugal
-        "IE",  # Ireland
-        "PL",  # Poland
-        "LT",  # Lithuania
-        "MT",  # Malta
-        "DK",  # Denmark
-        "FI",  # Finland
-        "SE",  # Sweden
-        "BG",  # Bulgaria
-        "CY",  # Cyprus
         "GR",  # Greece
+        "HU",  # Hungary
+        "IE",  # Ireland
+        "IT",  # Italy
+        "LV",  # Latvia
+        "LT",  # Lithuania
+        "LU",  # Luxembourg
+        "MT",  # Malta
+        "NL",  # Netherlands
+        "PL",  # Poland
+        "PT",  # Portugal
         "RO",  # Romania
+        "SK",  # Slovakia
+        "SI",  # Slovenia
+        "ES",  # Spain
+        "SE",  # Sweden
     ],
     "Europe without EU": [
-        # EFTA countries
-        "IS",  # Iceland
-        "NO",  # Norway
-        "CH",  # Switzerland
-        # Non-EU and non-EFTA countries
-        "GB",  # United Kingdom
-        "NIR",  # Northern Ireland
-        "AD",  # Andorra
-        "RU",  # Russia
-        "BY",  # Belarus
-        "RS",  # Serbia
         "AL",  # Albania
+        "AD",  # Andorra
+        "AM",  # Armenia
+        "AZ",  # Azerbaijan
+        "BY",  # Belarus
+        "BA",  # Bosnia and Herzegovina
+        "GE",  # Georgia
+        "GB",  # Great Britain
+        "IS",  # Iceland
         "ME",  # Montenegro
         "MK",  # North Macedonia
-        "AM",  # Armenia
-        "GE",  # Georgia
-        "UA",  # Ukraine
-        "MD",  # Moldova
-        "BA",  # Bosnia and Herzegovina
-        "AZ",  # Azerbaijan
+        "NIR",  # Northern Ireland
+        "NO",  # Norway
+        "RU",  # Russia
+        "RS",  # Serbia
+        "CH",  # Switzerland
         "TR",  # Turkey
+        "UA",  # Ukraine
     ],
     "Anglo-America": [
-        "US",  # United States
         "CA",  # Canada
+        "US",  # United States
     ],
     "Latin America": [
-        "BO",  # Bolivia
-        "PE",  # Peru
-        "EC",  # Ecuador
-        "BR",  # Brazil
-        "GT",  # Guatemala
-        "PR",  # Puerto Rico
         "AR",  # Argentina
-        "MX",  # Mexico
-        "VE",  # Venezuela
-        "NI",  # Nicaragua
-        "CO",  # Colombia
+        "BO",  # Bolivia
+        "BR",  # Brazil
         "CL",  # Chile
+        "CO",  # Colombia
+        "EC",  # Ecuador
+        "GT",  # Guatemala
+        "MX",  # Mexico
+        "NI",  # Nicaragua
+        "PE",  # Peru
+        "PR",  # Puerto Rico
         "UY",  # Uruguay
+        "VE",  # Venezuela
     ],
     "East Asia": [
         "CN",  # China
+        "HK",  # Hong Kong
         "JP",  # Japan
         "MO",  # Macao
-        "KR",  # South Korea
         "MN",  # Mongolia
-        "HK",  # Hong Kong
+        "KR",  # South Korea
         "TW",  # Taiwan
-        "SG",  # Singapore
+    ],
+    "Southeast Asia": [
+        "ID",  # Indonesia
+        "MY",  # Malaysia
         "MM",  # Myanmar
+        "PH",  # Philippines
+        "SG",  # Singapore
         "TH",  # Thailand
         "VN",  # Vietnam
-        "IN",  # India
+    ],
+    "South Asia": [
         "BD",  # Bangladesh
-        "PH",  # Philippines
-        "MY",  # Malaysia
-        "ID",  # Indonesia
+        "IN",  # India
+        "PK",  # Pakistan
+        "MV",  # Maldives
     ],
     "Central Asia": [
         "KZ",  # Kazakhstan
-        "TJ",  # Tajikistan
         "KG",  # Kyrgyzstan
+        "TJ",  # Tajikistan
         "UZ",  # Uzbekistan
     ],
-    "Middle East": [
-        "LB",  # Lebanon
-        "MV",  # Maldives
-        "PK",  # Pakistan
+    "Middle East North Africa": [
         "IR",  # Iran
         "IQ",  # Iraq
         "JO",  # Jordan
-    ],
-    "North Africa": [
-        "MA",  # Morocco
-        "LY",  # Libya
-        "TN",  # Tunisia
+        "LB",  # Lebanon
         "EG",  # Egypt
+        "LY",  # Libya
+        "MA",  # Morocco
+        "TN",  # Tunisia
     ],
     "Sub-Saharan Africa": [
-        "KE",  # Kenya
-        "ZW",  # Zimbabwe
         "ET",  # Ethiopia
+        "KE",  # Kenya
         "NG",  # Nigeria
+        "ZW",  # Zimbabwe
     ],
     "Oceania": [
         "AU",  # Australia
