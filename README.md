@@ -1,6 +1,6 @@
-<a href="https://github.com/[REDACTED]/[REDACTED]">
+<a href="[REDACTED]">
 <img
-    src="https://[REDACTED]/[REDACTED]-logo.jpeg"
+    src="https://[REDACTED]"
 	width="239"
 	height="175"
 	align="right"
@@ -12,11 +12,11 @@
 Measuring European values of LLMs.
 
 ______________________________________________________________________
-[![Code Coverage](https://img.shields.io/badge/Coverage-0%25-red.svg)](https://github.com/[REDACTED]/[REDACTED]/tree/main/tests)
-[![Documentation](https://img.shields.io/badge/docs-passing-green)](https://[REDACTED].github.io/[REDACTED])
-[![License](https://img.shields.io/github/license/[REDACTED]/[REDACTED]](https://github.com/[REDACTED]/[REDACTED]/blob/main/LICENSE)
-[![LastCommit](https://img.shields.io/github/last-commit/[REDACTED]/[REDACTED]](https://github.com/[REDACTED]/[REDACTED]/commits/main)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](https://github.com/[REDACTED]/[REDACTED]/blob/main/CODE_OF_CONDUCT.md)
+[![Code Coverage](https://img.shields.io/badge/Coverage-0%25-red.svg)]([REDACTED])
+[![Documentation](https://img.shields.io/badge/docs-passing-green)]([REDACTED])
+[![License](https://img.shields.io/badge/License-[REDACTED]-blue.svg)]([REDACTED])
+[![LastCommit](https://img.shields.io/badge/LastCommit-[REDACTED]-blue)]([REDACTED])
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)]([REDACTED])
 
 Developer:
 

@@ -142,7 +142,7 @@ the pipeline.
 If you use this pipeline in your research, please cite the following paper:
 
 ```bibtex
-@article{simonsen2025european,
+@article{[REDACTED],
   title={Evaluating European Values in Large Language Models},
   author={[REDACTED]},
   journal={arXiv preprint arXiv:XXXX.XXXXX},
