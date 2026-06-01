@@ -48,7 +48,7 @@ values.
 import cloudpickle
 from huggingface_hub import snapshot_download
 
-pipeline_dir = snapshot_download(repo_id="EuroEval/european-values-pipeline")
+pipeline_dir = snapshot_download(repo_id="[REDACTED]")
 with open(f"{pipeline_dir}/pipeline.pkl", "rb") as f:
     pipeline = cloudpickle.load(f)
 survey_response = [1, 5, 2, ..., 4]  # Example survey response to 53 questions
@@ -144,7 +144,7 @@ If you use this pipeline in your research, please cite the following paper:
 ```bibtex
 @article{simonsen2025european,
   title={Evaluating European Values in Large Language Models},
-  author={Simonsen, Annika and Müller-Eberstein, Maximilian and van der Goot, Rob and Einarsson, Hafsteinn and Smart, Dan Saattrup},
+  author={[REDACTED]},
   journal={arXiv preprint arXiv:XXXX.XXXXX},
   year={2025}
 }
@@ -163,7 +163,7 @@ If you use this pipeline in your research, please cite the following paper:
 @click.option(
     "--repo-id",
     type=str,
-    default="EuroEval/european-values-pipeline",
+    default="[REDACTED]",
     show_default=True,
     help="Hugging Face Hub repository ID to push the pipeline to.",
 )

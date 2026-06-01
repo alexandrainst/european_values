@@ -77,7 +77,7 @@ def create_app() -> gr.Blocks:
     """
     logger.info("Loading the survey questions...")
     dataset = load_dataset(
-        "EuropeanValuesProject/za7505", name="en-clean", split="train"
+        "[REDACTED]", name="en-clean", split="train"
     )
     assert isinstance(dataset, Dataset)
     df = dataset.to_pandas()
@@ -106,7 +106,7 @@ def create_app() -> gr.Blocks:
 
     logger.info("Loading the pipeline used for scoring...")
     pipeline_dir = snapshot_download(
-        repo_id="EuroEval/european-values-pipeline", force_download=True
+        repo_id="[REDACTED]", force_download=True
     )
     with Path(pipeline_dir, "pipeline.pkl").open("rb") as f:
         pipeline = cloudpickle.load(f)
