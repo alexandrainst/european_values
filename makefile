@@ -75,7 +75,7 @@ docs:  ## View documentation locally
 
 publish-docs:  ## Publish documentation to GitHub Pages
 	@uv run mkdocs gh-deploy
-	@echo "Updated documentation website: https://alexandrainst.github.io/european_values"
+	@echo "Updated documentation website: [REDACTED]"
 
 test:  ## Run tests
 	@uv run pytest && uv run readme-cov
