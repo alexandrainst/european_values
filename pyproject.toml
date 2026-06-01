@@ -4,16 +4,16 @@ version = "0.0.0"
 description = "Measuring European values of LLMs."
 readme = "README.md"
 authors = [
-    {name = "Annika Simonsen", email = "annika@hi.is"},
-    {name = "Maximilian Müller-Eberstein", email = "mamy@itu.dk"},
-    {name = "Rob van der Goot", email = "robv@itu.dk"},
-    {name = "Dan Saattrup Nielsen", email = "dan.nielsen@alexandra.dk"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
 ]
 maintainers = [
-    {name = "Annika Simonsen", email = "annika@hi.is"},
-    {name = "Maximilian Müller-Eberstein", email = "mamy@itu.dk"},
-    {name = "Rob van der Goot", email = "robv@itu.dk"},
-    {name = "Dan Saattrup Nielsen", email = "dan.nielsen@alexandra.dk"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
+    {name = "[REDACTED]", email = "[REDACTED]"},
 ]
 requires-python = ">=3.11,<4.0"
 dependencies = [
@@ -33,8 +33,8 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/alexandrainst/european_values"
-Issues = "https://github.com/alexandrainst/european_values/issues"
+Repository = "https://github.com/[REDACTED]/[REDACTED]"
+Issues = "https://github.com/[REDACTED]/[REDACTED]/issues"
 
 [project.license]
 file = "LICENSE"
