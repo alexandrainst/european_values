@@ -40,7 +40,7 @@ def process_data(
     logger.info("Grouping countries into regions...")
     df["country_group"] = df.country_code.apply(group_country)
 
-    # Filter countries
+    # Filter countries (inclusion takes precedence over exclusion)
     if config.countries is not None:
         missing_countries = set(config.countries) - set(df.country_code.unique())
         if missing_countries:
@@ -50,6 +50,20 @@ def process_data(
             )
         logger.info(f"Filtering data for countries: {config.countries}")
         df = df.query("country_code in @config.countries").reset_index(drop=True)
+        logger.info(f"Shape of the data after filtering: {df.shape}")
+    elif config.exclude_countries is not None:
+        missing_countries = set(config.exclude_countries) - set(
+            df.country_code.unique()
+        )
+        if missing_countries:
+            logger.warning(
+                f"The countries {missing_countries} in exclude_countries are not "
+                "present in the data. Ignoring them."
+            )
+        logger.info(f"Excluding countries: {config.exclude_countries}")
+        df = df.query("country_code not in @config.exclude_countries").reset_index(
+            drop=True
+        )
         logger.info(f"Shape of the data after filtering: {df.shape}")
 
     # Filter country groups
