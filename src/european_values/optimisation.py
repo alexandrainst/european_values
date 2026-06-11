@@ -19,6 +19,15 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings(action="ignore", category=FutureWarning)
 warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
+warnings.filterwarnings(
+    action="ignore", category=RuntimeWarning, message="divide by zero"
+)
+warnings.filterwarnings(
+    action="ignore", category=RuntimeWarning, message="overflow encountered"
+)
+warnings.filterwarnings(
+    action="ignore", category=RuntimeWarning, message="invalid value encountered"
+)
 
 
 def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
@@ -190,11 +199,21 @@ def negative_silhouette_score(
     question_columns = [col for col in survey_df.columns if col.startswith("question_")]
     embedding_matrix = survey_df[question_columns].values
     assert isinstance(embedding_matrix, np.ndarray)
-    embedding_matrix = embedding_matrix[:, question_mask]
-
-    # Use PCA
-    reducer = PCA(n_components=min_questions, random_state=seed)
+    embedding_matrix = embedding_matrix[
+        :, question_mask
+    ]  # Use PCA - handle case where min_questions exceeds available features
+    # Clip input values to prevent numerical overflow in PCA
+    embedding_matrix = np.clip(embedding_matrix, -1e6, 1e6)
+    n_components = min(min_questions, embedding_matrix.shape[1])
+    reducer = PCA(n_components=n_components, random_state=seed)
     embedding_matrix = reducer.fit_transform(embedding_matrix)
+
+    # Check for NaN/inf in PCA output and return early if present
+    if not np.isfinite(embedding_matrix).all():
+        return 0.0
+
+    # Clip PCA output to prevent overflow in downstream calculations
+    embedding_matrix = np.clip(embedding_matrix, -1e6, 1e6)
 
     # Compute the silhouette coefficients for either all rows or only the focus group
     silhouette_coefficients = silhouette_samples(
@@ -207,10 +226,13 @@ def negative_silhouette_score(
     )
 
     # Aggregate the silhouette scores for the focus group (or all rows)
-    silhouette_score = np.average(
-        silhouette_coefficients[focus_rows],
-        weights=survey_df.loc[focus_rows, "weight"].values,
-    )
+    weights = survey_df.loc[focus_rows, "weight"].values
+
+    # Validate weights - return early if weights are invalid
+    if not np.isfinite(weights).all() or weights.sum() == 0:
+        return 0.0
+
+    silhouette_score = np.average(silhouette_coefficients[focus_rows], weights=weights)
 
     return -silhouette_score
 
@@ -264,9 +286,19 @@ def davies_bouldin_index(
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
-    # Use PCA
-    reducer = PCA(n_components=min_questions, random_state=seed)
+    # Use PCA - handle case where min_questions exceeds available features
+    # Clip input values to prevent numerical overflow in PCA
+    embedding_matrix = np.clip(embedding_matrix, -1e6, 1e6)
+    n_components = min(min_questions, embedding_matrix.shape[1])
+    reducer = PCA(n_components=n_components, random_state=seed)
     embedding_matrix = reducer.fit_transform(embedding_matrix)
+
+    # Check for NaN/inf in PCA output and return early if present
+    if not np.isfinite(embedding_matrix).all():
+        return np.inf
+
+    # Clip PCA output to prevent overflow in downstream calculations
+    embedding_matrix = np.clip(embedding_matrix, -1e6, 1e6)
 
     num_questions = embedding_matrix.shape[1]
 
@@ -287,21 +319,22 @@ def davies_bouldin_index(
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
         country_grouping = le.inverse_transform([k])[0]  # noqa: F841
-        centroid = np.average(
-            cluster_k,
-            axis=0,
-            weights=survey_df.query(
-                f"{country_grouping_str} == @country_grouping"
-            ).weight.values,
-        )
+        weights = survey_df.query(
+            f"{country_grouping_str} == @country_grouping"
+        ).weight.values
+
+        # Validate weights - skip if weights are invalid or sum to zero
+        if not np.isfinite(weights).all() or weights.sum() == 0:
+            if focus is None:
+                intra_dists[k] = np.inf
+            else:
+                intra_dists[0] = np.inf
+            continue
+
+        centroid = np.average(cluster_k, axis=0, weights=weights)
         centroids[k] = centroid
         intra_distances = pairwise_distances(cluster_k, [centroid])
-        mean_intra_distance = np.average(
-            intra_distances.flatten(),
-            weights=survey_df.query(
-                f"{country_grouping_str} == @country_grouping"
-            ).weight.values,
-        )
+        mean_intra_distance = np.average(intra_distances.flatten(), weights=weights)
         if focus is None:
             intra_dists[k] = mean_intra_distance
         elif k == focus_label:
@@ -378,9 +411,19 @@ def centroid_distance(
     assert isinstance(embedding_matrix, np.ndarray)
     embedding_matrix = embedding_matrix[:, question_mask]
 
-    # Use PCA
-    reducer = PCA(n_components=min_questions, random_state=seed)
+    # Use PCA - handle case where min_questions exceeds available features
+    # Clip input values to prevent numerical overflow in PCA
+    embedding_matrix = np.clip(embedding_matrix, -1e6, 1e6)
+    n_components = min(min_questions, embedding_matrix.shape[1])
+    reducer = PCA(n_components=n_components, random_state=seed)
     embedding_matrix = reducer.fit_transform(embedding_matrix)
+
+    # Check for NaN/inf in PCA output and return early if present
+    if not np.isfinite(embedding_matrix).all():
+        return np.inf
+
+    # Clip PCA output to prevent overflow in downstream calculations
+    embedding_matrix = np.clip(embedding_matrix, -1e6, 1e6)
 
     # Encode the country groups
     le = LabelEncoder()
@@ -393,13 +436,15 @@ def centroid_distance(
     for k in range(num_labels):
         cluster_k = embedding_matrix[labels == k]
         country_grouping = le.inverse_transform([k])[0]  # noqa: F841
-        centroid = np.average(
-            cluster_k,
-            axis=0,
-            weights=survey_df.query(
-                f"{country_grouping_str} == @country_grouping"
-            ).weight.values,
-        )
+        weights = survey_df.query(
+            f"{country_grouping_str} == @country_grouping"
+        ).weight.values
+
+        # Validate weights - use uniform weights if invalid
+        if not np.isfinite(weights).all() or weights.sum() == 0:
+            centroid = np.mean(cluster_k, axis=0)
+        else:
+            centroid = np.average(cluster_k, axis=0, weights=weights)
         centroids[k] = centroid
 
     # Compute the distances between centroids
