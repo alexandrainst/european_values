@@ -12,7 +12,7 @@ from omegaconf import DictConfig
 
 from european_values.data_loading import load_evs_trend_data, load_evs_wvs_data
 from european_values.data_processing import process_data
-from european_values.training import train_model
+from european_values.discriminative_training import train_model
 from european_values.utils import apply_subset_filtering
 
 logger = logging.getLogger("train_classifier")
