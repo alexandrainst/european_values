@@ -48,3 +48,19 @@ generative_training:
 
 evaluation:
   model_path: models/pipeline.pkl
+
+typicality:
+  method: knn  # knn or kde
+  model_path: models/typicality_pipeline.pkl
+  diagnostics_dir: outputs/typicality_diagnostics
+  diagnostics_bins: 50
+  diagnostics_max_boxplot_groups: 30
+  diagnostics_scatter_points: 50000
+  kde_bandwidth: 0.5
+  knn_k: 50
+  knn_metric: minkowski
+  knn_n_jobs: -1
+
+typicality_validation:
+  ks: [5, 10, 25, 50, 75, 100, 150, 200]
+  output_dir: outputs/typicality_validation
