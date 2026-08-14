@@ -19,6 +19,14 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings(action="ignore", category=FutureWarning)
 warnings.filterwarnings(action="ignore", category=UserWarning)
 warnings.filterwarnings(action="ignore", category=PerformanceWarning)
+# Apple Accelerate on M4 Macs reports false floating-point errors for valid matrix
+# multiplications. This also covers scikit-learn matmuls outside the PCA call.
+warnings.filterwarnings(
+    action="ignore",
+    message=r"^(divide by zero|overflow|invalid value) encountered in matmul$",
+    category=RuntimeWarning,
+    module=r"sklearn\..*",
+)
 
 
 def optimise_survey(survey_df: pd.DataFrame, config: DictConfig) -> pd.DataFrame:
