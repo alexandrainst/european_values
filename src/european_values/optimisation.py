@@ -231,7 +231,7 @@ def davies_bouldin_index(
     country_grouping_str: str,
     min_questions: int,
     seed: int,
-    intra_dist_factor: float,
+    intra_dist_factor: float | None,
 ) -> float:
     """Calculate the Davies-Bouldin index for the given questions.
 
@@ -254,7 +254,7 @@ def davies_bouldin_index(
         intra_dist_factor:
             A factor to prioritise intra-cluster distances over centroid distances. A
             factor of 1.0 means that the intra-cluster distances and centroid distances
-            are equally important.
+            are equally important. If None, only intra-cluster distances are used.
 
     Returns:
         The Davies-Bouldin index of the survey with the given questions.
@@ -277,6 +277,18 @@ def davies_bouldin_index(
     embedding_matrix = _reduce_with_pca(
         embedding_matrix=embedding_matrix, n_components=min_questions, seed=seed
     )
+
+    # When only the focused group's intra-cluster distance matters, calculations for
+    # every other group cannot affect the result.
+    if focus is not None and intra_dist_factor is None:
+        focus_rows = survey_df[country_grouping_str].eq(focus)
+        if not focus_rows.any():
+            raise ValueError(f"Unknown focus group: {focus!r}.")
+        focus_cluster = embedding_matrix[focus_rows.to_numpy()]
+        focus_weights = survey_df.loc[focus_rows, "weight"].to_numpy()
+        focus_centroid = np.average(focus_cluster, axis=0, weights=focus_weights)
+        focus_distances = pairwise_distances(focus_cluster, [focus_centroid]).ravel()
+        return float(np.average(focus_distances, weights=focus_weights))
 
     num_questions = embedding_matrix.shape[1]
 
