@@ -193,8 +193,9 @@ def negative_silhouette_score(
     embedding_matrix = embedding_matrix[:, question_mask]
 
     # Use PCA
-    reducer = PCA(n_components=min_questions, random_state=seed)
-    embedding_matrix = reducer.fit_transform(embedding_matrix)
+    embedding_matrix = _reduce_with_pca(
+        embedding_matrix=embedding_matrix, n_components=min_questions, seed=seed
+    )
 
     # Compute the silhouette coefficients for either all rows or only the focus group
     silhouette_coefficients = silhouette_samples(
@@ -265,8 +266,9 @@ def davies_bouldin_index(
     embedding_matrix = embedding_matrix[:, question_mask]
 
     # Use PCA
-    reducer = PCA(n_components=min_questions, random_state=seed)
-    embedding_matrix = reducer.fit_transform(embedding_matrix)
+    embedding_matrix = _reduce_with_pca(
+        embedding_matrix=embedding_matrix, n_components=min_questions, seed=seed
+    )
 
     num_questions = embedding_matrix.shape[1]
 
@@ -307,30 +309,36 @@ def davies_bouldin_index(
         elif k == focus_label:
             intra_dists[0] = mean_intra_distance
 
-    # Compute the distances between centroids. If we are focusing on a specific
-    # group, we only compute the distances between the centroid of that group and all
-    # other centroids.
-    # Shape: (num_labels, num_labels)
-    if focus is None:
-        centroid_distances = pairwise_distances(centroids)
-    else:
-        centroid_distances = pairwise_distances(centroids[focus_label, None], centroids)
-
-    # Since we are also comparing each centroid to itself, we set those distances to
-    # infinity to avoid division by zero in the next step
-    if np.allclose(intra_dists, 0) or np.allclose(centroid_distances, 0):
-        return 0.0
-    centroid_distances[centroid_distances == 0] = np.inf
-
     # Compute the combined intra-cluster distances, where entry (i, j) is the sum of
     # the intra-cluster distances of cluster i and cluster j.
     # Shape: (num_labels, num_labels)
     if focus is None:
         intra_dists = intra_dists[:, None] + intra_dists
 
-    # Compute the Davies-Bouldin index as the maximum of the ratio of combined intra-
-    # cluster distances to centroid distances for each cluster
-    scores = np.max(intra_dists * intra_dist_factor / centroid_distances, axis=-1)
+    # Compute the distances between centroids. If we are focusing on a specific
+    # group, we only compute the distances between the centroid of that group and all
+    # other centroids.
+    # Shape: (num_labels, num_labels)
+    if intra_dist_factor:
+        if focus is None:
+            centroid_distances = pairwise_distances(centroids)
+        else:
+            centroid_distances = pairwise_distances(
+                centroids[focus_label, None], centroids
+            )
+
+        # Since we are also comparing each centroid to itself, we set those distances to
+        # infinity to avoid division by zero in the next step
+        if np.allclose(intra_dists, 0) or np.allclose(centroid_distances, 0):
+            return 0.0
+        centroid_distances[centroid_distances == 0] = np.inf
+
+        # Compute the Davies-Bouldin index as the maximum ratio of combined
+        # intra-cluster distances to centroid distances for each cluster
+        scores = np.max(intra_dists * intra_dist_factor / centroid_distances, axis=-1)
+    else:
+        scores = np.max(intra_dists, axis=-1)
+
     return float(np.mean(scores))
 
 
@@ -379,8 +387,9 @@ def centroid_distance(
     embedding_matrix = embedding_matrix[:, question_mask]
 
     # Use PCA
-    reducer = PCA(n_components=min_questions, random_state=seed)
-    embedding_matrix = reducer.fit_transform(embedding_matrix)
+    embedding_matrix = _reduce_with_pca(
+        embedding_matrix=embedding_matrix, n_components=min_questions, seed=seed
+    )
 
     # Encode the country groups
     le = LabelEncoder()
@@ -420,6 +429,40 @@ def centroid_distance(
 
     # Return the mean distance between centroids
     return float(centroid_distances[centroid_distances != np.inf].mean())
+
+
+def _reduce_with_pca(
+    embedding_matrix: np.ndarray, n_components: int, seed: int
+) -> np.ndarray:
+    """Reduce an embedding matrix with PCA.
+
+    Args:
+        embedding_matrix:
+            The matrix to reduce.
+        n_components:
+            The number of principal components to retain.
+        seed:
+            The random seed to use for reproducibility.
+
+    Returns:
+        The reduced embedding matrix.
+
+    Raises:
+        ValueError:
+            If the input or reduced matrix contains non-finite values.
+    """
+    if not np.isfinite(embedding_matrix).all():
+        raise ValueError("PCA input contains non-finite values.")
+
+    reducer = PCA(n_components=n_components, random_state=seed)
+    # Apple Accelerate on M4 Macs incorrectly reports floating-point errors for valid
+    # matrix multiplications. Keep suppression local and validate both matrices.
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+        reduced_matrix = reducer.fit_transform(embedding_matrix)
+
+    if not np.isfinite(reduced_matrix).all():
+        raise ValueError("PCA produced non-finite values.")
+    return reduced_matrix
 
 
 def callback(intermediate_result: opt.OptimizeResult) -> None:

@@ -10,7 +10,7 @@ include_evs_wvs: true
 countries: null
 country_groups: null
 use_country_groups: true
-focus: null
+focus: EU
 seed: 4242
 
 # Using a subset of the questions
@@ -27,9 +27,9 @@ plotting:
 
 optimisation:
   method: davies_bouldin
-  intra_dist_factor: 10.0
+  intra_dist_factor: null  # If null, we will only use intra-cluster distance
   sample_size_per_group: null  # If null, will use the full dataset
-  max_iterations: 100
+  max_iterations: 1000
   population_size: 10
   min_questions: 10
   max_questions: null  # If null, will use all questions
