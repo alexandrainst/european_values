@@ -109,6 +109,9 @@ ignore = [
 "src/scripts/main.py" = [
     "I",
 ]
+"src/european_values/constants.py" = [
+    "E501",
+]
 
 [tool.ruff.lint.isort]
 split-on-trailing-comma = false
