@@ -489,7 +489,7 @@ EVS_TREND_ANSWER_COLUMNS = dict(
     # Embodied question (disputed)
     # E235="question_e235_importance_of_democracy",
     E236="question_e236_democraticness_in_own_country",
-    # Embodied question
+    # Embodied questions
     # E263="question_e263_vote_in_elections__local_level",
     # E264="question_e264_vote_in_elections__national_level",
     E265_01="question_e265_01_how_often_in_country’s_elections__votes_are_counted_fairly",
@@ -745,9 +745,9 @@ EVS_WVS_ANSWER_COLUMNS = dict(
     # Embodied question (disputed)
     # E235="question_e235_importance_of_democracy",
     E236="question_e236_democraticness_in_own_country",
-    # Embodied question
+    # Embodied questions
     # E263="question_e263_vote_in_elections__local_level",
-    E264="question_e264_vote_in_elections__national_level",
+    # E264="question_e264_vote_in_elections__national_level",
     E265_01="question_e265_01_how_often_in_country’s_elections__votes_are_counted_fairly",
     E265_02="question_e265_02_how_often_in_country’s_elections__opposition_candidates_are_prevented_from_running",
     E265_03="question_e265_03_how_often_in_country’s_elections__tv_news_favors_the_governing_party",
