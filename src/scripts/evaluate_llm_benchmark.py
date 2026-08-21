@@ -55,6 +55,7 @@ def main(config: DictConfig) -> None:
             f"\t- Std: {scores.std():.0%}\n"
             f"\t- Min: {scores.min():.0%}\n"
             f"\t- 10% quantile: {np.quantile(scores, q=0.1):.0%}\n"
+            f"\t- Median: {np.quantile(scores, q=0.5):.0%}\n"
             f"\t- 90% quantile: {np.quantile(scores, q=0.9):.0%}\n"
             f"\t- Max: {scores.max():.0%}\n"
         )
